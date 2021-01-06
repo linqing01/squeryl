@@ -30,7 +30,7 @@ class OracleAdapter extends DatabaseAdapter {
 
   override def stringTypeDeclaration = "varchar2"
 
-  override def stringTypeDeclaration(length: Int) = "varchar2(" + length + ")"
+  override def stringTypeDeclaration(length: Int): String = "varchar2(" + length + ")"
 
   override def booleanTypeDeclaration = "number(1)"
 
@@ -72,7 +72,7 @@ class OracleAdapter extends DatabaseAdapter {
       execFailSafeExecute("drop sequence " + fmd.sequenceName, e => e.getErrorCode == 2289)
   }
 
-  override def createSequenceName(fmd: FieldMetaData) = {
+  override def createSequenceName(fmd: FieldMetaData): String = {
 
     val prefix = "s_" + fmd.columnName.take(6) + "_" + fmd.parentMetaData.viewOrTable.name.take(10)
 
@@ -157,10 +157,10 @@ class OracleAdapter extends DatabaseAdapter {
       }
     }
 
-  override def isTableDoesNotExistException(e: SQLException) =
+  override def isTableDoesNotExistException(e: SQLException): Boolean =
     e.getErrorCode == 942
 
-  def legalOracleSuffixChars =
+  def legalOracleSuffixChars: List[Char] =
     OracleAdapter.legalOracleSuffixChars
 
   def paddingPossibilities(start: String, padLength: Int): Iterable[String] =
@@ -203,7 +203,7 @@ class OracleAdapter extends DatabaseAdapter {
         org.squeryl.internals.Utils.throwError("could not make a unique identifier with '" + s + "'")
     }
 
-  def shrinkTo30AndPreserveUniquenessInScope(identifier: String, scope: mutable.HashSet[String]) =
+  def shrinkTo30AndPreserveUniquenessInScope(identifier: String, scope: mutable.HashSet[String]): String =
     if (identifier.length <= 29)
       identifier
     else {
@@ -216,27 +216,27 @@ class OracleAdapter extends DatabaseAdapter {
   override def writeSelectElementAlias(se: SelectElement, sw: StatementWriter): Unit =
     sw.write(shrinkTo30AndPreserveUniquenessInScope(se.aliasSegment, sw.scope))
 
-  override def foreignKeyConstraintName(foreignKeyTable: Table[_], idWithinSchema: Int) = {
+  override def foreignKeyConstraintName(foreignKeyTable: Table[_], idWithinSchema: Int): String = {
     val name = super.foreignKeyConstraintName(foreignKeyTable, idWithinSchema)
     val r = shrinkTo30AndPreserveUniquenessInScope(name, foreignKeyTable.schema._namingScope)
     r
   }
 
-  override def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter) = {
+  override def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter): Unit = {
     sw.write(" REGEXP_LIKE(")
     left.write(sw)
     sw.write(",?)")
     sw.addParam(ConstantStatementParam(InternalFieldMapper.stringTEF.createConstant(pattern)))
   }
 
-  override def fieldAlias(n: QueryableExpressionNode, fse: FieldSelectElement) =
+  override def fieldAlias(n: QueryableExpressionNode, fse: FieldSelectElement): String =
     "f" + fse.uniqueId.get
 
-  override def aliasExport(parentOfTarget: QueryableExpressionNode, target: SelectElement) =
+  override def aliasExport(parentOfTarget: QueryableExpressionNode, target: SelectElement): String =
   //parentOfTarget.alias + "_" + target.aliasSegment
     "f" + target.actualSelectElement.id
 
-  override def viewAlias(vn: ViewExpressionNode[_]) =
+  override def viewAlias(vn: ViewExpressionNode[_]): String =
     "t" + vn.uniqueId.get
 
   /*
@@ -261,6 +261,6 @@ class OracleAdapter extends DatabaseAdapter {
 
 object OracleAdapter {
 
-  val legalOracleSuffixChars =
+  val legalOracleSuffixChars: List[Char] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789".toCharArray.toList
 }

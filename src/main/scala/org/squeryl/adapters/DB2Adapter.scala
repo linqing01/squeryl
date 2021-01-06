@@ -50,7 +50,7 @@ class DB2Adapter extends DatabaseAdapter {
   override def postDropTable(t: Table[_]): Unit =
     execFailSafeExecute("drop sequence " + sequenceName(t), e => e.getErrorCode == -204)
 
-  def sequenceName(t: Table[_]) =
+  def sequenceName(t: Table[_]): String =
     t.prefixedPrefixedName("s_")
 
   override def writeInsert[T](o: T, t: Table[T], sw: StatementWriter): Unit = {
@@ -80,7 +80,7 @@ class DB2Adapter extends DatabaseAdapter {
   override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit =
     sw.writeNodesWithSeparator(fn.args, " || ", newLineAfterSeparator = false)
 
-  override def isTableDoesNotExistException(e: SQLException) = {
+  override def isTableDoesNotExistException(e: SQLException): Boolean = {
     e.getErrorCode == -204
   }
 
@@ -142,7 +142,7 @@ class DB2Adapter extends DatabaseAdapter {
       e.write(sw)
   }
 
-  override def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter) = {
+  override def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter): Unit = {
     // If you are keen enough you can implement a UDF and subclass this method to call out to it.
     // See http://www.ibm.com/developerworks/data/library/techarticle/0301stolze/0301stolze.html for how.
     throw new UnsupportedOperationException("DB2 does not support a regex scalar function")

@@ -29,19 +29,19 @@ import scala.collection.mutable
 
 class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: View[T]) {
 
-  override def toString =
+  override def toString: String =
     "'PosoMetaData[" + clasz.getSimpleName + "]" + fieldsMetaData.mkString("(", ",", ")")
 
-  def findFieldMetaDataForProperty(name: String) =
+  def findFieldMetaDataForProperty(name: String): Option[FieldMetaData] =
     _fieldsMetaData.find(fmd => fmd.nameOfProperty == name)
 
-  val isOptimistic = viewOrTable.ked.exists(_.isOptimistic)
+  val isOptimistic: Boolean = viewOrTable.ked.exists(_.isOptimistic)
 
-  val constructor =
+  val constructor: (Constructor[_], Array[Object]) =
     _const.headOption.orElse(org.squeryl.internals.Utils.throwError(clasz.getName +
       " must have a 0 param constructor or a constructor with only primitive types")).get
 
-  def fieldsMetaData =
+  def fieldsMetaData: Iterable[FieldMetaData] =
     _fieldsMetaData.filter(!_.isTransient)
 
   /**
@@ -158,13 +158,13 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
     (fmds, metaDataForPk) //: (Iterable[FieldMetaData], Option[Either[FieldMetaData,Method]])
   }
 
-  def optimisticCounter =
+  def optimisticCounter: Option[FieldMetaData] =
     fieldsMetaData.find(fmd => fmd.isOptimisticCounter)
 
   if (isOptimistic)
     assert(optimisticCounter.isDefined)
 
-  def _const = {
+  def _const: ArrayBuffer[(Constructor[_], Array[Object])] = {
 
     val r = new ArrayBuffer[(Constructor[_], Array[Object])]
 
@@ -207,7 +207,7 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
   //Enhancer.create(classOfT, new PosoPropertyAccessInterceptor(vxn)).asInstanceOf[T]
   //}
 
-  def createSample(cb: Callback) =
+  def createSample(cb: Callback): T =
     FieldReferenceLinker.executeAndRestoreLastAccessedFieldReference(_builder(cb))
 
   private[this] val _builder: Callback => T = {
@@ -328,7 +328,7 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
 }
 
 object PosoMetaData {
-  val finalizeFilter = new CallbackFilter {
+  val finalizeFilter: CallbackFilter = new CallbackFilter {
     def accept(method: Method): Int =
       if (method.getName == "finalize") 1 else 0
   }

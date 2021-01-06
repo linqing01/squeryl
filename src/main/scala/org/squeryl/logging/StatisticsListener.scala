@@ -18,13 +18,13 @@ package org.squeryl.logging
 
 class StatementInvocationEvent(_definitionOrCallSite: StackTraceElement, val start: Long, val end: Long, val rowCount: Int, val jdbcStatement: String) {
 
-  val uuid = {
+  val uuid: String = {
     val tmp = java.util.UUID.randomUUID
     java.lang.Long.toHexString(tmp.getMostSignificantBits) + "-" +
       java.lang.Long.toHexString(tmp.getLeastSignificantBits)
   }
 
-  def definitionOrCallSite =
+  def definitionOrCallSite: String =
     _definitionOrCallSite.toString
 }
 
@@ -44,7 +44,7 @@ trait StatisticsListener {
 
 object StackMarker {
 
-  def lastSquerylStackFrame[A](a: => A) = a
+  def lastSquerylStackFrame[A](a: => A): A = a
 }
 
 

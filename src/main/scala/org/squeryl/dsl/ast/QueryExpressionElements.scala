@@ -45,7 +45,7 @@ trait QueryExpressionElements extends ExpressionNode {
 
   def whereClause: Option[ExpressionNode]
 
-  def hasUnInhibitedWhereClause =
+  def hasUnInhibitedWhereClause: Boolean =
     whereClause match {
       case None => false
       case Some(e: ExpressionNode) =>

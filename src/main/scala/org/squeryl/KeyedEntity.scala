@@ -44,7 +44,7 @@ trait KeyedEntityDef[-A, K] extends OptionalKeyedEntityDef[A, K] {
   /**
    * fulfills the contract of OptionalKeyedEntityDef
    */
-  final def keyedEntityDef = Some(this)
+  final def keyedEntityDef: Option[KeyedEntityDef[A, K]] = Some(this)
 }
 
 trait OptionalKeyedEntityDef[-A, K] {
@@ -75,7 +75,7 @@ trait KeyedEntity[K] extends PersistenceStatus {
 
   def id: K
 
-  override def hashCode =
+  override def hashCode: Int =
     if (isPersisted)
       id.hashCode
     else

@@ -29,7 +29,7 @@ class BaseQueryYield[G]
     with OrderBySignatures[G]
     with QueryYield[G] {
 
-  protected def _createColumnToTupleMapper(origin: QueryExpressionNode[_], agregateArgs: List[TypedExpression[_, _]], offsetInResultSet: Int, isForGroup: Boolean) = {
+  protected def _createColumnToTupleMapper(origin: QueryExpressionNode[_], agregateArgs: List[TypedExpression[_, _]], offsetInResultSet: Int, isForGroup: Boolean): (ColumnToTupleMapper, List[TupleSelectElement]) = {
 
     var i = -1
     val nodes = agregateArgs.map(e => {
@@ -57,7 +57,7 @@ class BaseQueryYield[G]
 
   protected var _havingClause: Option[() => LogicalBoolean] = None
 
-  def unevaluatedHavingClause = _havingClause
+  def unevaluatedHavingClause: Option[() => LogicalBoolean] = _havingClause
 
   //TODO: an array is probably more efficient, even if less 'lazy' :
   protected var _orderByExpressions: () => List[() => ExpressionNode] = _
@@ -72,7 +72,7 @@ class BaseQueryYield[G]
 
   def commonTableExpressions: Iterable[Query[_]] = queryElementzz.commonTableExpressions
 
-  def queryElements =
+  def queryElements: (Option[O], Option[O], Iterable[O], Iterable[O], Iterable[Query[_]]) =
     (whereClause, havingClause, groupByClause, orderByClause, commonTableExpressions)
 
   def computeClause: List[ExpressionNode] = List.empty
@@ -87,12 +87,12 @@ class BaseQueryYield[G]
   def invokeYield(rsm: ResultSetMapper, rs: ResultSet): G =
     selectClosure()
 
-  def invokeYieldForAst(q: QueryExpressionNode[_], rsm: ResultSetMapper) =
+  def invokeYieldForAst(q: QueryExpressionNode[_], rsm: ResultSetMapper): (Iterable[SelectElement], AnyRef) =
     FieldReferenceLinker.determineColumnsUtilizedInYeldInvocation(
       q, rsm, () => invokeYield(rsm, null).asInstanceOf[AnyRef])
 
 
-  protected def _sTuple1ToValue[B](b: B) =
+  protected def _sTuple1ToValue[B](b: B): B =
     b match {
       case t: STuple1[_] =>
         if (t.productArity == 1)
@@ -117,16 +117,16 @@ class GroupQueryYield[K](
   override def invokeYield(rsm: ResultSetMapper, rs: ResultSet): Group[K] =
     new Group(rsm.groupKeysMapper.get.mapToTuple(rs))
 
-  override def queryElements =
+  override def queryElements: (Option[O], Option[O], Iterable[O], Iterable[O], Iterable[Query[_]]) =
     (whereClause, havingClause, groupByClause, orderByClause, commonTableExpressions)
 
   class SampleGroup[K](k: K)
     extends Group(k) {
 
-    override def key = _sTuple1ToValue(k)
+    override def key: K = _sTuple1ToValue(k)
   }
 
-  override def invokeYieldForAst(q: QueryExpressionNode[_], rsm: ResultSetMapper) = {
+  override def invokeYieldForAst(q: QueryExpressionNode[_], rsm: ResultSetMapper): (List[SelectElement], AnyRef) = {
     val offset = 1
     val (m, nodes) = _createColumnToTupleMapper(q, groupByClauseClosure(), offset, isForGroup = true)
     rsm.groupKeysMapper = Some(m)
@@ -146,17 +146,17 @@ class MeasuresQueryYield[M](
   override def invokeYield(rsm: ResultSetMapper, rs: ResultSet): Measures[M] =
     new Measures(rsm.groupMeasuresMapper.get.mapToTuple(rs))
 
-  override def queryElements =
+  override def queryElements: (Option[O], Option[O], Iterable[O], Iterable[O], Iterable[Query[_]]) =
     (whereClause, havingClause, groupByClause, orderByClause, commonTableExpressions)
 
 
   class SampleMeasures[M](m: M)
     extends Measures(m) {
 
-    override def measures = _sTuple1ToValue(m)
+    override def measures: M = _sTuple1ToValue(m)
   }
 
-  override def invokeYieldForAst(q: QueryExpressionNode[_], rsm: ResultSetMapper) = {
+  override def invokeYieldForAst(q: QueryExpressionNode[_], rsm: ResultSetMapper): (List[SelectElement], AnyRef) = {
     val offset = 1
     val (m, nodes) = _createColumnToTupleMapper(q, _computeByClauseClosure(), offset, isForGroup = false)
     rsm.groupMeasuresMapper = Some(m)
@@ -179,24 +179,24 @@ class GroupWithMeasuresQueryYield[K, M](
   class SampleGroupWithMeasures[K, M](k: K, m: M)
     extends GroupWithMeasures(k, m) {
 
-    override def key = _sTuple1ToValue(k)
+    override def key: K = _sTuple1ToValue(k)
 
-    override def measures = _sTuple1ToValue(m)
+    override def measures: M = _sTuple1ToValue(m)
   }
 
-  override def havingClause =
+  override def havingClause: Option[O] =
     if (_having.isDefined)
       _having.map(c => c())
     else
       super.havingClause
 
-  override def queryElements =
+  override def queryElements: (Option[O], Option[O], Iterable[O], Iterable[O], Iterable[Query[_]]) =
     (whereClause, havingClause, _groupByClauseClosure().map(e => e), orderByClause, commonTableExpressions)
 
   override def invokeYield(rsm: ResultSetMapper, rs: ResultSet) =
     new GroupWithMeasures(rsm.groupKeysMapper.get.mapToTuple(rs), rsm.groupMeasuresMapper.get.mapToTuple(rs))
 
-  override def invokeYieldForAst(q: QueryExpressionNode[_], rsm: ResultSetMapper) = {
+  override def invokeYieldForAst(q: QueryExpressionNode[_], rsm: ResultSetMapper): (List[SelectElement], AnyRef) = {
 
     val offset = 1
 

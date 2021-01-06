@@ -15,6 +15,7 @@
  * **************************************************************************** */
 package org.squeryl.dsl.boilerplate
 
+import org.squeryl.dsl.ast.QueryExpressionNode
 import org.squeryl.dsl.{AbstractQuery, QueryYield}
 import org.squeryl.internals.ResultSetMapper
 import org.squeryl.{Query, Queryable}
@@ -25,7 +26,7 @@ class Query1[T1, R]
 (t1: Queryable[T1], f: (T1) => QueryYield[R], isRoot: Boolean, unions: List[(String, Query[R])])
   extends AbstractQuery[R](isRoot, unions) {
 
-  val sq1 = createSubQueryable(t1)
+  val sq1: SubQueryable[T1] = createSubQueryable(t1)
 
   def createCopy(root: Boolean, newUnions: List[(String, Query[R])]) =
     new Query1[T1, R](t1, f, root, copyUnions(unions ++ newUnions))
@@ -33,7 +34,7 @@ class Query1[T1, R]
   def invokeYield(rsm: ResultSetMapper, rs: ResultSet): R =
     f(sq1.give(rs)).invokeYield(rsm, rs)
 
-  val ast = buildAst(f(sq1.sample), sq1)
+  val ast: QueryExpressionNode[R] = buildAst(f(sq1.sample), sq1)
 
 }
 
@@ -44,8 +45,8 @@ class Query2[T1, T2, R](
                          isRoot: Boolean,
                          unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
-  val sq1 = createSubQueryable(t1)
-  val sq2 = createSubQueryable(t2)
+  val sq1: SubQueryable[T1] = createSubQueryable(t1)
+  val sq2: SubQueryable[T2] = createSubQueryable(t2)
 
   def createCopy(root: Boolean, newUnions: List[(String, Query[R])]) =
     new Query2[T1, T2, R](t1, t2, f, root, copyUnions(unions ++ newUnions))
@@ -55,7 +56,7 @@ class Query2[T1, T2, R](
       sq2.give(rs)
     ).invokeYield(rsm, rs)
 
-  val ast = buildAst(f(sq1.sample, sq2.sample), sq1, sq2)
+  val ast: QueryExpressionNode[R] = buildAst(f(sq1.sample, sq2.sample), sq1, sq2)
 }
 
 class Query3[T1, T2, T3, R](
@@ -66,9 +67,9 @@ class Query3[T1, T2, T3, R](
                              isRoot: Boolean,
                              unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
-  val sq1 = createSubQueryable(t1)
-  val sq2 = createSubQueryable(t2)
-  val sq3 = createSubQueryable(t3)
+  val sq1: SubQueryable[T1] = createSubQueryable(t1)
+  val sq2: SubQueryable[T2] = createSubQueryable(t2)
+  val sq3: SubQueryable[T3] = createSubQueryable(t3)
 
   def createCopy(root: Boolean, newUnions: List[(String, Query[R])]) =
     new Query3[T1, T2, T3, R](t1, t2, t3, f, root, copyUnions(unions ++ newUnions))
@@ -79,7 +80,7 @@ class Query3[T1, T2, T3, R](
       sq3.give(rs)
     ).invokeYield(rsm, rs)
 
-  val ast = buildAst(f(sq1.sample, sq2.sample, sq3.sample), sq1, sq2, sq3)
+  val ast: QueryExpressionNode[R] = buildAst(f(sq1.sample, sq2.sample, sq3.sample), sq1, sq2, sq3)
 }
 
 class Query4[T1, T2, T3, T4, R](
@@ -91,10 +92,10 @@ class Query4[T1, T2, T3, T4, R](
                                  isRoot: Boolean,
                                  unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
-  val sq1 = createSubQueryable(t1)
-  val sq2 = createSubQueryable(t2)
-  val sq3 = createSubQueryable(t3)
-  val sq4 = createSubQueryable(t4)
+  val sq1: SubQueryable[T1] = createSubQueryable(t1)
+  val sq2: SubQueryable[T2] = createSubQueryable(t2)
+  val sq3: SubQueryable[T3] = createSubQueryable(t3)
+  val sq4: SubQueryable[T4] = createSubQueryable(t4)
 
   def createCopy(root: Boolean, newUnions: List[(String, Query[R])]) =
     new Query4[T1, T2, T3, T4, R](t1, t2, t3, t4, f, root, copyUnions(unions ++ newUnions))
@@ -106,7 +107,7 @@ class Query4[T1, T2, T3, T4, R](
       sq4.give(rs)
     ).invokeYield(rsm, rs)
 
-  val ast = buildAst(f(sq1.sample, sq2.sample, sq3.sample, sq4.sample), sq1, sq2, sq3, sq4)
+  val ast: QueryExpressionNode[R] = buildAst(f(sq1.sample, sq2.sample, sq3.sample, sq4.sample), sq1, sq2, sq3, sq4)
 }
 
 class Query5[T1, T2, T3, T4, T5, R](
@@ -119,11 +120,11 @@ class Query5[T1, T2, T3, T4, T5, R](
                                      isRoot: Boolean,
                                      unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
-  val sq1 = createSubQueryable(t1)
-  val sq2 = createSubQueryable(t2)
-  val sq3 = createSubQueryable(t3)
-  val sq4 = createSubQueryable(t4)
-  val sq5 = createSubQueryable(t5)
+  val sq1: SubQueryable[T1] = createSubQueryable(t1)
+  val sq2: SubQueryable[T2] = createSubQueryable(t2)
+  val sq3: SubQueryable[T3] = createSubQueryable(t3)
+  val sq4: SubQueryable[T4] = createSubQueryable(t4)
+  val sq5: SubQueryable[T5] = createSubQueryable(t5)
 
   def createCopy(root: Boolean, newUnions: List[(String, Query[R])]) =
     new Query5[T1, T2, T3, T4, T5, R](t1, t2, t3, t4, t5, f, root, copyUnions(unions ++ newUnions))
@@ -136,7 +137,7 @@ class Query5[T1, T2, T3, T4, T5, R](
       sq5.give(rs)
     ).invokeYield(rsm, rs)
 
-  val ast = buildAst(
+  val ast: QueryExpressionNode[R] = buildAst(
     f(sq1.sample, sq2.sample, sq3.sample, sq4.sample, sq5.sample),
     sq1, sq2, sq3, sq4, sq5
   )
@@ -153,12 +154,12 @@ class Query6[T1, T2, T3, T4, T5, T6, R](
                                          isRoot: Boolean,
                                          unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
-  val sq1 = createSubQueryable(t1)
-  val sq2 = createSubQueryable(t2)
-  val sq3 = createSubQueryable(t3)
-  val sq4 = createSubQueryable(t4)
-  val sq5 = createSubQueryable(t5)
-  val sq6 = createSubQueryable(t6)
+  val sq1: SubQueryable[T1] = createSubQueryable(t1)
+  val sq2: SubQueryable[T2] = createSubQueryable(t2)
+  val sq3: SubQueryable[T3] = createSubQueryable(t3)
+  val sq4: SubQueryable[T4] = createSubQueryable(t4)
+  val sq5: SubQueryable[T5] = createSubQueryable(t5)
+  val sq6: SubQueryable[T6] = createSubQueryable(t6)
 
   def createCopy(root: Boolean, newUnions: List[(String, Query[R])]) =
     new Query6[T1, T2, T3, T4, T5, T6, R](t1, t2, t3, t4, t5, t6, f, root, copyUnions(unions ++ newUnions))
@@ -172,7 +173,7 @@ class Query6[T1, T2, T3, T4, T5, T6, R](
       sq6.give(rs)
     ).invokeYield(rsm, rs)
 
-  val ast = buildAst(
+  val ast: QueryExpressionNode[R] = buildAst(
     f(sq1.sample, sq2.sample, sq3.sample, sq4.sample, sq5.sample, sq6.sample),
     sq1, sq2, sq3, sq4, sq5, sq6
   )
@@ -190,13 +191,13 @@ class Query7[T1, T2, T3, T4, T5, T6, T7, R](
                                              isRoot: Boolean,
                                              unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
-  val sq1 = createSubQueryable(t1)
-  val sq2 = createSubQueryable(t2)
-  val sq3 = createSubQueryable(t3)
-  val sq4 = createSubQueryable(t4)
-  val sq5 = createSubQueryable(t5)
-  val sq6 = createSubQueryable(t6)
-  val sq7 = createSubQueryable(t7)
+  val sq1: SubQueryable[T1] = createSubQueryable(t1)
+  val sq2: SubQueryable[T2] = createSubQueryable(t2)
+  val sq3: SubQueryable[T3] = createSubQueryable(t3)
+  val sq4: SubQueryable[T4] = createSubQueryable(t4)
+  val sq5: SubQueryable[T5] = createSubQueryable(t5)
+  val sq6: SubQueryable[T6] = createSubQueryable(t6)
+  val sq7: SubQueryable[T7] = createSubQueryable(t7)
 
   def createCopy(root: Boolean, newUnions: List[(String, Query[R])]) =
     new Query7[T1, T2, T3, T4, T5, T6, T7, R](t1, t2, t3, t4, t5, t6, t7, f, root, copyUnions(unions ++ newUnions))
@@ -211,7 +212,7 @@ class Query7[T1, T2, T3, T4, T5, T6, T7, R](
       sq7.give(rs)
     ).invokeYield(rsm, rs)
 
-  val ast = buildAst(
+  val ast: QueryExpressionNode[R] = buildAst(
     f(sq1.sample, sq2.sample, sq3.sample, sq4.sample, sq5.sample, sq6.sample, sq7.sample),
     sq1, sq2, sq3, sq4, sq5, sq6, sq7
   )
@@ -230,14 +231,14 @@ class Query8[T1, T2, T3, T4, T5, T6, T7, T8, R](
                                                  isRoot: Boolean,
                                                  unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
-  val sq1 = createSubQueryable(t1)
-  val sq2 = createSubQueryable(t2)
-  val sq3 = createSubQueryable(t3)
-  val sq4 = createSubQueryable(t4)
-  val sq5 = createSubQueryable(t5)
-  val sq6 = createSubQueryable(t6)
-  val sq7 = createSubQueryable(t7)
-  val sq8 = createSubQueryable(t8)
+  val sq1: SubQueryable[T1] = createSubQueryable(t1)
+  val sq2: SubQueryable[T2] = createSubQueryable(t2)
+  val sq3: SubQueryable[T3] = createSubQueryable(t3)
+  val sq4: SubQueryable[T4] = createSubQueryable(t4)
+  val sq5: SubQueryable[T5] = createSubQueryable(t5)
+  val sq6: SubQueryable[T6] = createSubQueryable(t6)
+  val sq7: SubQueryable[T7] = createSubQueryable(t7)
+  val sq8: SubQueryable[T8] = createSubQueryable(t8)
 
   def createCopy(root: Boolean, newUnions: List[(String, Query[R])]) =
     new Query8[T1, T2, T3, T4, T5, T6, T7, T8, R](t1, t2, t3, t4, t5, t6, t7, t8, f, root, copyUnions(unions ++ newUnions))
@@ -253,7 +254,7 @@ class Query8[T1, T2, T3, T4, T5, T6, T7, T8, R](
       sq8.give(rs)
     ).invokeYield(rsm, rs)
 
-  val ast = buildAst(
+  val ast: QueryExpressionNode[R] = buildAst(
     f(sq1.sample, sq2.sample, sq3.sample, sq4.sample, sq5.sample, sq6.sample, sq7.sample, sq8.sample),
     sq1, sq2, sq3, sq4, sq5, sq6, sq7, sq8
   )
@@ -273,15 +274,15 @@ class Query9[T1, T2, T3, T4, T5, T6, T7, T8, T9, R](
                                                      isRoot: Boolean,
                                                      unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
-  val sq1 = createSubQueryable(t1)
-  val sq2 = createSubQueryable(t2)
-  val sq3 = createSubQueryable(t3)
-  val sq4 = createSubQueryable(t4)
-  val sq5 = createSubQueryable(t5)
-  val sq6 = createSubQueryable(t6)
-  val sq7 = createSubQueryable(t7)
-  val sq8 = createSubQueryable(t8)
-  val sq9 = createSubQueryable(t9)
+  val sq1: SubQueryable[T1] = createSubQueryable(t1)
+  val sq2: SubQueryable[T2] = createSubQueryable(t2)
+  val sq3: SubQueryable[T3] = createSubQueryable(t3)
+  val sq4: SubQueryable[T4] = createSubQueryable(t4)
+  val sq5: SubQueryable[T5] = createSubQueryable(t5)
+  val sq6: SubQueryable[T6] = createSubQueryable(t6)
+  val sq7: SubQueryable[T7] = createSubQueryable(t7)
+  val sq8: SubQueryable[T8] = createSubQueryable(t8)
+  val sq9: SubQueryable[T9] = createSubQueryable(t9)
 
   def createCopy(root: Boolean, newUnions: List[(String, Query[R])]) =
     new Query9[T1, T2, T3, T4, T5, T6, T7, T8, T9, R](t1, t2, t3, t4, t5, t6, t7, t8, t9, f, root, copyUnions(unions ++ newUnions))
@@ -298,7 +299,7 @@ class Query9[T1, T2, T3, T4, T5, T6, T7, T8, T9, R](
       sq9.give(rs)
     ).invokeYield(rsm, rs)
 
-  val ast = buildAst(
+  val ast: QueryExpressionNode[R] = buildAst(
     f(sq1.sample, sq2.sample, sq3.sample, sq4.sample, sq5.sample, sq6.sample, sq7.sample, sq8.sample, sq9.sample),
     sq1, sq2, sq3, sq4, sq5, sq6, sq7, sq8, sq9
   )
@@ -319,16 +320,16 @@ class Query10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R](
                                                            isRoot: Boolean,
                                                            unions: List[(String, Query[R])]) extends AbstractQuery[R](isRoot, unions) {
 
-  val sq1 = createSubQueryable(t1)
-  val sq2 = createSubQueryable(t2)
-  val sq3 = createSubQueryable(t3)
-  val sq4 = createSubQueryable(t4)
-  val sq5 = createSubQueryable(t5)
-  val sq6 = createSubQueryable(t6)
-  val sq7 = createSubQueryable(t7)
-  val sq8 = createSubQueryable(t8)
-  val sq9 = createSubQueryable(t9)
-  val sq10 = createSubQueryable(t10)
+  val sq1: SubQueryable[T1] = createSubQueryable(t1)
+  val sq2: SubQueryable[T2] = createSubQueryable(t2)
+  val sq3: SubQueryable[T3] = createSubQueryable(t3)
+  val sq4: SubQueryable[T4] = createSubQueryable(t4)
+  val sq5: SubQueryable[T5] = createSubQueryable(t5)
+  val sq6: SubQueryable[T6] = createSubQueryable(t6)
+  val sq7: SubQueryable[T7] = createSubQueryable(t7)
+  val sq8: SubQueryable[T8] = createSubQueryable(t8)
+  val sq9: SubQueryable[T9] = createSubQueryable(t9)
+  val sq10: SubQueryable[T10] = createSubQueryable(t10)
 
   def createCopy(root: Boolean, newUnions: List[(String, Query[R])]) =
     new Query10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R](t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, f, root, copyUnions(unions ++ newUnions))
@@ -346,7 +347,7 @@ class Query10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R](
       sq10.give(rs)
     ).invokeYield(rsm, rs)
 
-  val ast = buildAst(
+  val ast: QueryExpressionNode[R] = buildAst(
     f(sq1.sample, sq2.sample, sq3.sample, sq4.sample, sq5.sample, sq6.sample, sq7.sample, sq8.sample, sq9.sample, sq10.sample),
     sq1, sq2, sq3, sq4, sq5, sq6, sq7, sq8, sq9, sq10
   )

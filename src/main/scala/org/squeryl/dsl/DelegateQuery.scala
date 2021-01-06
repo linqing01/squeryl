@@ -1,27 +1,28 @@
 package org.squeryl.dsl
 
 import org.squeryl.Query
+import org.squeryl.dsl.ast.ExpressionNode
 import org.squeryl.internals.ResultSetMapper
 
 import java.sql.ResultSet
 
 class DelegateQuery[M](val q: Query[M]) extends Query[M] {
 
-  def iterator = q.iterator
+  def iterator: Iterator[M] = q.iterator
 
-  def distinct = q.distinct
+  def distinct: Query[M] = q.distinct
 
-  def forUpdate = q.forUpdate
+  def forUpdate: Query[M] = q.forUpdate
 
-  def dumpAst = q.dumpAst
+  def dumpAst: String = q.dumpAst
 
-  def page(offset: Int, length: Int) = q.page(offset, length)
+  def page(offset: Int, length: Int): Query[M] = q.page(offset, length)
 
   def statement: String = q.statement
 
-  def ast = q.ast
+  def ast: ExpressionNode = q.ast
 
-  protected[squeryl] def invokeYield(rsm: ResultSetMapper, rs: ResultSet) =
+  protected[squeryl] def invokeYield(rsm: ResultSetMapper, rs: ResultSet): M =
     q.invokeYield(rsm, rs)
 
   override private[squeryl] def copy(
@@ -30,7 +31,7 @@ class DelegateQuery[M](val q: Query[M]) extends Query[M] {
                                     ): Query[M] =
     q.copy(asRoot, newUnions)
 
-  def name = q.name
+  def name: String = q.name
 
   private[squeryl] def give(rsm: ResultSetMapper, rs: ResultSet) =
     q.invokeYield(rsm, rs)

@@ -36,7 +36,7 @@ class OuterJoinedQueryable[A](val queryable: Queryable[A], val leftRightOrFull: 
    * to InnerJoinedQueryable inside org.squeryl.dsl.boilerplate.JoinSignatures#join.  This also allows us to inhibit
    * the table without using Option[Option[T]] in our results 
    */
-  def inhibitWhen(inhibited: Boolean) = {
+  def inhibitWhen(inhibited: Boolean): OuterJoinedQueryable[A] = {
     this.inhibited = inhibited
     this
   }

@@ -112,7 +112,7 @@ class SQLiteAdapter extends DatabaseAdapter {
       sw.pushPendingNextLine()
     }
 
-  override def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter) = {
+  override def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter): Unit = {
     sw.write("(")
     left.write(sw)
     sw.write(" LIKE ?)")

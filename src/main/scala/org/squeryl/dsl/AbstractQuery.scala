@@ -81,10 +81,10 @@ abstract class AbstractQuery[R](
     new StackTraceElement("unknown", "unknown", "unknown", -1)
   }
 
-  protected def copyUnions(u: List[(String, Query[R])]) =
+  protected def copyUnions(u: List[(String, Query[R])]): List[(String, Query[R])] =
     u map (t => (t._1, t._2.copy(asRoot = false, Nil)))
 
-  protected def buildAst(qy: QueryYield[R], subQueryables: SubQueryable[_]*) = {
+  protected def buildAst(qy: QueryYield[R], subQueryables: SubQueryable[_]*): QueryExpressionNode[R] = {
 
 
     val subQueries = new ArrayBuffer[QueryableExpressionNode]
@@ -144,7 +144,7 @@ abstract class AbstractQuery[R](
 
   def createCopy(asRoot: Boolean, newUnions: List[(String, Query[R])]): AbstractQuery[R]
 
-  def dumpAst = ast.dumpAst
+  def dumpAst: String = ast.dumpAst
 
   def statement: String = _genStatement(true)
 
@@ -155,7 +155,7 @@ abstract class AbstractQuery[R](
     sw.statement
   }
 
-  def distinct = {
+  def distinct: Query[R] = {
     if (isUnionQuery) {
       Utils.throwError("distinct is not supported on union queries")
     }
@@ -174,7 +174,7 @@ abstract class AbstractQuery[R](
     c
   }
 
-  def forUpdate = {
+  def forUpdate: Query[R] = {
     val c = copy(asRoot = true, Nil)
     if (c.isUnionQuery)
       c.unionIsForUpdate = true
@@ -247,7 +247,7 @@ abstract class AbstractQuery[R](
     }
   }
 
-  override def toString = dumpAst + "\n" + _genStatement(true)
+  override def toString: String = dumpAst + "\n" + _genStatement(true)
 
   protected def createSubQueryable[U](q: Queryable[U]): SubQueryable[U] = q match {
     case v: View[_] =>

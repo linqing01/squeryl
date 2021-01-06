@@ -72,11 +72,11 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
 
   private[this] val _stringBuilder = new java.lang.StringBuilder(256)
 
-  def statement = _stringBuilder.toString
+  def statement: String = _stringBuilder.toString
 
   def addParam(p: StatementParam) = _paramList.append(p)
 
-  override def toString =
+  override def toString: String =
     if (_paramList.isEmpty)
       statement
     else
@@ -175,5 +175,5 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
     unindent(width)
   }
 
-  def quoteName(s: String) = databaseAdapter.quoteName(s)
+  def quoteName(s: String): String = databaseAdapter.quoteName(s)
 }

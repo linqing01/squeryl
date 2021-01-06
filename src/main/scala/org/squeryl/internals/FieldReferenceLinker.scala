@@ -49,7 +49,7 @@ object FieldReferenceLinker {
     }
   }
 
-  def pushYieldValue(v: AnyRef) = {
+  def pushYieldValue(v: AnyRef): ArrayBuffer[AnyRef] = {
     var a = _yieldValues.get
     if (a == null) {
       a = new ArrayBuffer[AnyRef]
@@ -58,7 +58,7 @@ object FieldReferenceLinker {
     a += v
   }
 
-  def isYieldInspectionMode = {
+  def isYieldInspectionMode: Boolean = {
     val yi = _yieldInspectionTL.get
     if (yi != null) {
       yi.isOn
@@ -68,7 +68,7 @@ object FieldReferenceLinker {
     }
   }
 
-  def inspectedQueryExpressionNode = _yieldInspectionTL.get.queryExpressionNode
+  def inspectedQueryExpressionNode: QueryExpressionNode[_] = _yieldInspectionTL.get.queryExpressionNode
 
   private[this] val _yieldValues = new ThreadLocal[ArrayBuffer[AnyRef]]
 
@@ -111,9 +111,9 @@ object FieldReferenceLinker {
     var queryExpressionNode: QueryExpressionNode[_] = _
     var _resultSetMapper: ResultSetMapper = _
 
-    def isOn = _on
+    def isOn: Boolean = _on
 
-    def callWithoutReentrance[U](f: () => U) = {
+    def callWithoutReentrance[U](f: () => U): U = {
       val prev = _on
       _on = false
       val res = f()
@@ -127,11 +127,11 @@ object FieldReferenceLinker {
         e.prepareColumnMapper(_utilizedFields.size)
       }
 
-    def resultSetMapper = _resultSetMapper
+    def resultSetMapper: ResultSetMapper = _resultSetMapper
 
     private[this] var _reentranceDepth = 0
 
-    def reentranceDepth = _reentranceDepth
+    def reentranceDepth: Int = _reentranceDepth
 
     def incrementReentranceDepth(): Unit =
       _reentranceDepth += 1
@@ -199,7 +199,7 @@ object FieldReferenceLinker {
    * if (the assumption) was broken.   
    */
 
-  def determineColumnsUtilizedInYeldInvocation(q: QueryExpressionNode[_], rsm: ResultSetMapper, selectClosure: () => AnyRef) = {
+  def determineColumnsUtilizedInYeldInvocation(q: QueryExpressionNode[_], rsm: ResultSetMapper, selectClosure: () => AnyRef): (List[SelectElement], AnyRef) = {
 
     val yi = new YieldInspection
     _yieldInspectionTL.set(yi)

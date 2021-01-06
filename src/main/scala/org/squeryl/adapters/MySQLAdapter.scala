@@ -36,7 +36,7 @@ class MySQLAdapter extends DatabaseAdapter {
                                            primaryKeyTable: Table[_], primaryKeyColumnName: String,
                                            referentialAction1: Option[ReferentialAction],
                                            referentialAction2: Option[ReferentialAction],
-                                           fkId: Int) = {
+                                           fkId: Int): String = {
 
     val sb = new java.lang.StringBuilder(256)
 
@@ -65,10 +65,10 @@ class MySQLAdapter extends DatabaseAdapter {
     sb.toString
   }
 
-  override def writeDropForeignKeyStatement(foreignKeyTable: Table[_], fkName: String) =
+  override def writeDropForeignKeyStatement(foreignKeyTable: Table[_], fkName: String): String =
     "alter table " + foreignKeyTable.prefixedName + " drop foreign key " + fkName
 
-  override def isTableDoesNotExistException(e: SQLException) =
+  override def isTableDoesNotExistException(e: SQLException): Boolean =
     e.getErrorCode == 1051
 
   /**
@@ -97,7 +97,7 @@ class MySQLAdapter extends DatabaseAdapter {
 
   override def supportsForeignKeyConstraints = false
 
-  override def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter) = {
+  override def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter): Unit = {
     sw.write("(")
     left.write(sw)
     sw.write(" regexp ?)")

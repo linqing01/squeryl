@@ -29,7 +29,7 @@ class MSSQLServer extends DatabaseAdapter {
 
   override def stringTypeDeclaration = "varchar"
 
-  override def stringTypeDeclaration(length: Int) = "varchar(" + length + ")"
+  override def stringTypeDeclaration(length: Int): String = "varchar(" + length + ")"
 
   override def booleanTypeDeclaration = "bit"
 
@@ -39,7 +39,7 @@ class MSSQLServer extends DatabaseAdapter {
 
   override def bigDecimalTypeDeclaration = "decimal"
 
-  override def bigDecimalTypeDeclaration(precision: Int, scale: Int) = "numeric(" + precision + "," + scale + ")"
+  override def bigDecimalTypeDeclaration(precision: Int, scale: Int): String = "numeric(" + precision + "," + scale + ")"
 
   override def binaryTypeDeclaration = "varbinary(8000)"
 
@@ -86,7 +86,7 @@ class MSSQLServer extends DatabaseAdapter {
     binaryOpNode.doWrite(sw)
   }
 
-  override def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter) = {
+  override def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter): Unit = {
     // If you are keen enough you can implement a UDF and subclass this method to call out to it.
     // http://msdn.microsoft.com/en-us/magazine/cc163473.aspx
     throw new UnsupportedOperationException("MSSQL does not yet support a regex function")
@@ -157,5 +157,5 @@ class MSSQLServer extends DatabaseAdapter {
 
   override def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter): Unit = {}
 
-  override def quoteIdentifier(s: String) = "[" + s + "]"
+  override def quoteIdentifier(s: String): String = "[" + s + "]"
 }

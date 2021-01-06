@@ -27,7 +27,7 @@ trait DatabaseAdapter {
   class Zip[T](val element: T, val isLast: Boolean, val isFirst: Boolean)
 
   class ZipIterable[T](iterable: Iterable[T]) {
-    val count = iterable.size
+    val count: Int = iterable.size
 
     def foreach[U](f: Zip[T] => U): Unit = {
       var c = 1
@@ -37,7 +37,7 @@ trait DatabaseAdapter {
       }
     }
 
-    def zipi = this
+    def zipi: ZipIterable[T] = this
   }
 
   implicit def zipIterable[T](i: Iterable[T]): ZipIterable[T] = new ZipIterable(i)
@@ -210,7 +210,7 @@ trait DatabaseAdapter {
 
   def stringTypeDeclaration = "varchar"
 
-  def stringTypeDeclaration(length: Int) = "varchar(" + length + ")"
+  def stringTypeDeclaration(length: Int): String = "varchar(" + length + ")"
 
   def booleanTypeDeclaration = "boolean"
 
@@ -224,7 +224,7 @@ trait DatabaseAdapter {
 
   def bigDecimalTypeDeclaration = "decimal"
 
-  def bigDecimalTypeDeclaration(precision: Int, scale: Int) = "decimal(" + precision + "," + scale + ")"
+  def bigDecimalTypeDeclaration(precision: Int, scale: Int): String = "decimal(" + precision + "," + scale + ")"
 
   def timestampTypeDeclaration = "timestamp"
 
@@ -232,21 +232,21 @@ trait DatabaseAdapter {
 
   def uuidTypeDeclaration = "char(36)"
 
-  def intArrayTypeDeclaration = intTypeDeclaration + "[]"
+  def intArrayTypeDeclaration: String = intTypeDeclaration + "[]"
 
-  def longArrayTypeDeclaration = longTypeDeclaration + "[]"
+  def longArrayTypeDeclaration: String = longTypeDeclaration + "[]"
 
-  def doubleArrayTypeDeclaration = doubleTypeDeclaration + "[]"
+  def doubleArrayTypeDeclaration: String = doubleTypeDeclaration + "[]"
 
-  def stringArrayTypeDeclaration = stringTypeDeclaration + "[]"
+  def stringArrayTypeDeclaration: String = stringTypeDeclaration + "[]"
 
-  def jdbcIntArrayCreationType = intTypeDeclaration
+  def jdbcIntArrayCreationType: String = intTypeDeclaration
 
-  def jdbcLongArrayCreationType = longTypeDeclaration
+  def jdbcLongArrayCreationType: String = longTypeDeclaration
 
-  def jdbcDoubleArrayCreationType = doubleTypeDeclaration
+  def jdbcDoubleArrayCreationType: String = doubleTypeDeclaration
 
-  def jdbcStringArrayCreationType = stringTypeDeclaration
+  def jdbcStringArrayCreationType: String = stringTypeDeclaration
 
   final def arrayCreationType(ptype: Class[_]): String = {
     val rv = ptype.getName() match {
@@ -438,7 +438,7 @@ trait DatabaseAdapter {
   protected def createStatement(conn: Connection): Statement =
     conn.createStatement()
 
-  def executeQuery(s: AbstractSession, sw: StatementWriter) = exec(s, sw) { params =>
+  def executeQuery(s: AbstractSession, sw: StatementWriter): (ResultSet, PreparedStatement) = exec(s, sw) { params =>
     val st = prepareStatement(s.connection, sw.statement)
     fillParamsInto(params, st)
     (st.executeQuery, st)
@@ -461,12 +461,12 @@ trait DatabaseAdapter {
     }
   }
 
-  def executeUpdateForInsert(s: AbstractSession, sw: StatementWriter, ps: PreparedStatement) = exec(s, sw) { params =>
+  def executeUpdateForInsert(s: AbstractSession, sw: StatementWriter, ps: PreparedStatement): Int = exec(s, sw) { params =>
     fillParamsInto(params, ps)
     ps.executeUpdate
   }
 
-  protected def getInsertableFields(fmd: Iterable[FieldMetaData]) = fmd.filter(fmd => !fmd.isAutoIncremented && fmd.isInsertable)
+  protected def getInsertableFields(fmd: Iterable[FieldMetaData]): Iterable[FieldMetaData] = fmd.filter(fmd => !fmd.isAutoIncremented && fmd.isInsertable)
 
   def writeInsert[T](o: T, t: Table[T], sw: StatementWriter): Unit = {
 
@@ -554,7 +554,7 @@ trait DatabaseAdapter {
 
   def postDropTable(t: Table[_]): Unit = {}
 
-  def createSequenceName(fmd: FieldMetaData) =
+  def createSequenceName(fmd: FieldMetaData): String =
     "s_" + fmd.parentMetaData.viewOrTable.name + "_" + fmd.columnName
 
   def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit = {
@@ -721,10 +721,10 @@ trait DatabaseAdapter {
    */
   def isNotNullConstraintViolation(e: SQLException): Boolean = false
 
-  def foreignKeyConstraintName(foreignKeyTable: Table[_], idWithinSchema: Int) =
+  def foreignKeyConstraintName(foreignKeyTable: Table[_], idWithinSchema: Int): String =
     foreignKeyTable.name + "FK" + idWithinSchema
 
-  def viewAlias(vn: ViewExpressionNode[_]) =
+  def viewAlias(vn: ViewExpressionNode[_]): String =
     if (vn.view.prefix.isDefined)
       vn.view.prefix.get + "_" + vn.view.name + vn.uniqueId.get
     else
@@ -735,7 +735,7 @@ trait DatabaseAdapter {
                                   primaryKeyTable: Table[_], primaryKeyColumnName: String,
                                   referentialAction1: Option[ReferentialAction],
                                   referentialAction2: Option[ReferentialAction],
-                                  fkId: Int) = {
+                                  fkId: Int): String = {
 
     val sb = new java.lang.StringBuilder(256)
 
@@ -764,10 +764,10 @@ trait DatabaseAdapter {
     sb.toString
   }
 
-  protected def currenSession =
+  protected def currenSession: AbstractSession =
     Session.currentSession
 
-  def writeDropForeignKeyStatement(foreignKeyTable: Table[_], fkName: String) =
+  def writeDropForeignKeyStatement(foreignKeyTable: Table[_], fkName: String): String =
     "alter table " + quoteName(foreignKeyTable.prefixedName) + " drop constraint " + quoteName(fkName)
 
   def dropForeignKeyStatement(foreignKeyTable: Table[_], fkName: String, session: AbstractSession): Unit =
@@ -777,16 +777,16 @@ trait DatabaseAdapter {
 
   def supportsForeignKeyConstraints = true
 
-  def writeDropTable(tableName: String) =
+  def writeDropTable(tableName: String): String =
     "drop table " + quoteName(tableName)
 
   def dropTable(t: Table[_]): Unit =
     execFailSafeExecute(writeDropTable(t.prefixedName), e => isTableDoesNotExistException(e))
 
-  def writeCompositePrimaryKeyConstraint(t: Table[_], cols: Iterable[FieldMetaData]) =
+  def writeCompositePrimaryKeyConstraint(t: Table[_], cols: Iterable[FieldMetaData]): String =
     writeUniquenessConstraint(t, cols)
 
-  def writeUniquenessConstraint(t: Table[_], cols: Iterable[FieldMetaData]) = {
+  def writeUniquenessConstraint(t: Table[_], cols: Iterable[FieldMetaData]): String = {
     //ALTER TABLE TEST ADD CONSTRAINT NAME_UNIQUE UNIQUE(NAME)
     val sb = new java.lang.StringBuilder(256)
 
@@ -801,7 +801,7 @@ trait DatabaseAdapter {
   }
 
 
-  def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter) = {
+  def writeRegexExpression(left: ExpressionNode, pattern: String, sw: StatementWriter): Unit = {
     sw.write("(")
     left.write(sw)
     sw.write(" ~ ?)")
@@ -824,7 +824,7 @@ trait DatabaseAdapter {
    * @param nameOfCompositeKey when not None, the column group forms a composite key, 'nameOfCompositeKey' can be used
    *                           as part of the name to create a more meaningfull name for the constraint, when 'name' is None
    */
-  def writeIndexDeclaration(columnDefs: collection.Seq[FieldMetaData], name: Option[String], nameOfCompositeKey: Option[String], isUnique: Boolean) = {
+  def writeIndexDeclaration(columnDefs: collection.Seq[FieldMetaData], name: Option[String], nameOfCompositeKey: Option[String], isUnique: Boolean): String = {
     val sb = new java.lang.StringBuilder(256)
     sb.append("create ")
 
@@ -862,14 +862,14 @@ trait DatabaseAdapter {
     a32.getValue.toHexString
   }
 
-  def quoteIdentifier(s: String) = s
+  def quoteIdentifier(s: String): String = s
 
-  def quoteName(s: String) = s.split('.').map(quoteIdentifier).mkString(".")
+  def quoteName(s: String): String = s.split('.').map(quoteIdentifier).mkString(".")
 
-  def fieldAlias(n: QueryableExpressionNode, fse: FieldSelectElement) =
+  def fieldAlias(n: QueryableExpressionNode, fse: FieldSelectElement): String =
     n.alias + "_" + fse.fieldMetaData.columnName
 
-  def aliasExport(parentOfTarget: QueryableExpressionNode, target: SelectElement) =
+  def aliasExport(parentOfTarget: QueryableExpressionNode, target: SelectElement): String =
     parentOfTarget.alias + "_" + target.aliasSegment
 
   def writeSelectElementAlias(se: SelectElement, sw: StatementWriter): Unit = {
@@ -955,7 +955,7 @@ trait DatabaseAdapter {
     }
   */
 
-  def jdbcTypeConstantFor(c: Class[_]) =
+  def jdbcTypeConstantFor(c: Class[_]): Int =
     c.getCanonicalName match {
       case "java.lang.String" => Types.VARCHAR
       case "java.math.BigDecimal" => Types.DECIMAL

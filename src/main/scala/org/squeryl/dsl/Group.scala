@@ -16,19 +16,19 @@
 package org.squeryl.dsl
 
 class Group[K](k: K) {
-  def key = k
+  def key: K = k
 }
 
 class Measures[M](m: M) {
-  def measures = m
+  def measures: M = m
 }
 
 class GroupWithMeasures[K, M](k: K, m: M) {
-  def key = k
+  def key: K = k
 
-  def measures = m
+  def measures: M = m
 
-  override def toString = {
+  override def toString: String = {
     val sb = new java.lang.StringBuilder
     sb.append("GroupWithMeasures[")
     sb.append("key=")
@@ -41,5 +41,5 @@ class GroupWithMeasures[K, M](k: K, m: M) {
 }
 
 object GroupWithMeasures {
-  def unapply[K, M](x: GroupWithMeasures[K, M]) = Some((x.key, x.measures))
+  def unapply[K, M](x: GroupWithMeasures[K, M]): Some[(K, M)] = Some((x.key, x.measures))
 }

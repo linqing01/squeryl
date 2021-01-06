@@ -83,14 +83,14 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     _tables.filter(_.posoMetaData.clasz == c).asInstanceOf[Iterable[Table[A]]]
   }
 
-  def findAllTablesFor[A](c: Class[A]) =
+  def findAllTablesFor[A](c: Class[A]): Iterable[Table[_]] =
     _tables.filter(t => c.isAssignableFrom(t.posoMetaData.clasz)).asInstanceOf[Iterable[Table[_]]]
 
 
   object NamingConventionTransforms {
 
     @deprecated("use snakify() instead as of 0.9.5beta", "0.9.5")
-    def camelCase2underScore(name: String) =
+    def camelCase2underScore(name: String): String =
       name.toList.map(c => if (c.isUpper) "_" + c else c).mkString
 
     private final val FIRST_PATTERN = Pattern.compile("^([^A-Za-z_])")
@@ -101,9 +101,9 @@ class Schema(implicit val fieldMapper: FieldMapper) {
       THIRD_PATTERN.matcher(SECOND_PATTERN.matcher(FIRST_PATTERN.matcher(name).replaceAll("_$1")).replaceAll("$1_$2")).replaceAll("$1_$2").toLowerCase
   }
 
-  def columnNameFromPropertyName(propertyName: String) = propertyName
+  def columnNameFromPropertyName(propertyName: String): String = propertyName
 
-  def tableNameFromClassName(tableName: String) = tableName
+  def tableNameFromClassName(tableName: String): String = tableName
 
   def name: Option[String] = None
 
@@ -373,9 +373,9 @@ class Schema(implicit val fieldMapper: FieldMapper) {
   }
 
   class ReferentialActionImpl(token: String, ev: ReferentialEvent) extends ReferentialAction {
-    def event = ev.eventName
+    def event: String = ev.eventName
 
-    def action = token
+    def action: String = token
   }
 
   protected def onUpdate = new ReferentialEvent("update")
@@ -401,7 +401,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
    *         default is (20,16)
    */
 
-  def defaultSizeOfBigDecimal = (20, 16)
+  def defaultSizeOfBigDecimal: (Int, Int) = (20, 16)
 
   /**
    * @return the default database storage (column) length for String columns for this Schema,
@@ -413,7 +413,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
   /**
    * protected since table declarations must only be done inside a Schema
    */
-  protected def declare[B](a: BaseColumnAttributeAssignment*) = a
+  protected def declare[B](a: BaseColumnAttributeAssignment*): Seq[BaseColumnAttributeAssignment] = a
 
   /**
    * protected since table declarations must only be done inside a Schema
@@ -484,33 +484,33 @@ class Schema(implicit val fieldMapper: FieldMapper) {
   private def _addColumnGroupAttributeAssignment(cga: ColumnGroupAttributeAssignment) =
     _columnGroupAttributeAssignments.append(cga)
 
-  def defaultColumnAttributesForKeyedEntityId(typeOfIdField: Class[_]) =
+  def defaultColumnAttributesForKeyedEntityId(typeOfIdField: Class[_]): Set[_ >: PrimaryKey <: AttributeValidOnNumericalColumn] =
     if (typeOfIdField.isAssignableFrom(classOf[java.lang.Long]) || typeOfIdField.isAssignableFrom(classOf[java.lang.Integer]))
       Set(new PrimaryKey, AutoIncremented(None))
     else
       Set(new PrimaryKey)
 
-  protected def unique = Unique()
+  protected def unique: Unique = Unique()
 
-  protected def primaryKey = PrimaryKey()
+  protected def primaryKey: PrimaryKey = PrimaryKey()
 
-  protected def autoIncremented = AutoIncremented(None)
+  protected def autoIncremented: AutoIncremented = AutoIncremented(None)
 
-  protected def autoIncremented(sequenceName: String) = AutoIncremented(Some(sequenceName))
+  protected def autoIncremented(sequenceName: String): AutoIncremented = AutoIncremented(Some(sequenceName))
 
-  protected def indexed = Indexed(None)
+  protected def indexed: Indexed = Indexed(None)
 
-  protected def indexed(indexName: String) = Indexed(Some(indexName))
+  protected def indexed(indexName: String): Indexed = Indexed(Some(indexName))
 
-  protected def dbType(declaration: String) = DBType(declaration)
+  protected def dbType(declaration: String): DBType = DBType(declaration)
 
-  protected def uninsertable = Uninsertable()
+  protected def uninsertable: Uninsertable = Uninsertable()
 
-  protected def unupdatable = Unupdatable()
+  protected def unupdatable: Unupdatable = Unupdatable()
 
-  protected def named(name: String) = Named(name)
+  protected def named(name: String): Named = Named(name)
 
-  protected def transient = IsTransient()
+  protected def transient: IsTransient = IsTransient()
 
   class ColGroupDeclaration(cols: collection.Seq[FieldMetaData]) {
 
@@ -623,13 +623,13 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     /**
      * Same as {{{table.insert(a)}}}
      */
-    def save =
+    def save: Option[Unit] =
       _performAction(_.insert(a))
 
     /**
      * Same as {{{table.update(a)}}}
      */
-    def update(implicit ked: KeyedEntityDef[A, _]) =
+    def update(implicit ked: KeyedEntityDef[A, _]): Option[Unit] =
       _performAction(_.update(a))
 
   }

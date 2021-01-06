@@ -84,16 +84,16 @@ trait QueryDsl
   def using[A](session: AbstractSession)(a: => A): A =
     session.using(() => a)
 
-  def transaction[A](sf: SessionFactory)(a: => A) =
+  def transaction[A](sf: SessionFactory)(a: => A): A =
     sf.newSession.withinTransaction(() => a)
 
-  def inTransaction[A](sf: SessionFactory)(a: => A) =
+  def inTransaction[A](sf: SessionFactory)(a: => A): A =
     if (!Session.hasCurrentSession)
       sf.newSession.withinTransaction(() => a)
     else
       a
 
-  def transaction[A](s: AbstractSession)(a: => A) =
+  def transaction[A](s: AbstractSession)(a: => A): A =
     s.withinTransaction(() => a)
 
   /**
@@ -147,35 +147,35 @@ trait QueryDsl
 
   def sDevPopulation[T2 >: TOptionFloat, T1 <: T2, A1, A2]
   (b: TypedExpression[A1, T1])
-  (implicit f: TypedExpressionFactory[A2, T2]) = f.convert(new FunctionNode("stddev_pop", Seq(b)))
+  (implicit f: TypedExpressionFactory[A2, T2]): TypedExpressionConversion[A2, T2] = f.convert(new FunctionNode("stddev_pop", Seq(b)))
 
   def sDevSample[T2 >: TOptionFloat, T1 <: T2, A1, A2]
   (b: TypedExpression[A1, T1])
-  (implicit f: TypedExpressionFactory[A2, T2]) = f.convert(new FunctionNode("stddev_samp", Seq(b)))
+  (implicit f: TypedExpressionFactory[A2, T2]): TypedExpressionConversion[A2, T2] = f.convert(new FunctionNode("stddev_samp", Seq(b)))
 
   def varPopulation[T2 >: TOptionFloat, T1 <: T2, A1, A2]
   (b: TypedExpression[A1, T1])
-  (implicit f: TypedExpressionFactory[A2, T2]) = f.convert(new FunctionNode("var_pop", Seq(b)))
+  (implicit f: TypedExpressionFactory[A2, T2]): TypedExpressionConversion[A2, T2] = f.convert(new FunctionNode("var_pop", Seq(b)))
 
   def varSample[T2 >: TOptionFloat, T1 <: T2, A1, A2]
   (b: TypedExpression[A1, T1])
-  (implicit f: TypedExpressionFactory[A2, T2]) = f.convert(new FunctionNode("var_samp", Seq(b)))
+  (implicit f: TypedExpressionFactory[A2, T2]): TypedExpressionConversion[A2, T2] = f.convert(new FunctionNode("var_samp", Seq(b)))
 
   def max[T2 >: TOption, T1 <: T2, A1, A2]
   (b: TypedExpression[A1, T1])
-  (implicit f: TypedExpressionFactory[A2, T2]) = f.convert(new FunctionNode("max", Seq(b)))
+  (implicit f: TypedExpressionFactory[A2, T2]): TypedExpressionConversion[A2, T2] = f.convert(new FunctionNode("max", Seq(b)))
 
   def min[T2 >: TOption, T1 <: T2, A1, A2]
   (b: TypedExpression[A1, T1])
-  (implicit f: TypedExpressionFactory[A2, T2]) = f.convert(new FunctionNode("min", Seq(b)))
+  (implicit f: TypedExpressionFactory[A2, T2]): TypedExpressionConversion[A2, T2] = f.convert(new FunctionNode("min", Seq(b)))
 
   def avg[T2 >: TOptionFloat, T1 <: T2, A1, A2]
   (b: TypedExpression[A1, T1])
-  (implicit f: TypedExpressionFactory[A2, T2]) = f.convert(new FunctionNode("avg", Seq(b)))
+  (implicit f: TypedExpressionFactory[A2, T2]): TypedExpressionConversion[A2, T2] = f.convert(new FunctionNode("avg", Seq(b)))
 
   def sum[T2 >: TOption, T1 >: TNumericLowerTypeBound <: T2, A1, A2]
   (b: TypedExpression[A1, T1])
-  (implicit f: TypedExpressionFactory[A2, T2]) = f.convert(new FunctionNode("sum", Seq(b)))
+  (implicit f: TypedExpressionFactory[A2, T2]): TypedExpressionConversion[A2, T2] = f.convert(new FunctionNode("sum", Seq(b)))
 
   def nvl[T4 <: TNonOption,
     T1 >: TOption,
@@ -188,10 +188,10 @@ trait QueryDsl
 
   def not(b: LogicalBoolean) = new FunctionNode("not", Seq(b)) with LogicalBoolean
 
-  def upper[A1, T1](s: TypedExpression[A1, T1])(implicit f: TypedExpressionFactory[A1, T1], ev2: T1 <:< TOptionString) =
+  def upper[A1, T1](s: TypedExpression[A1, T1])(implicit f: TypedExpressionFactory[A1, T1], ev2: T1 <:< TOptionString): TypedExpressionConversion[A1, T1] =
     f.convert(new FunctionNode("upper", Seq(s)))
 
-  def lower[A1, T1](s: TypedExpression[A1, T1])(implicit f: TypedExpressionFactory[A1, T1], ev2: T1 <:< TOptionString) =
+  def lower[A1, T1](s: TypedExpression[A1, T1])(implicit f: TypedExpressionFactory[A1, T1], ev2: T1 <:< TOptionString): TypedExpressionConversion[A1, T1] =
     f.convert(new FunctionNode("lower", Seq(s)))
 
   def exists[A1](query: Query[A1]) = new ExistsExpression(query.copy(asRoot = false, Nil).ast, "exists")
@@ -253,7 +253,7 @@ trait QueryDsl
     )
       with TypedExpression[Long, TLong] {
 
-    def mapper = InternalFieldMapper.longTEF.createOutMapper
+    def mapper: OutMapper[Long] = InternalFieldMapper.longTEF.createOutMapper
 
     override def doWrite(sw: StatementWriter): Unit = {
 
@@ -275,30 +275,30 @@ trait QueryDsl
     private[this] val _inner: Query[Measures[Long]] =
       from(q)(r => compute(_countFunc))
 
-    def iterator = _inner.map(m => m.measures).iterator
+    def iterator: Iterator[Long] = _inner.map(m => m.measures).iterator
 
     def Count: ScalarQuery[Long] = this
 
     def statement: String = _inner.statement
 
     // Paginating a Count query makes no sense perhaps an org.squeryl.internals.Utils.throwError() would be more appropriate here:
-    def page(offset: Int, length: Int) = this
+    def page(offset: Int, length: Int): Query[Long] = this
 
-    def distinct = this
+    def distinct: Query[Long] = this
 
-    def forUpdate = _inner.forUpdate
+    def forUpdate: Query[Long] = _inner.forUpdate
 
-    def dumpAst = _inner.dumpAst
+    def dumpAst: String = _inner.dumpAst
 
-    def ast = _inner.ast
+    def ast: ExpressionNode = _inner.ast
 
-    protected[squeryl] def invokeYield(rsm: ResultSetMapper, rs: ResultSet) =
+    protected[squeryl] def invokeYield(rsm: ResultSetMapper, rs: ResultSet): Long =
       _inner.invokeYield(rsm, rs).measures
 
     override private[squeryl] def copy(asRoot: Boolean, newUnions: List[(String, Query[Long])]) =
       new CountSubQueryableQuery(q)
 
-    def name = _inner.name
+    def name: String = _inner.name
 
     private[squeryl] def give(rsm: ResultSetMapper, rs: ResultSet) =
       q.invokeYield(rsm, rs)
@@ -322,28 +322,28 @@ trait QueryDsl
 
   class ScalarMeasureQuery[T](q: Query[Measures[T]]) extends Query[T] with ScalarQuery[T] {
 
-    def iterator = q.map(m => m.measures).iterator
+    def iterator: Iterator[T] = q.map(m => m.measures).iterator
 
-    def distinct = this
+    def distinct: Query[T] = this
 
-    def forUpdate = q.forUpdate
+    def forUpdate: Query[T] = q.forUpdate
 
-    def dumpAst = q.dumpAst
+    def dumpAst: String = q.dumpAst
 
     // TODO: think about this : Paginating a Count query makes no sense perhaps an org.squeryl.internals.Utils.throwError() would be more appropriate here.
-    def page(offset: Int, length: Int) = this
+    def page(offset: Int, length: Int): Query[T] = this
 
     def statement: String = q.statement
 
-    def ast = q.ast
+    def ast: ExpressionNode = q.ast
 
-    protected[squeryl] def invokeYield(rsm: ResultSetMapper, rs: ResultSet) =
+    protected[squeryl] def invokeYield(rsm: ResultSetMapper, rs: ResultSet): T =
       q.invokeYield(rsm, rs).measures
 
-    override private[squeryl] def copy(asRoot: Boolean, newUnions: List[(String, Query[T])]): Query[T] =
+    override private[squeryl] def copy(asRoot: Boolean, newUnions: List[(String, Query[T])]) =
       new ScalarMeasureQuery(q)
 
-    def name = q.name
+    def name: String = q.name
 
     private[squeryl] def give(rsm: ResultSetMapper, rs: ResultSet) =
       q.invokeYield(rsm, rs).measures
@@ -383,7 +383,7 @@ trait QueryDsl
                                          kedL: KeyedEntityDef[L, _],
                                          kedR: KeyedEntityDef[R, _]) {
 
-    def via[A](f: (L, R, A) => ((EqualityExpression, EqualityExpression)))(implicit manifestA: Manifest[A], schema: Schema, kedA: KeyedEntityDef[A, _]) = {
+    def via[A](f: (L, R, A) => ((EqualityExpression, EqualityExpression)))(implicit manifestA: Manifest[A], schema: Schema, kedA: KeyedEntityDef[A, _]): ManyToManyRelationImpl[L, R, A] = {
       val m2m = new ManyToManyRelationImpl(l, r, manifestA.runtimeClass.asInstanceOf[Class[A]], f, schema, nameOverride, kedL, kedR, kedA)
       schema._addTable(m2m)
       m2m
@@ -405,7 +405,7 @@ trait QueryDsl
     extends Table[A](nameOverride.getOrElse(schema.tableNameFromClass(aClass)), aClass, schema, None, Some(kedA)) with ManyToManyRelation[L, R, A] {
     thisTableOfA =>
 
-    def thisTable = thisTableOfA
+    def thisTable: Table[A] = thisTableOfA
 
     schema._addRelation(this)
 
@@ -448,10 +448,10 @@ trait QueryDsl
 
     private[this] val (rightPkFmd, rightFkFmd) = _splitEquality(_rightEqualityExpr, thisTable, isSelfReference = false)
 
-    val leftForeignKeyDeclaration =
+    val leftForeignKeyDeclaration: ForeignKeyDeclaration =
       schema._createForeignKeyDeclaration(leftFkFmd.columnName, leftPkFmd.columnName)
 
-    val rightForeignKeyDeclaration =
+    val rightForeignKeyDeclaration: ForeignKeyDeclaration =
       schema._createForeignKeyDeclaration(rightFkFmd.columnName, rightPkFmd.columnName)
 
     private def _associate[T](o: T, m2m: ManyToMany[T, A]): A = {
@@ -654,7 +654,7 @@ trait QueryDsl
       _splitEquality(ee.get, rightTable, _isSelfReference)
     }
 
-    val foreignKeyDeclaration =
+    val foreignKeyDeclaration: ForeignKeyDeclaration =
       schema._createForeignKeyDeclaration(_rightFkFmd.columnName, _leftPkFmd.columnName)
 
     def left(leftSide: O): OneToMany[M] = {
@@ -731,14 +731,14 @@ trait QueryDsl
   def compositeKey[A1, A2](a1: A1, a2: A2)(
     implicit
     ev1: A1 => TypedExpression[A1, _],
-    ev2: A2 => TypedExpression[A2, _]) =
+    ev2: A2 => TypedExpression[A2, _]): CompositeKey2[A1, A2] =
     CompositeKey2(a1, a2)
 
   def compositeKey[A1, A2, A3](a1: A1, a2: A2, a3: A3)(
     implicit
     ev1: A1 => TypedExpression[A1, _],
     ev2: A2 => TypedExpression[A2, _],
-    ev3: A3 => TypedExpression[A3, _]) =
+    ev3: A3 => TypedExpression[A3, _]): CompositeKey3[A1, A2, A3] =
     CompositeKey3(a1, a2, a3)
 
   def compositeKey[A1, A2, A3, A4](a1: A1, a2: A2, a3: A3, a4: A4)(
@@ -746,7 +746,7 @@ trait QueryDsl
     ev1: A1 => TypedExpression[A1, _],
     ev2: A2 => TypedExpression[A2, _],
     ev3: A3 => TypedExpression[A3, _],
-    ev4: A4 => TypedExpression[A4, _]) =
+    ev4: A4 => TypedExpression[A4, _]): CompositeKey4[A1, A2, A3, A4] =
     CompositeKey4(a1, a2, a3, a4)
 
   def compositeKey[A1, A2, A3, A4, A5](a1: A1, a2: A2, a3: A3, a4: A4, a5: A5)(
@@ -755,7 +755,7 @@ trait QueryDsl
     ev2: A2 => TypedExpression[A2, _],
     ev3: A3 => TypedExpression[A3, _],
     ev4: A4 => TypedExpression[A4, _],
-    ev5: A5 => TypedExpression[A5, _]) =
+    ev5: A5 => TypedExpression[A5, _]): CompositeKey5[A1, A2, A3, A4, A5] =
     CompositeKey5(a1, a2, a3, a4, a5)
 
   def compositeKey[A1, A2, A3, A4, A5, A6](a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6)(
@@ -765,7 +765,7 @@ trait QueryDsl
     ev3: A3 => TypedExpression[A3, _],
     ev4: A4 => TypedExpression[A4, _],
     ev5: A5 => TypedExpression[A5, _],
-    ev6: A6 => TypedExpression[A6, _]) =
+    ev6: A6 => TypedExpression[A6, _]): CompositeKey6[A1, A2, A3, A4, A5, A6] =
     CompositeKey6(a1, a2, a3, a4, a5, a6)
 
   def compositeKey[A1, A2, A3, A4, A5, A6, A7](a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7)(
@@ -776,7 +776,7 @@ trait QueryDsl
     ev4: A4 => TypedExpression[A4, _],
     ev5: A5 => TypedExpression[A5, _],
     ev6: A6 => TypedExpression[A6, _],
-    ev7: A7 => TypedExpression[A7, _]) =
+    ev7: A7 => TypedExpression[A7, _]): CompositeKey7[A1, A2, A3, A4, A5, A6, A7] =
     CompositeKey7(a1, a2, a3, a4, a5, a6, a7)
 
   def compositeKey[A1, A2, A3, A4, A5, A6, A7, A8](a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8)(
@@ -788,7 +788,7 @@ trait QueryDsl
     ev5: A5 => TypedExpression[A5, _],
     ev6: A6 => TypedExpression[A6, _],
     ev7: A7 => TypedExpression[A7, _],
-    ev8: A8 => TypedExpression[A8, _]) =
+    ev8: A8 => TypedExpression[A8, _]): CompositeKey8[A1, A2, A3, A4, A5, A6, A7, A8] =
     CompositeKey8(a1, a2, a3, a4, a5, a6, a7, a8)
 
   def compositeKey[A1, A2, A3, A4, A5, A6, A7, A8, A9](a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9)(
@@ -801,7 +801,7 @@ trait QueryDsl
     ev6: A6 => TypedExpression[A6, _],
     ev7: A7 => TypedExpression[A7, _],
     ev8: A8 => TypedExpression[A8, _],
-    ev9: A9 => TypedExpression[A9, _]) =
+    ev9: A9 => TypedExpression[A9, _]): CompositeKey9[A1, A2, A3, A4, A5, A6, A7, A8, A9] =
     CompositeKey9(a1, a2, a3, a4, a5, a6, a7, a8, a9)
 
   // Tuple to composite key conversions :

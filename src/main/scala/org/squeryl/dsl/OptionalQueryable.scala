@@ -24,9 +24,9 @@ import java.sql.ResultSet
 class OptionalQueryable[A](val queryable: Queryable[A]) extends Queryable[Option[A]] {
 
 
-  def name = queryable.name
+  def name: String = queryable.name
 
-  def inhibitWhen(b: Boolean) = {
+  def inhibitWhen(b: Boolean): OptionalQueryable[A] = {
     inhibited = b
     this
   }

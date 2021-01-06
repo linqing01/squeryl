@@ -63,22 +63,22 @@ class ViewExpressionNode[U](val view: View[U])
 
   val resultSetMapper = new ResultSetMapper
 
-  def alias =
+  def alias: String =
     Session.currentSession.databaseAdapter.viewAlias(this)
 
-  def owns(aSample: AnyRef) = aSample eq sample.asInstanceOf[AnyRef]
+  def owns(aSample: AnyRef): Boolean = aSample eq sample.asInstanceOf[AnyRef]
 
   private[this] var _sample: Option[U] = None
 
   private[squeryl] def sample_=(d: U): Unit =
     _sample = Some(d)
 
-  def sample = _sample.get
+  def sample: U = _sample.get
 
   def doWrite(sw: StatementWriter): Unit =
     sw.write(sw.quoteName(view.prefixedName))
 
-  override def toString = {
+  override def toString: String = {
     val sb = new java.lang.StringBuilder
     sb.append("'ViewExpressionNode[")
     sb.append(sample)

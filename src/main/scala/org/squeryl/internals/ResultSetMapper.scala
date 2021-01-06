@@ -23,7 +23,7 @@ import scala.collection.mutable.ArrayBuffer
 
 trait ResultSetUtils {
 
-  def dumpRow(rs: ResultSet) = {
+  def dumpRow(rs: ResultSet): String = {
     val md = rs.getMetaData
     (for (i <- 1 to md.getColumnCount)
       yield "#" + i + "->" + rs.getObject(i) + ":" + _simpleClassName(md.getColumnClassName(i)))
@@ -38,7 +38,7 @@ trait ResultSetUtils {
       className.substring(idx + 1, className.length)
   }
 
-  def dumpRowValues(rs: ResultSet) = {
+  def dumpRowValues(rs: ResultSet): String = {
     val md = rs.getMetaData
     (for (i <- 1 to md.getColumnCount)
       yield "" + rs.getObject(i)).mkString("[", ",", "]")
@@ -50,7 +50,7 @@ object ResultSetUtils extends ResultSetUtils
 
 trait OutMapper[T] extends ResultSetUtils {
 
-  override def toString =
+  override def toString: String =
     Utils.failSafeString(
       "$OM(" + index + "," +
         jdbcClass.getSimpleName + ")" +
@@ -61,7 +61,7 @@ trait OutMapper[T] extends ResultSetUtils {
 
   var isActive = false
 
-  def jdbcClass =
+  def jdbcClass: Class[_] =
     sample match {
       case Some(x: AnyRef) => x.getClass
       case x: AnyRef => x.getClass
@@ -81,20 +81,20 @@ trait OutMapper[T] extends ResultSetUtils {
     else
       sample
 
-  def isNull(rs: ResultSet) =
+  def isNull(rs: ResultSet): Boolean =
     rs.getObject(index) == null
 
   def doMap(rs: ResultSet): T
 
   def sample: T
 
-  def typeOfExpressionToString = sample.asInstanceOf[Object].getClass.getName
+  def typeOfExpressionToString: String = sample.asInstanceOf[Object].getClass.getName
 
 }
 
 object NoOpOutMapper extends OutMapper[Any] {
 
-  def doMap(rs: ResultSet) = sample
+  def doMap(rs: ResultSet): Any = sample
 
   def sample = throw new UnsupportedOperationException(" cannot use NoOpOutMapper")
 
@@ -113,15 +113,15 @@ class ColumnToFieldMapper(val index: Int, val fieldMetaData: FieldMetaData, sele
     }
   }
 
-  override def toString =
+  override def toString: String =
     "$(" + index + "->" + fieldMetaData + ")"
 }
 
 class ColumnToTupleMapper(val outMappers: Array[OutMapper[_]]) {
 
-  override def toString = outMappers.mkString("(", ",", ")")
+  override def toString: String = outMappers.mkString("(", ",", ")")
 
-  def typeOfExpressionToString(idx: Int) = outMappers.apply(idx).typeOfExpressionToString
+  def typeOfExpressionToString(idx: Int): String = outMappers.apply(idx).typeOfExpressionToString
 
   def activate(i: Int, jdbcIndex: Int): Unit = {
     val m = outMappers.apply(i)
@@ -129,9 +129,9 @@ class ColumnToTupleMapper(val outMappers: Array[OutMapper[_]]) {
     m.index = jdbcIndex
   }
 
-  def isActive(i: Int) = outMappers.apply(i).isActive
+  def isActive(i: Int): Boolean = outMappers.apply(i).isActive
 
-  def isNull(i: Int, rs: ResultSet) = outMappers.apply(i).isNull(rs)
+  def isNull(i: Int, rs: ResultSet): Boolean = outMappers.apply(i).isNull(rs)
 
   def mapToTuple[T](rs: ResultSet): T = {
     val size = outMappers.length
@@ -183,7 +183,7 @@ class ResultSetMapper extends ResultSetUtils {
 
   var isActive = false
 
-  override def toString =
+  override def toString: String =
     "'ResultSetMapper:" + Integer.toHexString(System.identityHashCode(this)) +
       _fieldMapper.mkString("(", ",", ")") +
       "-" + groupKeysMapper.getOrElse("") +
@@ -191,10 +191,10 @@ class ResultSetMapper extends ResultSetUtils {
       (if (isActive) "*" else "")
 
 
-  def addColumnMapper(cm: ColumnToFieldMapper) =
+  def addColumnMapper(cm: ColumnToFieldMapper): Unit =
     _fieldMapper.append(cm)
 
-  def addYieldValuePusher(yvp: YieldValuePusher) =
+  def addYieldValuePusher(yvp: YieldValuePusher): Unit =
     _yieldValuePushers.append(yvp)
 
   def pushYieldedValues(resultSet: ResultSet): Unit = {
@@ -260,7 +260,7 @@ class YieldValuePusher(val index: Int, val selectElement: SelectElement, mapper:
   mapper.index = index
   mapper.isActive = true
 
-  def push(rs: ResultSet) = {
+  def push(rs: ResultSet): Any = {
 
     if (selectElement.isActive) {
       val v = mapper.map(rs)
@@ -269,7 +269,7 @@ class YieldValuePusher(val index: Int, val selectElement: SelectElement, mapper:
   }
 
 
-  override def toString =
+  override def toString: String =
     "$(" + index + "->&(" + selectElement.writeToString + ")" +
       (if (mapper.isActive) "*" else "")
 }

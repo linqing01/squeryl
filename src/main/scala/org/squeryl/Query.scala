@@ -66,7 +66,7 @@ trait Query[R] extends Queryable[R] {
     res
   }
 
-  def headOption = {
+  def headOption: Option[R] = {
     val i = iterator
     if (i.hasNext)
       Some(i.next())

@@ -15,7 +15,7 @@
  * **************************************************************************** */
 package org.squeryl.dsl.ast
 
-import org.squeryl.internals.StatementWriter
+import org.squeryl.internals.{FieldMetaData, StatementWriter}
 
 class UpdateStatement(_whereClause: Option[() => LogicalBoolean], uas: collection.Seq[UpdateAssignment])
   extends ExpressionNode {
@@ -23,13 +23,13 @@ class UpdateStatement(_whereClause: Option[() => LogicalBoolean], uas: collectio
   val whereClause: Option[LogicalBoolean] =
     _whereClause.map(_.apply())
 
-  override def children = whereClause.toList ++ values
+  override def children: List[ExpressionNode] = whereClause.toList ++ values
 
   def doWrite(sw: StatementWriter): Unit = {}
 
-  def columns =
+  def columns: collection.Seq[FieldMetaData] =
     uas.map(ua => ua.left)
 
-  def values =
+  def values: collection.Seq[ExpressionNode] =
     uas.map(ua => ua.right)
 }

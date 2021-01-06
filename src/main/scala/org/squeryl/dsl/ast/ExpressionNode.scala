@@ -26,11 +26,11 @@ trait ExpressionNode {
 
   var parent: Option[ExpressionNode] = None
 
-  def id = Integer.toHexString(System.identityHashCode(this))
+  def id: String = Integer.toHexString(System.identityHashCode(this))
 
-  def inhibited = _inhibitedByWhen
+  def inhibited: Boolean = _inhibitedByWhen
 
-  def inhibitedFlagForAstDump =
+  def inhibitedFlagForAstDump: String =
     if (inhibited) "!" else ""
 
   def write(sw: StatementWriter): Unit =
@@ -47,7 +47,7 @@ trait ExpressionNode {
 
   def children: List[ExpressionNode] = List.empty
 
-  override def toString = this.getClass.getName
+  override def toString: String = this.getClass.getName
 
   private def _visitDescendants(
                                  n: ExpressionNode, parent: Option[ExpressionNode], depth: Int,
@@ -64,11 +64,11 @@ trait ExpressionNode {
     ab
   }
 
-  def filterDescendants(predicate: ExpressionNode => Boolean) =
+  def filterDescendants(predicate: ExpressionNode => Boolean): Iterable[ExpressionNode] =
     _filterDescendants(this, new ArrayBuffer[ExpressionNode], predicate)
 
 
-  def filterDescendantsOfType[T](implicit manifest: Manifest[T]) =
+  def filterDescendantsOfType[T](implicit manifest: Manifest[T]): Iterable[T] =
     _filterDescendants(
       this,
       new ArrayBuffer[ExpressionNode],
@@ -150,7 +150,7 @@ class ExclusionOperator(left: ExpressionNode, right: RightHandSideOfIn[_]) exten
 class BinaryOperatorNodeLogicalBoolean(left: ExpressionNode, right: ExpressionNode, op: String, rightArgInParent: Boolean = false)
   extends BinaryOperatorNode(left, right, op) with LogicalBoolean {
 
-  override def inhibited = _inhibitedByWhen || {
+  override def inhibited: Boolean = _inhibitedByWhen || {
     left match {
       case _: LogicalBoolean =>
         left.inhibited && right.inhibited
@@ -202,7 +202,7 @@ class BetweenExpression(first: ExpressionNode, second: ExpressionNode, third: Ex
 class TernaryOperatorNode(val first: ExpressionNode, val second: ExpressionNode, val third: ExpressionNode, op: String)
   extends FunctionNode(op, Seq(first, second, third)) with LogicalBoolean {
 
-  override def inhibited =
+  override def inhibited: Boolean =
     _inhibitedByWhen || first.inhibited || second.inhibited || third.inhibited
 }
 
@@ -224,9 +224,9 @@ trait LogicalBoolean extends ExpressionNode {
 
 object TrueLogicalBoolean extends LogicalBoolean {
 
-  override def and(b: LogicalBoolean) = b
+  override def and(b: LogicalBoolean): LogicalBoolean = b
 
-  override def or(b: LogicalBoolean) = this
+  override def or(b: LogicalBoolean): LogicalBoolean = this
 
   override def doWrite(sw: StatementWriter): Unit = {
     sw.write("(1=1)")
@@ -236,9 +236,9 @@ object TrueLogicalBoolean extends LogicalBoolean {
 
 object FalseLogicalBoolean extends LogicalBoolean {
 
-  override def and(b: LogicalBoolean) = this
+  override def and(b: LogicalBoolean): LogicalBoolean = this
 
-  override def or(b: LogicalBoolean) = b
+  override def or(b: LogicalBoolean): LogicalBoolean = b
 
   override def doWrite(sw: StatementWriter): Unit = {
     sw.write("(1=0)")
@@ -265,15 +265,15 @@ trait BaseColumnAttributeAssignment {
 
   def isIdFieldOfKeyedEntity: Boolean
 
-  def isIdFieldOfKeyedEntityWithoutUniquenessConstraint =
+  def isIdFieldOfKeyedEntityWithoutUniquenessConstraint: Boolean =
     isIdFieldOfKeyedEntity && !(columnAttributes.exists(_.isInstanceOf[PrimaryKey]) || columnAttributes.exists(_.isInstanceOf[Unique]))
 
   def columnAttributes: collection.Seq[ColumnAttribute]
 
-  def hasAttribute[A <: ColumnAttribute](implicit m: Manifest[A]) =
+  def hasAttribute[A <: ColumnAttribute](implicit m: Manifest[A]): Boolean =
     findAttribute[A](m).isDefined
 
-  def findAttribute[A <: ColumnAttribute](implicit m: Manifest[A]) =
+  def findAttribute[A <: ColumnAttribute](implicit m: Manifest[A]): Option[ColumnAttribute] =
     columnAttributes.find(ca => m.runtimeClass.isAssignableFrom(ca.getClass))
 }
 
@@ -284,9 +284,9 @@ class ColumnGroupAttributeAssignment(cols: collection.Seq[FieldMetaData], column
 
   _columnAttributes ++= columnAttributes_
 
-  def columnAttributes = _columnAttributes
+  def columnAttributes: collection.Seq[ColumnAttribute] = _columnAttributes
 
-  def addAttribute(a: ColumnAttribute) =
+  def addAttribute(a: ColumnAttribute): Unit =
     _columnAttributes.append(a)
 
   def clearColumnAttributes(): Unit = columns.foreach(_._clearColumnAttributes())
@@ -301,7 +301,7 @@ class ColumnGroupAttributeAssignment(cols: collection.Seq[FieldMetaData], column
 class CompositeKeyAttributeAssignment(val group: CompositeKey, _columnAttributes: collection.Seq[ColumnAttribute])
   extends ColumnGroupAttributeAssignment(group._fields, _columnAttributes) {
 
-  override def isIdFieldOfKeyedEntity = {
+  override def isIdFieldOfKeyedEntity: Boolean = {
     val fmdHead = group._fields.head
     fmdHead.parentMetaData.viewOrTable.ked.exists(_.idPropertyName == group._propertyName)
   }
@@ -316,17 +316,17 @@ class ColumnAttributeAssignment(val left: FieldMetaData, val columnAttributes: c
 
   def clearColumnAttributes(): Unit = left._clearColumnAttributes()
 
-  def isIdFieldOfKeyedEntity = left.isIdFieldOfKeyedEntity
+  def isIdFieldOfKeyedEntity: Boolean = left.isIdFieldOfKeyedEntity
 }
 
 class DefaultValueAssignment(val left: FieldMetaData, val value: TypedExpression[_, _])
   extends BaseColumnAttributeAssignment {
 
-  def isIdFieldOfKeyedEntity = left.isIdFieldOfKeyedEntity
+  def isIdFieldOfKeyedEntity: Boolean = left.isIdFieldOfKeyedEntity
 
   def clearColumnAttributes(): Unit = left._clearColumnAttributes()
 
-  def columnAttributes = Nil
+  def columnAttributes: collection.Seq[ColumnAttribute] = Nil
 }
 
 
@@ -343,11 +343,11 @@ class ConstantTypedExpression[A1, T1](val value: A1, val nativeJdbcValue: AnyRef
 
   override def mapper: OutMapper[A1] = i.get.createOutMapper
 
-  override def sample =
+  override def sample: A1 =
     if (value != null) value
     else i.get.sample
 
-  def jdbcClass =
+  def jdbcClass: Class[_ <: AnyRef] =
     i.map(_.jdbcSample).getOrElse(nativeJdbcValue).getClass
 
   if (nativeJdbcValue != null) nativeJdbcValue.getClass
@@ -363,7 +363,7 @@ class ConstantTypedExpression[A1, T1](val value: A1, val nativeJdbcValue: AnyRef
     }
   }
 
-  def displayAsString =
+  def displayAsString: String =
     if (value == null)
       "null"
     else if (needsQuote)
@@ -371,12 +371,12 @@ class ConstantTypedExpression[A1, T1](val value: A1, val nativeJdbcValue: AnyRef
     else
       value.toString
 
-  override def toString = "'ConstantTypedExpression:" + value
+  override def toString: String = "'ConstantTypedExpression:" + value
 }
 
 class ConstantExpressionNodeList[T](val value: Iterable[T], mapper: OutMapper[_]) extends ExpressionNode {
 
-  def isEmpty =
+  def isEmpty: Boolean =
     value == Nil
 
   def doWrite(sw: StatementWriter): Unit =
@@ -400,7 +400,7 @@ class FunctionNode(val name: String, val args: collection.Seq[ExpressionNode]) e
     sw.write(")")
   }
 
-  override def children = args.toList
+  override def children: List[ExpressionNode] = args.toList
 }
 
 class PostfixOperatorNode(val token: String, val arg: ExpressionNode) extends ExpressionNode {
@@ -416,11 +416,11 @@ class PostfixOperatorNode(val token: String, val arg: ExpressionNode) extends Ex
 
 class TypeConversion(e: ExpressionNode) extends ExpressionNode {
 
-  override def inhibited = e.inhibited
+  override def inhibited: Boolean = e.inhibited
 
   override def doWrite(sw: StatementWriter): Unit = e.doWrite(sw)
 
-  override def children = e.children
+  override def children: List[ExpressionNode] = e.children
 }
 
 class BinaryOperatorNode
@@ -429,10 +429,10 @@ class BinaryOperatorNode
 
   override def children = List(left, right)
 
-  override def inhibited =
+  override def inhibited: Boolean =
     _inhibitedByWhen || left.inhibited || right.inhibited
 
-  override def toString =
+  override def toString: String =
     "'BinaryOperatorNode:" + operatorToken + inhibitedFlagForAstDump
 
   def doWrite(sw: StatementWriter): Unit = {
@@ -454,9 +454,9 @@ class PrefixOperatorNode
 
   override def children = List(child)
 
-  override def inhibited = _inhibitedByWhen || child.inhibited
+  override def inhibited: Boolean = _inhibitedByWhen || child.inhibited
 
-  override def toString = "'PrefixOperatorNode:" + operatorToken + inhibitedFlagForAstDump
+  override def toString: String = "'PrefixOperatorNode:" + operatorToken + inhibitedFlagForAstDump
 
   override def doWrite(sw: StatementWriter): Unit = {
     sw.write("(")
@@ -489,7 +489,7 @@ trait QueryableExpressionNode extends ExpressionNode with UniqueIdInAliaseRequir
 
   private[this] var _inhibited = false
 
-  override def inhibited = _inhibited
+  override def inhibited: Boolean = _inhibited
 
   def inhibited_=(b: Boolean): Unit = _inhibited = b
 
@@ -497,12 +497,12 @@ trait QueryableExpressionNode extends ExpressionNode with UniqueIdInAliaseRequir
    * When the join syntax is used, isMemberOfJoinList is true if this instance is not in the from clause
    * but a 'join element'. 
    */
-  def isMemberOfJoinList = joinKind.isDefined
+  def isMemberOfJoinList: Boolean = joinKind.isDefined
 
   // new join syntax
   var joinKind: Option[(String, String)] = None
 
-  def isOuterJoined =
+  def isOuterJoined: Boolean =
     joinKind.isDefined && joinKind.get._2 == "outer"
 
   var joinExpression: Option[LogicalBoolean] = None
@@ -522,7 +522,7 @@ trait QueryableExpressionNode extends ExpressionNode with UniqueIdInAliaseRequir
 
   def getOrCreateAllSelectElements(forScope: QueryExpressionElements): Iterable[SelectElement]
 
-  def dumpAst = {
+  def dumpAst: String = {
     val sb = new java.lang.StringBuilder
     visitDescendants { (n, parent, d: Int) =>
       val c = 4 * d
@@ -540,12 +540,12 @@ class OrderByArg(val e: ExpressionNode) {
 
   private[squeryl] def isAscending = _ascending
 
-  def asc = {
+  def asc: OrderByArg = {
     _ascending = true
     this
   }
 
-  def desc = {
+  def desc: OrderByArg = {
     _ascending = false
     this
   }
@@ -555,7 +555,7 @@ class OrderByExpression(a: OrderByArg) extends ExpressionNode {
 
   private def e = a.e
 
-  override def inhibited = _inhibitedByWhen || e.inhibited
+  override def inhibited: Boolean = _inhibitedByWhen || e.inhibited
 
   def doWrite(sw: StatementWriter): Unit = {
     e.write(sw)
@@ -567,7 +567,7 @@ class OrderByExpression(a: OrderByArg) extends ExpressionNode {
 
   override def children = List(e)
 
-  def inverse = {
+  def inverse: OrderByExpression = {
 
     val aCopy = new OrderByArg(a.e)
 
@@ -604,7 +604,7 @@ class RightHandSideOfIn[A](val ast: ExpressionNode, val isIn: Option[Boolean] = 
 
   override def children = List(ast)
 
-  override def inhibited =
+  override def inhibited: Boolean =
     super.inhibited ||
       (isConstantEmptyList && // not in Empty is always true, so we remove the condition
         (!isIn.get))
@@ -639,7 +639,7 @@ class UnionExpressionNode(val kind: String, val ast: ExpressionNode) extends Exp
     sw.nextLine()
   }
 
-  override def toString = {
+  override def toString: String = {
     s"'UnionExpressionNode[with$kind]"
   }
 
@@ -652,7 +652,7 @@ class QueryValueExpressionNode[A1, T1](val ast: ExpressionNode, override val map
     ast.write(sw)
   }
 
-  override def toString = {
+  override def toString: String = {
     "'QueryValueExpressionNode"
   }
 

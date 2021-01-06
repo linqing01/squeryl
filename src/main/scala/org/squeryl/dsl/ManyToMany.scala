@@ -52,9 +52,9 @@ class StatefulOneToMany[M](val relation: OneToMany[M]) extends Iterable[M] {
       _buffer.append(m)
   }
 
-  def iterator = _buffer.iterator
+  def iterator: Iterator[M] = _buffer.iterator
 
-  def associate(m: M) = {
+  def associate(m: M): M = {
     relation.associate(m)
     _buffer.append(m)
     m
@@ -76,15 +76,15 @@ class StatefulManyToOne[O](val relation: ManyToOne[O]) {
   def refresh(): Unit =
     _one = relation.iterator.toSeq.headOption
 
-  def one = _one
+  def one: Option[O] = _one
 
-  def assign(o: O) = {
+  def assign(o: O): O = {
     relation.assign(o)
     _one = Some(o)
     o
   }
 
-  def delete = {
+  def delete: Boolean = {
     val b = relation.delete
     _one = None
     b
@@ -199,9 +199,9 @@ class StatefulManyToMany[O, A](val relation: ManyToMany[O, A]) extends Iterable[
       _map.put(e._1, e._2)
   }
 
-  def iterator = _map.keysIterator
+  def iterator: Iterator[O] = _map.keysIterator
 
-  def associate(o: O, a: A) = {
+  def associate(o: O, a: A): A = {
     relation.associate(o, a)
     _map.put(o, a)
     a

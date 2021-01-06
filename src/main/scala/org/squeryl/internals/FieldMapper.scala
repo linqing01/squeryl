@@ -39,7 +39,7 @@ trait FieldMapper {
   protected object PrimitiveTypeSupport {
     // =========================== Non Numerical =========================== 
 
-    val stringTEF = new TypedExpressionFactory[String, TString] with PrimitiveJdbcMapper[String] {
+    val stringTEF: TypedExpressionFactory[String, TString] with PrimitiveJdbcMapper[String] = new TypedExpressionFactory[String, TString] with PrimitiveJdbcMapper[String] {
       val sample = "": String
       val defaultColumnLength = 128
 
@@ -57,7 +57,7 @@ trait FieldMapper {
       def extractNativeJdbcValue(rs: ResultSet, i: Int) = rs.getDate(i)
     }
 
-    val sqlDateTEF = new TypedExpressionFactory[java.sql.Date, TDate] with PrimitiveJdbcMapper[java.sql.Date] {
+    val sqlDateTEF: TypedExpressionFactory[sql.Date, TDate] with PrimitiveJdbcMapper[sql.Date] = new TypedExpressionFactory[java.sql.Date, TDate] with PrimitiveJdbcMapper[java.sql.Date] {
       val sample = new java.sql.Date(0L)
       val defaultColumnLength = -1
 
@@ -72,7 +72,7 @@ trait FieldMapper {
       val deOptionizer = sqlDateTEF
     }
 
-    val timestampTEF = new TypedExpressionFactory[Timestamp, TTimestamp] with PrimitiveJdbcMapper[Timestamp] {
+    val timestampTEF: TypedExpressionFactory[Timestamp, TTimestamp] with PrimitiveJdbcMapper[Timestamp] = new TypedExpressionFactory[Timestamp, TTimestamp] with PrimitiveJdbcMapper[Timestamp] {
       val sample = new Timestamp(0)
       val defaultColumnLength = -1
 
@@ -83,7 +83,7 @@ trait FieldMapper {
       val deOptionizer = timestampTEF
     }
 
-    val booleanTEF = new TypedExpressionFactory[Boolean, TBoolean] with PrimitiveJdbcMapper[Boolean] {
+    val booleanTEF: TypedExpressionFactory[Boolean, TBoolean] with PrimitiveJdbcMapper[Boolean] = new TypedExpressionFactory[Boolean, TBoolean] with PrimitiveJdbcMapper[Boolean] {
       val sample = true
       val defaultColumnLength = 1
 
@@ -94,7 +94,7 @@ trait FieldMapper {
       val deOptionizer = booleanTEF
     }
 
-    val uuidTEF = new TypedExpressionFactory[UUID, TUUID] with PrimitiveJdbcMapper[UUID] {
+    val uuidTEF: TypedExpressionFactory[UUID, TUUID] with PrimitiveJdbcMapper[UUID] = new TypedExpressionFactory[UUID, TUUID] with PrimitiveJdbcMapper[UUID] {
       val sample = java.util.UUID.fromString("00000000-0000-0000-0000-000000000000")
       val defaultColumnLength = 36
 
@@ -112,7 +112,7 @@ trait FieldMapper {
       val deOptionizer = uuidTEF
     }
 
-    val binaryTEF = new TypedExpressionFactory[Array[Byte], TByteArray] with PrimitiveJdbcMapper[Array[Byte]] {
+    val binaryTEF: TypedExpressionFactory[Array[Byte], TByteArray] with PrimitiveJdbcMapper[Array[Byte]] = new TypedExpressionFactory[Array[Byte], TByteArray] with PrimitiveJdbcMapper[Array[Byte]] {
       val sample = Array(0: Byte)
       val defaultColumnLength = 255
 
@@ -123,7 +123,7 @@ trait FieldMapper {
       val deOptionizer = binaryTEF
     }
 
-    val intArrayTEF = new ArrayTEF[Int, TIntArray] {
+    val intArrayTEF: ArrayTEF[Int, TIntArray] = new ArrayTEF[Int, TIntArray] {
       val sample = Array(0)
 
       def toWrappedJDBCType(element: Int): java.lang.Object = java.lang.Integer.valueOf(element)
@@ -131,7 +131,7 @@ trait FieldMapper {
       def fromWrappedJDBCType(elements: Array[java.lang.Object]): Array[Int] = elements.map(i => i.asInstanceOf[java.lang.Integer].toInt)
     }
 
-    val longArrayTEF = new ArrayTEF[Long, TLongArray] {
+    val longArrayTEF: ArrayTEF[Long, TLongArray] = new ArrayTEF[Long, TLongArray] {
       val sample = Array(0L)
 
       def toWrappedJDBCType(element: Long): java.lang.Object = java.lang.Long.valueOf(element)
@@ -139,7 +139,7 @@ trait FieldMapper {
       def fromWrappedJDBCType(elements: Array[java.lang.Object]): Array[Long] = elements.map(i => i.asInstanceOf[java.lang.Long].toLong)
     }
 
-    val doubleArrayTEF = new ArrayTEF[Double, TDoubleArray] {
+    val doubleArrayTEF: ArrayTEF[Double, TDoubleArray] = new ArrayTEF[Double, TDoubleArray] {
       val sample: Array[Double] = Array(0.0)
 
       def toWrappedJDBCType(element: Double): java.lang.Object = java.lang.Double.valueOf(element)
@@ -147,7 +147,7 @@ trait FieldMapper {
       def fromWrappedJDBCType(elements: Array[java.lang.Object]): Array[Double] = elements.map(i => i.asInstanceOf[java.lang.Double].toDouble)
     }
 
-    val stringArrayTEF = new ArrayTEF[String, TStringArray] {
+    val stringArrayTEF: ArrayTEF[String, TStringArray] = new ArrayTEF[String, TStringArray] {
       val sample: Array[String] = Array("")
 
       def toWrappedJDBCType(element: String): java.lang.Object = new java.lang.String(element)
@@ -160,7 +160,7 @@ trait FieldMapper {
     //val deOptionizer = intArrayTEF
     //}
 
-    def enumValueTEF[A >: Enumeration#Value <: Enumeration#Value](ev: Enumeration#Value) =
+    def enumValueTEF[A >: Enumeration#Value <: Enumeration#Value](ev: Enumeration#Value): JdbcMapper[Int, A] with TypedExpressionFactory[A, TEnumValue[A]] =
       new JdbcMapper[Int, A] with TypedExpressionFactory[A, TEnumValue[A]] {
 
         val enu = Utils.enumerationForValue(ev)
@@ -181,10 +181,10 @@ trait FieldMapper {
 
     object DummyEnum extends Enumeration {
       type DummyEnum = Value
-      val DummyEnumerationValue = Value(-1, "DummyEnumerationValue")
+      val DummyEnumerationValue: PrimitiveTypeSupport.DummyEnum.Value = Value(-1, "DummyEnumerationValue")
     }
 
-    def optionEnumValueTEF[A >: Enumeration#Value <: Enumeration#Value](ev: Option[Enumeration#Value]) = new TypedExpressionFactory[Option[A], TOptionEnumValue[A]] with DeOptionizer[Int, A, TEnumValue[A], Option[A], TOptionEnumValue[A]] {
+    def optionEnumValueTEF[A >: Enumeration#Value <: Enumeration#Value](ev: Option[Enumeration#Value]): TypedExpressionFactory[Option[A], TOptionEnumValue[A]] with DeOptionizer[Int, A, TEnumValue[A], Option[A], TOptionEnumValue[A]] = new TypedExpressionFactory[Option[A], TOptionEnumValue[A]] with DeOptionizer[Int, A, TEnumValue[A], Option[A], TOptionEnumValue[A]] {
       val deOptionizer: TypedExpressionFactory[A, TEnumValue[A]] with JdbcMapper[Int, A] = {
         val e = ev.getOrElse(PrimitiveTypeSupport.DummyEnum.DummyEnumerationValue)
         enumValueTEF[A](e)
@@ -234,7 +234,7 @@ trait FieldMapper {
 
     // =========================== Numerical Floating Point =========================== 
 
-    val floatTEF = new FloatTypedExpressionFactory[Float, TFloat] with PrimitiveJdbcMapper[Float] {
+    val floatTEF: FloatTypedExpressionFactory[Float, TFloat] with PrimitiveJdbcMapper[Float] = new FloatTypedExpressionFactory[Float, TFloat] with PrimitiveJdbcMapper[Float] {
       val sample = 1F
       val defaultColumnLength = 4
 
@@ -245,7 +245,7 @@ trait FieldMapper {
       val deOptionizer = floatTEF
     }
 
-    val doubleTEF = new FloatTypedExpressionFactory[Double, TDouble] with PrimitiveJdbcMapper[Double] {
+    val doubleTEF: FloatTypedExpressionFactory[Double, TDouble] with PrimitiveJdbcMapper[Double] = new FloatTypedExpressionFactory[Double, TDouble] with PrimitiveJdbcMapper[Double] {
       val sample = 1D
       val defaultColumnLength = 8
 
@@ -256,7 +256,7 @@ trait FieldMapper {
       val deOptionizer = doubleTEF
     }
 
-    val bigDecimalTEF = new FloatTypedExpressionFactory[BigDecimal, TBigDecimal] with PrimitiveJdbcMapper[BigDecimal] {
+    val bigDecimalTEF: FloatTypedExpressionFactory[BigDecimal, TBigDecimal] with PrimitiveJdbcMapper[BigDecimal] = new FloatTypedExpressionFactory[BigDecimal, TBigDecimal] with PrimitiveJdbcMapper[BigDecimal] {
       val sample = BigDecimal(1)
       val defaultColumnLength = -1
 
@@ -276,7 +276,7 @@ trait FieldMapper {
 
   initialize()
 
-  protected def initialize() = {
+  protected def initialize(): Option[FieldAttributesBasedOnType[_]] = {
     import PrimitiveTypeSupport._
 
     register(byteTEF)
@@ -326,7 +326,13 @@ trait FieldMapper {
     def convertToJdbc(v: AnyRef): AnyRef
   }
 
-  protected def makeMapper(fa0: JdbcMapper[_, _]) = new {
+  protected def makeMapper(fa0: JdbcMapper[_, _]): Object {
+    val fa: JdbcMapper[AnyRef, AnyRef]
+
+    def map(rs: ResultSet, i: Int): AnyRef
+
+    def convertToJdbc(v: AnyRef): AnyRef
+  } = new {
     val fa = fa0.asInstanceOf[JdbcMapper[AnyRef, AnyRef]]
 
     def map(rs: ResultSet, i: Int) = fa.map(rs, i)
@@ -342,22 +348,22 @@ trait FieldMapper {
 
     val clasz: Class[_] = sample.asInstanceOf[AnyRef].getClass
 
-    override def toString =
+    override def toString: String =
       clasz.getCanonicalName + " --> " + mapper.getClass.getCanonicalName
   }
 
-  def nativeJdbcValueFor(nonNativeType: Class[_], r: AnyRef) =
+  def nativeJdbcValueFor(nonNativeType: Class[_], r: AnyRef): AnyRef =
     get(nonNativeType).mapper.convertToJdbc(r)
 
-  def isSupported(c: Class[_]) =
+  def isSupported(c: Class[_]): Boolean =
     lookup(c).isDefined ||
       c.isAssignableFrom(classOf[Some[_]]) ||
       classOf[Product1[Any]].isAssignableFrom(c)
 
-  def defaultColumnLength(c: Class[_]) =
+  def defaultColumnLength(c: Class[_]): Int =
     get(c).defaultLength
 
-  def nativeJdbcTypeFor(c: Class[_]) =
+  def nativeJdbcTypeFor(c: Class[_]): Class[_] =
     get(c).nativeJdbcType
 
   def resultSetHandlerFor(c: Class[_]): (ResultSet, Int) => AnyRef = {

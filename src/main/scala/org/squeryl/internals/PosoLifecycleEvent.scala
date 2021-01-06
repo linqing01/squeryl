@@ -32,9 +32,9 @@ class LifecycleEventInvoker(i: Iterable[LifecycleEvent], owner: View[_]) extends
     })
   }
 
-  override def hasBeforeDelete = _beforeDelete != Nil
+  override def hasBeforeDelete: Boolean = _beforeDelete != Nil
 
-  override def hasAfterDelete = _afterDelete != Nil
+  override def hasAfterDelete: Boolean = _afterDelete != Nil
 
   private def applyFuncs(fs: Iterable[AnyRef => AnyRef], a: AnyRef) = {
 
@@ -50,19 +50,19 @@ class LifecycleEventInvoker(i: Iterable[LifecycleEvent], owner: View[_]) extends
 
   def create: AnyRef = _factory(null)
 
-  def beforeInsert(a: AnyRef) = applyFuncs(_beforeInsert, a)
+  def beforeInsert(a: AnyRef): AnyRef = applyFuncs(_beforeInsert, a)
 
-  def afterInsert(a: AnyRef) = applyFuncs(_afterInsert, a)
+  def afterInsert(a: AnyRef): AnyRef = applyFuncs(_afterInsert, a)
 
-  def beforeDelete(a: AnyRef) = applyFuncs(_beforeDelete, a)
+  def beforeDelete(a: AnyRef): AnyRef = applyFuncs(_beforeDelete, a)
 
-  def afterDelete(a: AnyRef) = applyFuncs(_afterDelete, a)
+  def afterDelete(a: AnyRef): AnyRef = applyFuncs(_afterDelete, a)
 
-  def beforeUpdate(a: AnyRef) = applyFuncs(_beforeUpdate, a)
+  def beforeUpdate(a: AnyRef): AnyRef = applyFuncs(_beforeUpdate, a)
 
-  def afterUpdate(a: AnyRef) = applyFuncs(_afterUpdate, a)
+  def afterUpdate(a: AnyRef): AnyRef = applyFuncs(_afterUpdate, a)
 
-  def afterSelect(a: AnyRef) = applyFuncs(_afterSelect, a)
+  def afterSelect(a: AnyRef): AnyRef = applyFuncs(_afterSelect, a)
 }
 
 trait BaseLifecycleEventPercursor {
@@ -70,7 +70,7 @@ trait BaseLifecycleEventPercursor {
   protected def createLCEMap[A](t: Iterable[View[_]], e: PosoLifecycleEvent.Value, f: A => A) =
     new LifecycleEvent(t, e, f.asInstanceOf[AnyRef => AnyRef])
 
-  protected def createLCECall[A](t: Iterable[View[_]], e: PosoLifecycleEvent.Value, f: A => Unit) =
+  protected def createLCECall[A](t: Iterable[View[_]], e: PosoLifecycleEvent.Value, f: A => Unit): LifecycleEvent =
     createLCEMap[A](
       t,
       e,
@@ -92,16 +92,16 @@ class PosoFactoryPercursorTable[A](target: View[_]) extends BaseLifecycleEventPe
 
 class LifecycleEventPercursorTable[A](target: View[_], e: PosoLifecycleEvent.Value) extends BaseLifecycleEventPercursor {
 
-  def call(f: A => Unit) = createLCECall(Seq(target), e, f)
+  def call(f: A => Unit): LifecycleEvent = createLCECall(Seq(target), e, f)
 
-  def map(a: A => A) = createLCEMap(Seq(target), e, a)
+  def map(a: A => A): LifecycleEvent = createLCEMap(Seq(target), e, a)
 }
 
 class LifecycleEventPercursorClass[A](target: Class[_], schema: Schema, e: PosoLifecycleEvent.Value) extends BaseLifecycleEventPercursor {
 
-  def call(f: A => Unit) = createLCECall(schema.findAllTablesFor(target), e, f)
+  def call(f: A => Unit): LifecycleEvent = createLCECall(schema.findAllTablesFor(target), e, f)
 
-  def map(a: A => A) = createLCEMap(schema.findAllTablesFor(target), e, a)
+  def map(a: A => A): LifecycleEvent = createLCEMap(schema.findAllTablesFor(target), e, a)
 
 }
 
@@ -135,17 +135,17 @@ trait PosoLifecycleEventListener {
 object NoOpPosoLifecycleEventListener extends PosoLifecycleEventListener {
   def create: AnyRef = null
 
-  def beforeInsert(a: AnyRef) = a
+  def beforeInsert(a: AnyRef): AnyRef = a
 
-  def afterInsert(a: AnyRef) = a
+  def afterInsert(a: AnyRef): AnyRef = a
 
-  def beforeDelete(a: AnyRef) = a
+  def beforeDelete(a: AnyRef): AnyRef = a
 
-  def afterDelete(a: AnyRef) = a
+  def afterDelete(a: AnyRef): AnyRef = a
 
-  def beforeUpdate(a: AnyRef) = a
+  def beforeUpdate(a: AnyRef): AnyRef = a
 
-  def afterUpdate(a: AnyRef) = a
+  def afterUpdate(a: AnyRef): AnyRef = a
 
-  def afterSelect(a: AnyRef) = a
+  def afterSelect(a: AnyRef): AnyRef = a
 }

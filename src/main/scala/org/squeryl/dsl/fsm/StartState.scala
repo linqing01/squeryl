@@ -85,7 +85,7 @@ trait GroupByState[K]
     with OrderBySignatures[Group[K]] {
   self: GroupQueryYield[K] =>
 
-  def having(b: => LogicalBoolean) = {
+  def having(b: => LogicalBoolean): GroupQueryYield[K] = {
     _havingClause = Some(() => b)
     this
   }

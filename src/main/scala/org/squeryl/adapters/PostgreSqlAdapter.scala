@@ -35,7 +35,7 @@ class PostgreSqlAdapter extends DatabaseAdapter {
 
   override def stringTypeDeclaration = "varchar"
 
-  override def stringTypeDeclaration(length: Int) = "varchar(" + length + ")"
+  override def stringTypeDeclaration(length: Int): String = "varchar(" + length + ")"
 
   override def booleanTypeDeclaration = "boolean"
 
@@ -45,7 +45,7 @@ class PostgreSqlAdapter extends DatabaseAdapter {
 
   override def bigDecimalTypeDeclaration = "numeric"
 
-  override def bigDecimalTypeDeclaration(precision: Int, scale: Int) = "numeric(" + precision + "," + scale + ")"
+  override def bigDecimalTypeDeclaration(precision: Int, scale: Int): String = "numeric(" + precision + "," + scale + ")"
 
   override def binaryTypeDeclaration = "bytea"
 
@@ -60,7 +60,7 @@ class PostgreSqlAdapter extends DatabaseAdapter {
 
   override def jdbcStringArrayCreationType = "varchar"
 
-  override def foreignKeyConstraintName(foreignKeyTable: Table[_], idWithinSchema: Int) =
+  override def foreignKeyConstraintName(foreignKeyTable: Table[_], idWithinSchema: Int): String =
     foreignKeyTable.name + "FK" + idWithinSchema
 
   override def postCreateTable(t: Table[_], printSinkWhenWriteOnlyMode: Option[String => Unit]): Unit = {
@@ -80,7 +80,7 @@ class PostgreSqlAdapter extends DatabaseAdapter {
     }
   }
 
-  def sequenceName(t: Table[_]) =
+  def sequenceName(t: Table[_]): String =
     if (usePostgresSequenceNamingScheme) {
       // This is compatible with the default postgresql sequence naming scheme.
       val autoIncPK = t.posoMetaData.fieldsMetaData.find(fmd => fmd.isAutoIncremented)
@@ -90,7 +90,7 @@ class PostgreSqlAdapter extends DatabaseAdapter {
       t.prefixedPrefixedName("seq_")
     }
 
-  override def createSequenceName(fmd: FieldMetaData) =
+  override def createSequenceName(fmd: FieldMetaData): String =
     if (usePostgresSequenceNamingScheme) {
       // This is compatible with the default postgresql sequence naming scheme.
       fmd.parentMetaData.viewOrTable.name + "_" + fmd.columnName + "_seq"
@@ -140,10 +140,10 @@ class PostgreSqlAdapter extends DatabaseAdapter {
 
   override def supportsAutoIncrementInColumnDeclaration: Boolean = false
 
-  override def isTableDoesNotExistException(e: SQLException) =
+  override def isTableDoesNotExistException(e: SQLException): Boolean =
     e.getSQLState.equals("42P01")
 
-  override def writeCompositePrimaryKeyConstraint(t: Table[_], cols: Iterable[FieldMetaData]) = {
+  override def writeCompositePrimaryKeyConstraint(t: Table[_], cols: Iterable[FieldMetaData]): String = {
     // alter table TableName add primary key (col1, col2) ;
     val sb = new java.lang.StringBuilder(256)
     sb.append("alter table ")
@@ -155,7 +155,7 @@ class PostgreSqlAdapter extends DatabaseAdapter {
   }
 
 
-  override def writeDropForeignKeyStatement(foreignKeyTable: Table[_], fkName: String) =
+  override def writeDropForeignKeyStatement(foreignKeyTable: Table[_], fkName: String): String =
     "alter table " + quoteName(foreignKeyTable.prefixedName) + " drop constraint " + quoteName(fkName)
 
   override def failureOfStatementRequiresRollback = true
@@ -169,7 +169,7 @@ class PostgreSqlAdapter extends DatabaseAdapter {
     }
   }
 
-  override def quoteIdentifier(s: String) = List("\"", s.replace("\"", "\"\""), "\"").mkString
+  override def quoteIdentifier(s: String): String = List("\"", s.replace("\"", "\"\""), "\"").mkString
 
   override def convertFromUuidForJdbc(u: UUID): AnyRef = u
 

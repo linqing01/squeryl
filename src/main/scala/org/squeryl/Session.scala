@@ -27,11 +27,11 @@ class LazySession(val connectionFunc: () => Connection, val databaseAdapter: Dat
 
   private[this] var _connection: Option[Connection] = None
 
-  def hasConnection = _connection.isDefined
+  def hasConnection: Boolean = _connection.isDefined
 
   var originalAutoCommit = true
 
-  var originalTransactionIsolation = java.sql.Connection.TRANSACTION_NONE
+  var originalTransactionIsolation: Int = java.sql.Connection.TRANSACTION_NONE
 
   def connection: Connection = {
     /*
@@ -200,7 +200,7 @@ trait AbstractSession {
 
   def setLogger(f: String => Unit): Unit = _logger = f
 
-  def isLoggingEnabled = _logger != null
+  def isLoggingEnabled: Boolean = _logger != null
 
   def log(s: String): Unit = if (isLoggingEnabled) _logger(s)
 
@@ -301,7 +301,7 @@ object Session {
           throw new IllegalStateException("No session is bound to current thread, a session must be created via Session.create \nand bound to the thread via 'work' or 'bindToCurrentThread'\n Usually this error occurs when a statement is executed outside of a transaction/inTrasaction block"))
     }
 
-  def hasCurrentSession =
+  def hasCurrentSession: Boolean =
     currentSessionOption.isDefined
 
   def cleanupResources(): Unit =

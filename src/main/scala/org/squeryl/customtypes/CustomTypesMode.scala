@@ -27,7 +27,7 @@ import java.util.{Date, UUID}
 trait CustomType[T] extends Product1[T] {
   def value: T
 
-  def _1 = value
+  def _1: T = value
 
   def canEqual(a: Any) = false
 }
@@ -36,7 +36,7 @@ trait CustomTypesMode extends QueryDsl with FieldMapper {
 
   private[this] val ps = PrimitiveTypeSupport
 
-  val stringTEF = new NonPrimitiveJdbcMapper[String, StringField, TString](ps.stringTEF, this) {
+  val stringTEF: NonPrimitiveJdbcMapper[String, StringField, TString] = new NonPrimitiveJdbcMapper[String, StringField, TString](ps.stringTEF, this) {
     def convertFromJdbc(v: String) = new StringField(v)
 
     def convertToJdbc(v: StringField) = v.value
@@ -46,7 +46,7 @@ trait CustomTypesMode extends QueryDsl with FieldMapper {
     val deOptionizer = stringTEF
   }
 
-  val dateTEF = new NonPrimitiveJdbcMapper[Date, DateField, TDate](ps.dateTEF, this) {
+  val dateTEF: NonPrimitiveJdbcMapper[Date, DateField, TDate] = new NonPrimitiveJdbcMapper[Date, DateField, TDate](ps.dateTEF, this) {
     def convertFromJdbc(v: Date) = new DateField(v)
 
     def convertToJdbc(v: DateField) = v.value
@@ -56,7 +56,7 @@ trait CustomTypesMode extends QueryDsl with FieldMapper {
     val deOptionizer = dateTEF
   }
 
-  val timestampTEF = new NonPrimitiveJdbcMapper[Timestamp, TimestampField, TTimestamp](ps.timestampTEF, this) {
+  val timestampTEF: NonPrimitiveJdbcMapper[Timestamp, TimestampField, TTimestamp] = new NonPrimitiveJdbcMapper[Timestamp, TimestampField, TTimestamp](ps.timestampTEF, this) {
     def convertFromJdbc(v: Timestamp) = new TimestampField(v)
 
     def convertToJdbc(v: TimestampField) = v.value
@@ -67,7 +67,7 @@ trait CustomTypesMode extends QueryDsl with FieldMapper {
     val deOptionizer = timestampTEF
   }
 
-  val booleanTEF = new NonPrimitiveJdbcMapper[Boolean, BooleanField, TBoolean](ps.booleanTEF, this) {
+  val booleanTEF: NonPrimitiveJdbcMapper[Boolean, BooleanField, TBoolean] = new NonPrimitiveJdbcMapper[Boolean, BooleanField, TBoolean](ps.booleanTEF, this) {
     def convertFromJdbc(v: Boolean) = new BooleanField(v)
 
     def convertToJdbc(v: BooleanField) = v.value
@@ -77,7 +77,7 @@ trait CustomTypesMode extends QueryDsl with FieldMapper {
     val deOptionizer = booleanTEF
   }
 
-  val uuidTEF = new NonPrimitiveJdbcMapper[UUID, UuidField, TUUID](ps.uuidTEF, this) {
+  val uuidTEF: NonPrimitiveJdbcMapper[UUID, UuidField, TUUID] = new NonPrimitiveJdbcMapper[UUID, UuidField, TUUID](ps.uuidTEF, this) {
     def convertFromJdbc(v: UUID) = new UuidField(v)
 
     def convertToJdbc(v: UuidField) = v.value
@@ -89,7 +89,7 @@ trait CustomTypesMode extends QueryDsl with FieldMapper {
 
   // =========================== Numerical Integral ===========================
 
-  val byteTEF = new NonPrimitiveJdbcMapper[Byte, ByteField, TByte](ps.byteTEF, this) {
+  val byteTEF: NonPrimitiveJdbcMapper[Byte, ByteField, TByte] = new NonPrimitiveJdbcMapper[Byte, ByteField, TByte](ps.byteTEF, this) {
     def convertFromJdbc(v: Byte) = new ByteField(v)
 
     def convertToJdbc(v: ByteField) = v.value
@@ -128,7 +128,7 @@ trait CustomTypesMode extends QueryDsl with FieldMapper {
 
   // =========================== Numerical Floating Point =========================== 
 
-  val floatTEF = new NonPrimitiveJdbcMapper[Float, FloatField, TFloat](ps.floatTEF, this) with FloatTypedExpressionFactory[FloatField, TFloat] {
+  val floatTEF: NonPrimitiveJdbcMapper[Float, FloatField, TFloat] with FloatTypedExpressionFactory[FloatField, TFloat] = new NonPrimitiveJdbcMapper[Float, FloatField, TFloat](ps.floatTEF, this) with FloatTypedExpressionFactory[FloatField, TFloat] {
     def convertFromJdbc(v: Float) = new FloatField(v)
 
     def convertToJdbc(v: FloatField) = v.value
@@ -138,7 +138,7 @@ trait CustomTypesMode extends QueryDsl with FieldMapper {
     val deOptionizer = floatTEF
   }
 
-  val doubleTEF = new NonPrimitiveJdbcMapper[Double, DoubleField, TDouble](ps.doubleTEF, this) with FloatTypedExpressionFactory[DoubleField, TDouble] {
+  val doubleTEF: NonPrimitiveJdbcMapper[Double, DoubleField, TDouble] with FloatTypedExpressionFactory[DoubleField, TDouble] = new NonPrimitiveJdbcMapper[Double, DoubleField, TDouble](ps.doubleTEF, this) with FloatTypedExpressionFactory[DoubleField, TDouble] {
     def convertFromJdbc(v: Double) = new DoubleField(v)
 
     def convertToJdbc(v: DoubleField) = v.value
@@ -148,7 +148,7 @@ trait CustomTypesMode extends QueryDsl with FieldMapper {
     val deOptionizer = doubleTEF
   }
 
-  val bigDecimalTEF = new NonPrimitiveJdbcMapper[BigDecimal, BigDecimalField, TBigDecimal](ps.bigDecimalTEF, this) with FloatTypedExpressionFactory[BigDecimalField, TBigDecimal] {
+  val bigDecimalTEF: NonPrimitiveJdbcMapper[BigDecimal, BigDecimalField, TBigDecimal] with FloatTypedExpressionFactory[BigDecimalField, TBigDecimal] = new NonPrimitiveJdbcMapper[BigDecimal, BigDecimalField, TBigDecimal](ps.bigDecimalTEF, this) with FloatTypedExpressionFactory[BigDecimalField, TBigDecimal] {
     def convertFromJdbc(v: BigDecimal) = new BigDecimalField(v)
 
     def convertToJdbc(v: BigDecimalField) = v.value

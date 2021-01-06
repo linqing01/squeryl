@@ -6,13 +6,13 @@ import org.squeryl.{AbstractSession, Session}
 
 object LocalH2SinkStatisticsListener {
 
-  def initializeOverwrite(schemaName: String, workingDir: String = ".") =
+  def initializeOverwrite(schemaName: String, workingDir: String = "."): LocalH2SinkStatisticsListener =
     initialize(schemaName, overwrite = true, workingDir)
 
-  def initializeAppend(schemaName: String, workingDir: String = ".") =
+  def initializeAppend(schemaName: String, workingDir: String = "."): LocalH2SinkStatisticsListener =
     initialize(schemaName, overwrite = false, workingDir)
 
-  def initialize(schemaName: String, overwrite: Boolean, workingDir: String) = {
+  def initialize(schemaName: String, overwrite: Boolean, workingDir: String): LocalH2SinkStatisticsListener = {
     Class.forName("org.h2.Driver")
 
     val file = new java.io.File(workingDir, schemaName + ".h2.db").getCanonicalFile

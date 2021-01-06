@@ -3,6 +3,7 @@ package org.squeryl.internals
 import org.squeryl.Session
 import org.squeryl.dsl.{ArrayJdbcMapper, TypedExpressionFactory}
 
+import java.sql
 import java.sql.ResultSet
 
 abstract class ArrayTEF[P, TE] extends TypedExpressionFactory[Array[P], TE] with ArrayJdbcMapper[java.sql.Array, Array[P]] {
@@ -15,7 +16,7 @@ abstract class ArrayTEF[P, TE] extends TypedExpressionFactory[Array[P], TE] with
 
   val defaultColumnLength = 1
 
-  def extractNativeJdbcValue(rs: ResultSet, i: Int) = rs.getArray(i)
+  def extractNativeJdbcValue(rs: ResultSet, i: Int): sql.Array = rs.getArray(i)
 
   def convertToJdbc(v: Array[P]): java.sql.Array = {
     val content: Array[java.lang.Object] = v.map(toWrappedJDBCType)

@@ -178,7 +178,7 @@ class Table[T] private[squeryl](n: String, c: Class[T], val schema: Schema, _pre
    * @throws SquerylSQLException When a database error occurs or the update
    *                             does not result in 1 row
    */
-  def forceUpdate[K](o: T)(implicit ked: KeyedEntityDef[T, _]) =
+  def forceUpdate[K](o: T)(implicit ked: KeyedEntityDef[T, _]): AnyRef =
     _update(o, checkOCC = false, ked)
 
   /**
