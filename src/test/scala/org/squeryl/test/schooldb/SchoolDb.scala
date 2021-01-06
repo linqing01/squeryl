@@ -16,17 +16,18 @@ package org.squeryl.test.schooldb
  * limitations under the License.
  * **************************************************************************** */
 
-import java.sql.SQLException
-import org.squeryl.annotations.{Column}
-import org.squeryl.framework._
-import java.util.Date
-import java.text.SimpleDateFormat
-import org.squeryl.dsl._
 import org.squeryl._
-import adapters.{MSSQLServer, OracleAdapter, DerbyAdapter}
-import internals.{FieldMetaData, FieldReferenceLinker}
-import collection.mutable.ArrayBuffer
+import org.squeryl.adapters.{DerbyAdapter, MSSQLServer, OracleAdapter}
+import org.squeryl.annotations.Column
+import org.squeryl.dsl._
 import org.squeryl.dsl.ast.ExpressionNode
+import org.squeryl.framework._
+import org.squeryl.internals.{FieldMetaData, FieldReferenceLinker}
+
+import java.sql.SQLException
+import java.text.SimpleDateFormat
+import java.util.Date
+import scala.collection.mutable.ArrayBuffer
 
 
 object AppSpecificTypeMode extends org.squeryl.PrimitiveTypeMode {
@@ -78,7 +79,7 @@ object AppSpecificTypeMode extends org.squeryl.PrimitiveTypeMode {
 
 }
 
-import AppSpecificTypeMode._
+import org.squeryl.test.schooldb.AppSpecificTypeMode._
 
 object SingleTestRun extends org.scalatest.Tag("SingleTestRun")
 
@@ -650,8 +651,8 @@ abstract class SchoolDbTestRun extends SchoolDbTestBase {
       st
     }
 
-    import org.squeryl.internals._
     import org.squeryl.dsl.ast._
+    import org.squeryl.internals._
 
     def toSeq[A](t: Table[A]) = {
       val st = prep

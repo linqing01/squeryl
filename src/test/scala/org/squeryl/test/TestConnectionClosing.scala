@@ -1,7 +1,7 @@
 package org.squeryl.test
 
-import org.squeryl.framework.{DBConnector, DbTestBase}
 import org.squeryl.SessionFactory
+import org.squeryl.framework.{DBConnector, DbTestBase}
 
 abstract class ConnectionClosingTest extends DbTestBase {
   self: DBConnector =>

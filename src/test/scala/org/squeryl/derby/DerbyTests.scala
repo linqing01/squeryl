@@ -1,11 +1,9 @@
 package org.squeryl.derby
 
-import org.squeryl.test._
-
-import org.squeryl.framework.DBConnector
-import org.squeryl.adapters.DerbyAdapter
-
 import org.squeryl.Session
+import org.squeryl.adapters.DerbyAdapter
+import org.squeryl.framework.DBConnector
+import org.squeryl.test._
 
 trait Derby_Connection extends DBConnector {
   def sessionCreator(): Option[() => Session] = {

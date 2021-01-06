@@ -16,12 +16,11 @@ package org.squeryl.test.customtypes
  * limitations under the License.
  * **************************************************************************** */
 
-import org.squeryl.{KeyedEntity, Schema}
-import org.squeryl.framework._
-import org.squeryl.customtypes._
-
-import CustomTypesMode._
 import org.scalatest.matchers.should.Matchers
+import org.squeryl.customtypes.CustomTypesMode._
+import org.squeryl.customtypes._
+import org.squeryl.framework._
+import org.squeryl.{KeyedEntity, Schema}
 
 
 abstract class TestCustomTypesMode extends SchemaTester with Matchers with QueryTester with RunTestsInsideTransaction {

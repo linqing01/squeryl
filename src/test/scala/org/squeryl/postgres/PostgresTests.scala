@@ -1,10 +1,10 @@
 package org.squeryl.postgres
 
 
-import org.squeryl.test._
-import org.squeryl.framework.DBConnector
-import org.squeryl.adapters.PostgreSqlAdapter
 import org.squeryl.Session
+import org.squeryl.adapters.PostgreSqlAdapter
+import org.squeryl.framework.DBConnector
+import org.squeryl.test._
 import org.squeryl.test.arrays.PrimitiveArrayTest
 
 trait Postgresql_Connection extends DBConnector {

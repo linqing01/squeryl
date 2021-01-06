@@ -16,15 +16,14 @@ package org.squeryl.test.musicdb
  * limitations under the License.
  * **************************************************************************** */
 
-import java.sql.Timestamp
-
-import org.squeryl._
-import adapters._
-import dsl._
-import framework._
-import java.util.Calendar
-import org.squeryl.test.PrimitiveTypeModeForTests._
 import org.scalatest.matchers.should.Matchers
+import org.squeryl._
+import org.squeryl.adapters._
+import org.squeryl.dsl._
+import org.squeryl.framework._
+
+import java.sql.Timestamp
+import java.util.Calendar
 
 object Genre extends Enumeration {
   type Genre = Value
@@ -42,7 +41,7 @@ object Tempo extends Enumeration {
   val Presto = Value(3, "Presto")
 }
 
-import Genre._
+import org.squeryl.test.musicdb.Genre._
 
 class MusicDbObject extends KeyedEntity[Int] {
   val id: Int = 0

@@ -1,9 +1,10 @@
 package org.squeryl.test
 
 import org.squeryl._
-import org.squeryl.framework.{DBConnector, SchemaTester, RunTestsInsideTransaction, SingleTestRun}
-import java.util.UUID
+import org.squeryl.framework.{DBConnector, RunTestsInsideTransaction, SchemaTester, SingleTestRun}
 import org.squeryl.test.PrimitiveTypeModeForTests._
+
+import java.util.UUID
 
 object UuidTests {
 

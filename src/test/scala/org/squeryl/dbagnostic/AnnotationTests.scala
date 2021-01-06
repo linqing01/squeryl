@@ -16,14 +16,11 @@ package org.squeryl.dbagnostic
  * limitations under the License.
  * **************************************************************************** */
 
-import org.squeryl.KeyedEntity
-import org.squeryl.annotations.{Row, Column}
-import org.squeryl.Schema
-
-
-import org.squeryl.test.PrimitiveTypeModeForTests
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import org.squeryl.{KeyedEntity, Schema}
+import org.squeryl.annotations.{Column, Row}
+import org.squeryl.test.PrimitiveTypeModeForTests
 
 
 @Row("T_TOASTER")

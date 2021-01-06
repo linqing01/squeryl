@@ -1,8 +1,8 @@
 package org.squeryl.test.mutablerelations
 
-import org.squeryl.test.PrimitiveTypeModeForTests._
 import org.squeryl._
 import org.squeryl.dsl.CompositeKey2
+import org.squeryl.test.PrimitiveTypeModeForTests._
 
 trait SchoolDb2Object extends KeyedEntity[Long] {
   val id: Long = 0

@@ -1,12 +1,10 @@
 package org.squeryl.oracle
 
 
-import org.squeryl.test._
-
-import org.squeryl.framework.DBConnector
-import org.squeryl.adapters.OracleAdapter
-
 import org.squeryl.Session
+import org.squeryl.adapters.OracleAdapter
+import org.squeryl.framework.DBConnector
+import org.squeryl.test._
 
 trait Oracle_Connection extends DBConnector {
   def sessionCreator(): Option[() => Session] = {

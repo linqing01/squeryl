@@ -1,9 +1,9 @@
 package org.squeryl.mssql
 
-import org.squeryl.test._
+import org.squeryl.Session
 import org.squeryl.adapters.MSSQLServer
 import org.squeryl.framework.DBConnector
-import org.squeryl.Session
+import org.squeryl.test._
 
 trait MSSQL_Connection extends DBConnector {
   def sessionCreator(): Option[() => Session] = {

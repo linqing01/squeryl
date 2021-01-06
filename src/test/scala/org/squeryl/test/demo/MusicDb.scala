@@ -16,10 +16,10 @@ package org.squeryl.test.demo
  * limitations under the License.
  * **************************************************************************** */
 
-import org.squeryl.test.PrimitiveTypeModeForTests._
-import org.squeryl.{Query, KeyedEntity, Schema}
 import org.squeryl.dsl.GroupWithMeasures
 import org.squeryl.framework.{DBConnector, RunTestsInsideTransaction, SchemaTester}
+import org.squeryl.test.PrimitiveTypeModeForTests._
+import org.squeryl.{KeyedEntity, Query, Schema}
 
 // The root object of the schema. Inheriting KeyedEntity[T] is not mandatory
 // it just makes primary key methods available (delete and lookup) on tables.

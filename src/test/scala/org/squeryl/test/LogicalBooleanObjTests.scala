@@ -1,8 +1,8 @@
 package org.squeryl.test
 
 import org.squeryl._
-import org.squeryl.framework.{DBConnector, SchemaTester, RunTestsInsideTransaction}
 import org.squeryl.dsl.ast._
+import org.squeryl.framework.{DBConnector, RunTestsInsideTransaction, SchemaTester}
 import org.squeryl.test.PrimitiveTypeMode4Tests._
 
 object LogicalBooleanObjTests {

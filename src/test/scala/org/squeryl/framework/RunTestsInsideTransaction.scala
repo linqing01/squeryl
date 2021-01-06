@@ -1,7 +1,7 @@
 package org.squeryl.framework
 
-import org.squeryl.test.PrimitiveTypeModeForTests._
 import org.squeryl.Session
+import org.squeryl.test.PrimitiveTypeModeForTests._
 
 trait RunTestsInsideTransaction extends DbTestBase {
   self: DBConnector =>

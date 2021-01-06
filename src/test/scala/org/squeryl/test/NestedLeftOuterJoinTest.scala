@@ -1,8 +1,8 @@
 package org.squeryl.test
 
 import org.squeryl._
-import org.squeryl.test.PrimitiveTypeModeForTests._
 import org.squeryl.framework._
+import org.squeryl.test.PrimitiveTypeModeForTests._
 
 object TestSchema extends Schema {
   val a = table[A]()

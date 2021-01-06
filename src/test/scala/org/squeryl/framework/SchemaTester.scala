@@ -1,11 +1,10 @@
 package org.squeryl.framework
 
-import org.squeryl.{SessionFactory, Schema}
-
-import org.squeryl.test.PrimitiveTypeModeForTests._
 import org.scalatest._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import org.squeryl.test.PrimitiveTypeModeForTests._
+import org.squeryl.{Schema, SessionFactory}
 
 abstract class SchemaTester extends DbTestBase {
   self: DBConnector =>

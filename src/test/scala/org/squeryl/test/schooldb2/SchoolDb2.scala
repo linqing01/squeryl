@@ -1,11 +1,11 @@
 package org.squeryl.test.schooldb2
 
-import org.squeryl.test.PrimitiveTypeModeForTests._
 import org.squeryl._
-import dsl.{OneToMany, CompositeKey2}
-import java.sql.{Savepoint}
-
+import org.squeryl.dsl.{CompositeKey2, OneToMany}
 import org.squeryl.framework._
+import org.squeryl.test.PrimitiveTypeModeForTests._
+
+import java.sql.Savepoint
 
 trait SchoolDb2Object {
   val id: Long = 0
