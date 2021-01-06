@@ -1,18 +1,18 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright 2010 Maxime Lévesque
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ***************************************************************************** */
+ * **************************************************************************** */
 package org.squeryl
 
 import annotation.meta.field
@@ -33,10 +33,10 @@ package object annotations {
    * field in the schema to become varchars of length 64 :
    *
    * override def columnTypeFor(fieldMetaData: FieldMetaData, databaseAdapter: DatabaseAdapter) =
-   *   if(fieldMetaData.isStringType)
-   *     return "varchar(64)"
-   *   else
-   *     super.columnTypeFor(fieldMetaData, databaseAdapter)
+   * if(fieldMetaData.isStringType)
+   * return "varchar(64)"
+   * else
+   * super.columnTypeFor(fieldMetaData, databaseAdapter)
    */
-  type Column = ColumnBase @field
+  type Column = ColumnBase@field
 }

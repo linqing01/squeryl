@@ -19,7 +19,9 @@ abstract class PrimitiveArrayTest extends SchemaTester with RunTestsInsideTransa
     }
 
     val query = from(swimmers)((s) => select(s))
-    val res = transaction { query.toList }
+    val res = transaction {
+      query.toList
+    }
 
     res.size should equal(1)
     res(0).lap_times.size should equal(3)
@@ -48,7 +50,9 @@ abstract class PrimitiveArrayTest extends SchemaTester with RunTestsInsideTransa
     }
 
     val query = from(swimmers)((s) => select(s))
-    val res = transaction { query.toList }
+    val res = transaction {
+      query.toList
+    }
 
     res.size should equal(1)
     res(0).lap_times.size should equal(3)
@@ -59,11 +63,13 @@ abstract class PrimitiveArrayTest extends SchemaTester with RunTestsInsideTransa
     transaction {
       update(swimmers)(s =>
         where(s.id === 1)
-          set (s.lap_times := Array(11.69), s.scores := Array(1, 2, 3, 4, 5), s.orgids := Array(13L), s.tags := Array("and things")))
+          set(s.lap_times := Array(11.69), s.scores := Array(1, 2, 3, 4, 5), s.orgids := Array(13L), s.tags := Array("and things")))
     }
 
     from(swimmers)((s) => select(s))
-    val res2 = transaction { query.toList }
+    val res2 = transaction {
+      query.toList
+    }
 
     res2.size should equal(1)
     res2(0).lap_times.size should equal(1)

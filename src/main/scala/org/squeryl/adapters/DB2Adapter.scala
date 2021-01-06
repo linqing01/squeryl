@@ -1,18 +1,18 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright 2010 Maxime Lévesque
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ***************************************************************************** */
+ * **************************************************************************** */
 package org.squeryl.adapters
 
 import org.squeryl.internals.{StatementWriter, DatabaseAdapter}
@@ -39,7 +39,7 @@ class DB2Adapter extends DatabaseAdapter {
     val sw = new StatementWriter(false, this)
     sw.write("create sequence ", sequenceName(t), " start with 1 increment by 1 nomaxvalue")
 
-    if(printSinkWhenWriteOnlyMode == None) {
+    if (printSinkWhenWriteOnlyMode == None) {
       val st = Session.currentSession.connection.createStatement
       st.execute(sw.statement)
     }
@@ -130,8 +130,8 @@ class DB2Adapter extends DatabaseAdapter {
   }
 
   private def _writeConcatOperand(e: ExpressionNode, sw: StatementWriter) = {
-    if (e.isInstanceOf[ConstantTypedExpression[_,_]]) {
-      val c = e.asInstanceOf[ConstantTypedExpression[Any,Any]]
+    if (e.isInstanceOf[ConstantTypedExpression[_, _]]) {
+      val c = e.asInstanceOf[ConstantTypedExpression[Any, Any]]
       sw.write("cast(")
       e.write(sw)
       sw.write(" as varchar(")

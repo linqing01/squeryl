@@ -7,9 +7,9 @@ import org.squeryl.adapters.DerbyAdapter
 
 import org.squeryl.Session
 
-trait Derby_Connection extends DBConnector{
-  def sessionCreator() : Option[() => Session] = {
-    if(config.hasProps("derby.connectionString", "derby.user", "derby.password")){
+trait Derby_Connection extends DBConnector {
+  def sessionCreator(): Option[() => Session] = {
+    if (config.hasProps("derby.connectionString", "derby.user", "derby.password")) {
       Class.forName("org.apache.derby.jdbc.EmbeddedDriver")
       Some(() => {
         val c = java.sql.DriverManager.getConnection(
@@ -20,25 +20,32 @@ trait Derby_Connection extends DBConnector{
         c.setAutoCommit(false)
         Session.create(c, new DerbyAdapter)
       })
-    }else{
+    } else {
       None
     }
   }
 }
 
 class Derby_UuidTests extends UuidTests with Derby_Connection
+
 class Derby_NestedLeftOuterJoinTest extends NestedLeftOuterJoinTest with Derby_Connection
+
 class Derby_SchoolDbMutableRelations extends mutablerelations.SchoolDb2MetableRelations with Derby_Connection
+
 class Derby_TransactionTests extends TransactionTests with Derby_Connection
+
 class Derby_SchoolDb2 extends schooldb2.SchoolDb2Tests with Derby_Connection
+
 class Derby_SchoolDb extends schooldb.SchoolDbTestRun with Derby_Connection {
   /* FIXME: https://issues.apache.org/jira/browse/DERBY-4998
    * Because of a derby bug we ignore the BigDecimal test cases until it's fixed.
    */
-  override val ignoredTests = List("BigDecimal","assertColumnNameChangeWithDeclareSyntax", "cast", "commonTableExpressions")
+  override val ignoredTests = List("BigDecimal", "assertColumnNameChangeWithDeclareSyntax", "cast", "commonTableExpressions")
 }
+
 //class Derby_TestCustomTypesMode extends customtypes.TestCustomTypesMode with Derby_Connection
 class Derby_KickTheTires extends demo.KickTheTires with Derby_Connection
+
 class Derby_MusicDb extends musicdb.MusicDbTestRun with Derby_Connection {
 
   override val ignoredTests = List(
@@ -53,7 +60,7 @@ class Derby_MusicDb extends musicdb.MusicDbTestRun with Derby_Connection {
     "testSQLMatchCaseNumerical2Numerical",
     "testSQLMatchCaseNumericalWithOption2Numerical",
     "testSQLMatchCaseEnemerationWitEnemeration",
-    "testSQLMatchCaseEnemerationWithOption2Numerical"    
+    "testSQLMatchCaseEnemerationWithOption2Numerical"
   )
 }
 

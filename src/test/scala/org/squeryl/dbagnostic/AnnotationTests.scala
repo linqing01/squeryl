@@ -1,24 +1,26 @@
 package org.squeryl.dbagnostic
 
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright 2010 Maxime Lévesque
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ***************************************************************************** */
+ * **************************************************************************** */
 
 import org.squeryl.KeyedEntity
 import org.squeryl.annotations.{Row, Column}
-import org.squeryl.Schema
+import org.squeryl.Schema
+
+
 import org.squeryl.test.PrimitiveTypeModeForTests
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -27,23 +29,23 @@ import org.scalatest.matchers.should.Matchers
 @Row("T_TOASTER")
 class Toaster(
 
-  @Column(optionType=classOf[Int])
-  var yearOfManufacture: Option[Int],
+               @Column(optionType = classOf[Int])
+               var yearOfManufacture: Option[Int],
 
-// TODO: uncomment when scalac bug #3003 is resolved
-//  @Column(optionType=classOf[String], length=25)
-//  var countryOfOrigin: Option[String],
+               // TODO: uncomment when scalac bug #3003 is resolved
+               //  @Column(optionType=classOf[String], length=25)
+               //  var countryOfOrigin: Option[String],
 
-//  @Column(name="dateOfPurchase", optionType=classOf[java.util.Date])
-//  var dateOfPurchase: Option[java.util.Date]
+               //  @Column(name="dateOfPurchase", optionType=classOf[java.util.Date])
+               //  var dateOfPurchase: Option[java.util.Date]
 
-  @Column(length=25)
-  var countryOfOrigin: String,
+               @Column(length = 25)
+               var countryOfOrigin: String,
 
-  @Column(name="BRAND_NAME", length=32)
-  var brandName: String) {
+               @Column(name = "BRAND_NAME", length = 32)
+               var brandName: String) {
 
-  @Column(name="WEIGHT", optionType=classOf[Float])
+  @Column(name = "WEIGHT", optionType = classOf[Float])
   var weightInGrams: Option[String] = None
 
   @Column("Zozo12")
@@ -69,12 +71,12 @@ class AnnotationTests extends AnyFunSuite with Matchers {
 
 
   class C(
-    @Column(optionType=classOf[Long]) var j: Option[Long],
-    @Column(optionType=classOf[java.lang.String]) var k: Option[String]) (
+           @Column(optionType = classOf[Long]) var j: Option[Long],
+           @Column(optionType = classOf[java.lang.String]) var k: Option[String])(
 
-    @Column(optionType=classOf[Int])
-    var i:Option[Int]
-  )
+           @Column(optionType = classOf[Int])
+           var i: Option[Int]
+         )
 
   def allTests = {
     //rudimentaryTests
@@ -83,7 +85,7 @@ class AnnotationTests extends AnyFunSuite with Matchers {
   class ToastersInc extends Schema()(PrimitiveTypeModeForTests) {
 
     import PrimitiveTypeModeForTests._
-    
+
     val descendantOfKeyedObjects = table[DescendantOfKeyedObject]()
 
     val nailCutters = table[NailCutter]()
@@ -101,13 +103,13 @@ class AnnotationTests extends AnyFunSuite with Matchers {
 
     val _isPersistedFmd = descendantOfKeyedObjects.posoMetaData.findFieldMetaDataForProperty("_isPersisted")
 
-    if(_isPersistedFmd != None)
+    if (_isPersistedFmd != None)
       fail("testMetaData" + " failed, @transient annotation of field _isPersisted was not effective.")
 
-    if(descendantOfKeyedObjects.findFieldMetaDataForProperty("id") == None)
+    if (descendantOfKeyedObjects.findFieldMetaDataForProperty("id") == None)
       fail("PosoMetaData has failed to build immutable field 'id'.")
 
-    if(nailCutters.findFieldMetaDataForProperty("id") == None)
+    if (nailCutters.findFieldMetaDataForProperty("id") == None)
       fail("PosoMetaData has failed to build immutable field 'id'.")
 
     val brandNameMD = toasters.findFieldMetaDataForProperty("brandName").get
@@ -121,10 +123,10 @@ class AnnotationTests extends AnyFunSuite with Matchers {
     val zozo = toasters.findFieldMetaDataForProperty("zozo").get
     assert(zozo.columnName == "Zozo12", "expected 'zozo' got " + zozo.columnName)
 
-// TODO: uncomment when scalac bug #3003 is resolved
-//    val dateOfPurchase = toasters.findFieldMetaDataForProperty("dateOfPurchase").get
-//    assert(dateOfPurchase.columnName == "dateOfPurchase", "expected 'dateOfPurchase' got " + dateOfPurchase.columnName)
-//    assert(dateOfPurchase.length == -1, "expected -1 got " + dateOfPurchase.length)
+    // TODO: uncomment when scalac bug #3003 is resolved
+    //    val dateOfPurchase = toasters.findFieldMetaDataForProperty("dateOfPurchase").get
+    //    assert(dateOfPurchase.columnName == "dateOfPurchase", "expected 'dateOfPurchase' got " + dateOfPurchase.columnName)
+    //    assert(dateOfPurchase.length == -1, "expected -1 got " + dateOfPurchase.length)
 
   }
 
@@ -132,7 +134,7 @@ class AnnotationTests extends AnyFunSuite with Matchers {
    * There has been a Scala bug with obtaining a Class[_] member in annotations,
    * if this test fails, it means that Scala has regressed TODO: file a bug
    */
-  test("scalaReflectionTests"){
+  test("scalaReflectionTests") {
     val colAnotations =
       classOf[C].getDeclaredFields.toList.sortBy(f => f.getName).map(f => f.getAnnotations.toList).flatten
 

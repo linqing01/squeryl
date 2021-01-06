@@ -5,7 +5,7 @@ import internals.{StatementWriter, FieldMapper}
 import dsl.ast.{ViewExpressionNode, ExpressionNode}
 
 class PgSchema(implicit fieldMapper: FieldMapper)
-    extends Schema()(fieldMapper) {
+  extends Schema()(fieldMapper) {
 
   protected def srf[T]()(implicit man: Manifest[T]): (Seq[ExpressionNode] => View[T]) =
     srf(tableNameFromClass(man.runtimeClass))(man)
@@ -23,11 +23,11 @@ class PgSchema(implicit fieldMapper: FieldMapper)
 }
 
 class SrfView[T](
-    name: String,
-    classOfT: Class[T],
-    schema: Schema,
-    prefix: Option[String],
-    args: Iterable[ExpressionNode])
+                  name: String,
+                  classOfT: Class[T],
+                  schema: Schema,
+                  prefix: Option[String],
+                  args: Iterable[ExpressionNode])
   extends View[T](
     name,
     classOfT,

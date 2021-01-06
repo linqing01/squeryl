@@ -1,31 +1,31 @@
-/*******************************************************************************
+/** *****************************************************************************
  * Copyright 2010 Maxime Lévesque
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ***************************************************************************** */
+ * **************************************************************************** */
 package org.squeryl.dsl.ast
 
 import org.squeryl.internals._
 import org.squeryl.dsl.{QueryYield, AbstractQuery}
 
 class QueryExpressionNode[R](val _query: AbstractQuery[R],
-                             _queryYield:QueryYield[R],
+                             _queryYield: QueryYield[R],
                              val subQueries: Iterable[QueryableExpressionNode],
                              val views: Iterable[ViewExpressionNode[_]])
   extends QueryExpressionElements
     with QueryableExpressionNode {
 
-  private [squeryl] def cteRoot: Option[QueryExpressionElements] = {
+  private[squeryl] def cteRoot: Option[QueryExpressionElements] = {
     def loop(current: Option[ExpressionNode]): Option[QueryExpressionElements] = {
       current.flatMap { c =>
         c match {
@@ -39,20 +39,21 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
         }
       }
     }
+
     loop(parent)
   }
 
-  private [squeryl] def sameRoot_?(e: QueryExpressionNode[_]) =
+  private[squeryl] def sameRoot_?(e: QueryExpressionNode[_]) =
     _query.root.isDefined && _query.root == e._query.root
 
-  def tableExpressions: Iterable[QueryableExpressionNode] = 
-    List(views.filter(v => ! v.inhibited),
-         subQueries.filter(v => ! v.inhibited)).flatten
+  def tableExpressions: Iterable[QueryableExpressionNode] =
+    List(views.filter(v => !v.inhibited),
+      subQueries.filter(v => !v.inhibited)).flatten
 
   def isJoinForm = _queryYield.joinExpressions != Nil
 
   val (whereClause, havingClause, groupByClause, orderByClause, ctes) =
-     _queryYield.queryElements
+    _queryYield.queryElements
 
   val commonTableExpressions = ctes.map { q =>
     q.ast match {
@@ -65,7 +66,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
   }.toList
 
   private[this] val unionClauses =
-      _query.unions map (kindAndQ => new UnionExpressionNode(kindAndQ._1, kindAndQ._2.ast))
+    _query.unions map (kindAndQ => new UnionExpressionNode(kindAndQ._1, kindAndQ._2.ast))
 
   private[this] var _selectList: Iterable[SelectElement] = Iterable.empty
 
@@ -85,32 +86,32 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
   def isUseableAsSubquery: Boolean =
     _sample match {
       case None => throw new IllegalStateException("method cannot be called before initialization")
-      case Some(p:Product) =>
-        if(p.getClass.getName.startsWith("scala.Tuple")) {
-          val z = (for(i <- 0 to (p.productArity - 1)) yield p.productElement(i))
+      case Some(p: Product) =>
+        if (p.getClass.getName.startsWith("scala.Tuple")) {
+          val z = (for (i <- 0 to (p.productArity - 1)) yield p.productElement(i))
           !(z.exists(o => _isPrimitiveType(o.asInstanceOf[AnyRef])))
         }
         else
           true
-      case Some(a:AnyRef) => ! _isPrimitiveType(a)
+      case Some(a: AnyRef) => !_isPrimitiveType(a)
     }
 
 
-  def sample:AnyRef = _sample.get
+  def sample: AnyRef = _sample.get
 
-  def owns(aSample: AnyRef) = 
+  def owns(aSample: AnyRef) =
     _sample != None && _sample.get.eq(aSample)
-  
+
   def getOrCreateSelectElement(fmd: FieldMetaData, forScope: QueryExpressionElements) = throw new UnsupportedOperationException("implement me")
 
   override def toString = {
     val sb = new java.lang.StringBuilder
     sb.append("'QueryExpressionNode[")
-    if(_query.isRoot)
+    if (_query.isRoot)
       sb.append("root:")
     sb.append(id)
     sb.append("]")
-    sb.append(":rsm="+_query.resultSetMapper)
+    sb.append(":rsm=" + _query.resultSetMapper)
     sb.toString
   }
 
@@ -128,7 +129,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
       unionClauses
     ).flatten
 
-  def isChild(q: QueryableExpressionNode):Boolean =
+  def isChild(q: QueryableExpressionNode): Boolean =
     views.exists(n => n == q)
 
   def selectDistinct = _query.selectDistinct
@@ -153,16 +154,16 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
     _selectList = sl
     _sample = Some(s)
 
-    if(_query.isRoot) {
+    if (_query.isRoot) {
 
       var jdbcIndex = 1
-      for(oen <- selectList) {
+      for (oen <- selectList) {
         oen.prepareMapper(jdbcIndex)
         jdbcIndex += 1
       }
 
       var idGen = 0
-      visitDescendants((node,parent,i) => {
+      visitDescendants((node, parent, i) => {
         node.parent = parent
 
         node match {
@@ -195,7 +196,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
   private def collectCteRefs(): List[QueryExpressionNode[_]] = {
     val buf = new collection.mutable.ArrayBuffer[QueryExpressionNode[_]]()
     visitDescendants((node, parent, i) => {
-      if (! commonTableExpressions.contains(node) &&
+      if (!commonTableExpressions.contains(node) &&
         node.isInstanceOf[QueryExpressionNode[_]] &&
         commonTableExpressions.exists(
           e => e.sameRoot_?(node.asInstanceOf[QueryExpressionNode[_]]))) {
@@ -228,12 +229,12 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
       val isNotRoot = parent != None
       val isContainedInUnion = parent map (_.isInstanceOf[UnionExpressionNode]) getOrElse (false)
 
-      if((isNotRoot && ! isContainedInUnion) || hasUnionQueryOptions) {
+      if ((isNotRoot && !isContainedInUnion) || hasUnionQueryOptions) {
         sw.write("(")
         sw.indent(1)
       }
 
-      if (! unionClauses.isEmpty) {
+      if (!unionClauses.isEmpty) {
         sw.write("(")
         sw.nextLine
         sw.indent(1)
@@ -241,7 +242,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
 
       sw.databaseAdapter.writeQuery(this, sw)
 
-      if (! unionClauses.isEmpty) {
+      if (!unionClauses.isEmpty) {
         sw.unindent(1)
         sw.write(")")
         sw.nextLine
@@ -251,7 +252,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
         u.write(sw)
       }
 
-      if((isNotRoot && ! isContainedInUnion) || hasUnionQueryOptions) {
+      if ((isNotRoot && !isContainedInUnion) || hasUnionQueryOptions) {
         sw.unindent(1)
         sw.write(") ")
       }
