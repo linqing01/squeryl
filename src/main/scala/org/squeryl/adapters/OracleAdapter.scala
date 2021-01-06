@@ -108,7 +108,7 @@ class OracleAdapter extends DatabaseAdapter {
   }
 
   override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit =
-    sw.writeNodesWithSeparator(fn.args, " || ", false)
+    sw.writeNodesWithSeparator(fn.args, " || ", newLineAfterSeparator = false)
 
   override def writeJoin(queryableExpressionNode: QueryableExpressionNode, sw: StatementWriter): Unit = {
     sw.write(queryableExpressionNode.joinKind.get._1)

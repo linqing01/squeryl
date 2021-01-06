@@ -212,9 +212,9 @@ class Schema(implicit val fieldMapper: FieldMapper) {
 
     (unique, indexed) match {
       case (None, None) => None
-      case (Some(_), None) => Some(_dbAdapter.writeIndexDeclaration(cols, None, name, true))
-      case (None, Some(Indexed(idxName))) => Some(_dbAdapter.writeIndexDeclaration(cols, idxName, name, false))
-      case (Some(_), Some(Indexed(idxName))) => Some(_dbAdapter.writeIndexDeclaration(cols, idxName, name, true))
+      case (Some(_), None) => Some(_dbAdapter.writeIndexDeclaration(cols, None, name, isUnique = true))
+      case (None, Some(Indexed(idxName))) => Some(_dbAdapter.writeIndexDeclaration(cols, idxName, name, isUnique = false))
+      case (Some(_), Some(Indexed(idxName))) => Some(_dbAdapter.writeIndexDeclaration(cols, idxName, name, isUnique = true))
     }
   }
 

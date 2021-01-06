@@ -128,7 +128,7 @@ class GroupQueryYield[K](
 
   override def invokeYieldForAst(q: QueryExpressionNode[_], rsm: ResultSetMapper) = {
     val offset = 1
-    val (m, nodes) = _createColumnToTupleMapper(q, groupByClauseClosure(), offset, true)
+    val (m, nodes) = _createColumnToTupleMapper(q, groupByClauseClosure(), offset, isForGroup = true)
     rsm.groupKeysMapper = Some(m)
     val st = SampleTuple.create(nodes, m.outMappers).asInstanceOf[K]
     (nodes, new SampleGroup(st))
@@ -158,7 +158,7 @@ class MeasuresQueryYield[M](
 
   override def invokeYieldForAst(q: QueryExpressionNode[_], rsm: ResultSetMapper) = {
     val offset = 1
-    val (m, nodes) = _createColumnToTupleMapper(q, _computeByClauseClosure(), offset, false)
+    val (m, nodes) = _createColumnToTupleMapper(q, _computeByClauseClosure(), offset, isForGroup = false)
     rsm.groupMeasuresMapper = Some(m)
     val st = SampleTuple.create(nodes, m.outMappers).asInstanceOf[M]
     (nodes, new SampleMeasures(st))
@@ -200,8 +200,8 @@ class GroupWithMeasuresQueryYield[K, M](
 
     val offset = 1
 
-    val (km, knodes) = _createColumnToTupleMapper(q, _groupByClauseClosure(), offset, true)
-    val (mm, mnodes) = _createColumnToTupleMapper(q, _computeClauseClosure(), offset + knodes.size, false)
+    val (km, knodes) = _createColumnToTupleMapper(q, _groupByClauseClosure(), offset, isForGroup = true)
+    val (mm, mnodes) = _createColumnToTupleMapper(q, _computeClauseClosure(), offset + knodes.size, isForGroup = false)
 
     rsm.groupKeysMapper = Some(km)
     rsm.groupMeasuresMapper = Some(mm)

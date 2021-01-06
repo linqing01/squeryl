@@ -79,7 +79,7 @@ class MSSQLServer extends DatabaseAdapter {
     }
 
   override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit =
-    sw.writeNodesWithSeparator(fn.args, " + ", false)
+    sw.writeNodesWithSeparator(fn.args, " + ", newLineAfterSeparator = false)
 
   override def writeConcatOperator(left: ExpressionNode, right: ExpressionNode, sw: StatementWriter): Unit = {
     val binaryOpNode = new BinaryOperatorNode(left, right, "+")
@@ -151,7 +151,7 @@ class MSSQLServer extends DatabaseAdapter {
       val pageSize = page._2
 
       sw.writeIndented {
-        super.writeQuery(qen, sw, false, Some(" TOP " + (beginOffset + pageSize) + " "))
+        super.writeQuery(qen, sw, inverseOrderBy = false, Some(" TOP " + (beginOffset + pageSize) + " "))
       }
     }
 

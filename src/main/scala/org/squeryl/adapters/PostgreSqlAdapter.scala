@@ -100,7 +100,7 @@ class PostgreSqlAdapter extends DatabaseAdapter {
     }
 
   override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit =
-    sw.writeNodesWithSeparator(fn.args, " || ", false)
+    sw.writeNodesWithSeparator(fn.args, " || ", newLineAfterSeparator = false)
 
   override def writeInsert[T](o: T, t: Table[T], sw: StatementWriter): Unit = {
 

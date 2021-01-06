@@ -82,7 +82,7 @@ abstract class AbstractQuery[R](
   }
 
   protected def copyUnions(u: List[(String, Query[R])]) =
-    u map (t => (t._1, t._2.copy(false, Nil)))
+    u map (t => (t._1, t._2.copy(asRoot = false, Nil)))
 
   protected def buildAst(qy: QueryYield[R], subQueryables: SubQueryable[_]*) = {
 
@@ -159,13 +159,13 @@ abstract class AbstractQuery[R](
     if (isUnionQuery) {
       Utils.throwError("distinct is not supported on union queries")
     }
-    val c = copy(true, Nil)
+    val c = copy(asRoot = true, Nil)
     c.selectDistinct = true;
     c
   }
 
   def page(offset: Int, pageLength: Int): Query[R] = {
-    val c = copy(true, Nil)
+    val c = copy(asRoot = true, Nil)
     val page = Some((offset, pageLength))
     if (c.isUnionQuery)
       c.unionPage = page
@@ -175,7 +175,7 @@ abstract class AbstractQuery[R](
   }
 
   def forUpdate = {
-    val c = copy(true, Nil)
+    val c = copy(asRoot = true, Nil)
     if (c.isUnionQuery)
       c.unionIsForUpdate = true
     else
@@ -219,7 +219,7 @@ abstract class AbstractQuery[R](
         stmt.close
 
         if (s.statisticsListener != None) {
-          s.statisticsListener.get.resultSetIterationEnded(statEx.uuid, System.currentTimeMillis, rowCount, true)
+          s.statisticsListener.get.resultSetIterationEnded(statEx.uuid, System.currentTimeMillis, rowCount, iterationCompleted = true)
         }
       }
 
@@ -274,7 +274,7 @@ abstract class AbstractQuery[R](
     case dq: DelegateQuery[_] =>
       createSubQueryable(dq.q)
     case qr: AbstractQuery[U] =>
-      val copy = qr.copy(false, Nil)
+      val copy = qr.copy(asRoot = false, Nil)
       new SubQueryable(copy, copy.ast.sample.asInstanceOf[U], copy.resultSetMapper, true, copy.ast)
   }
 
@@ -307,7 +307,7 @@ abstract class AbstractQuery[R](
   }
 
   private def createUnion(kind: String, q: Query[R]): Query[R] =
-    copy(true, List((kind, q)))
+    copy(asRoot = true, List((kind, q)))
 
   def union(q: Query[R]): Query[R] = createUnion("Union", q)
 

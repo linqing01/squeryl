@@ -7,10 +7,10 @@ import org.squeryl.{AbstractSession, Session}
 object LocalH2SinkStatisticsListener {
 
   def initializeOverwrite(schemaName: String, workingDir: String = ".") =
-    initialize(schemaName, true, workingDir)
+    initialize(schemaName, overwrite = true, workingDir)
 
   def initializeAppend(schemaName: String, workingDir: String = ".") =
-    initialize(schemaName, false, workingDir)
+    initialize(schemaName, overwrite = false, workingDir)
 
   def initialize(schemaName: String, overwrite: Boolean, workingDir: String) = {
     Class.forName("org.h2.Driver");

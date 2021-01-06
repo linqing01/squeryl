@@ -78,7 +78,7 @@ class DB2Adapter extends DatabaseAdapter {
   }
 
   override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit =
-    sw.writeNodesWithSeparator(fn.args, " || ", false)
+    sw.writeNodesWithSeparator(fn.args, " || ", newLineAfterSeparator = false)
 
   override def isTableDoesNotExistException(e: SQLException) = {
     e.getErrorCode == -204

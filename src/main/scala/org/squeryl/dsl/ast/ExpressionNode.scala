@@ -108,7 +108,7 @@ trait ExpressionNode {
 
 class ListExpressionNode(override val children: List[ExpressionNode]) extends ExpressionNode {
   override def doWrite(sw: StatementWriter): Unit = {
-    sw.writeNodesWithSeparator(children, ", ", false)
+    sw.writeNodesWithSeparator(children, ", ", newLineAfterSeparator = false)
   }
 }
 
@@ -116,7 +116,7 @@ class RowValueConstructorNode(override val children: List[ExpressionNode]) exten
   override def doWrite(sw: StatementWriter): Unit = {
     // sw.write("ROW")
     sw.write("(")
-    sw.writeNodesWithSeparator(children, ", ", false)
+    sw.writeNodesWithSeparator(children, ", ", newLineAfterSeparator = false)
     sw.write(")")
   }
 }
@@ -396,7 +396,7 @@ class FunctionNode(val name: String, val args: collection.Seq[ExpressionNode]) e
 
     sw.write(name)
     sw.write("(")
-    sw.writeNodesWithSeparator(args, ",", false)
+    sw.writeNodesWithSeparator(args, ",", newLineAfterSeparator = false)
     sw.write(")")
   }
 
