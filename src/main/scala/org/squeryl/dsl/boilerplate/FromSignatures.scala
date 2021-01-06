@@ -21,7 +21,7 @@ import org.squeryl.{Query, Queryable}
 
 trait FromSignatures {
 
-  def from[T1, R](t1: Queryable[T1])(f: (T1) => QueryYield[R]): Query[R] =
+  def from[T1, R](t1: Queryable[T1])(f: T1 => QueryYield[R]): Query[R] =
     new Query1[T1, R](t1, f, true, Nil)
 
   def from[T1, T2, R](t1: Queryable[T1], t2: Queryable[T2])(f: (T1, T2) => QueryYield[R]): Query[R] =

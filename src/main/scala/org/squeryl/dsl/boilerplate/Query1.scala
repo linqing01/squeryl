@@ -23,7 +23,7 @@ import org.squeryl.{Query, Queryable}
 import java.sql.ResultSet
 
 class Query1[T1, R]
-(t1: Queryable[T1], f: (T1) => QueryYield[R], isRoot: Boolean, unions: List[(String, Query[R])])
+(t1: Queryable[T1], f: T1 => QueryYield[R], isRoot: Boolean, unions: List[(String, Query[R])])
   extends AbstractQuery[R](isRoot, unions) {
 
   val sq1: SubQueryable[T1] = createSubQueryable(t1)

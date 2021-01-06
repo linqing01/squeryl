@@ -383,7 +383,7 @@ trait QueryDsl
                                          kedL: KeyedEntityDef[L, _],
                                          kedR: KeyedEntityDef[R, _]) {
 
-    def via[A](f: (L, R, A) => ((EqualityExpression, EqualityExpression)))(implicit manifestA: Manifest[A], schema: Schema, kedA: KeyedEntityDef[A, _]): ManyToManyRelationImpl[L, R, A] = {
+    def via[A](f: (L, R, A) => (EqualityExpression, EqualityExpression))(implicit manifestA: Manifest[A], schema: Schema, kedA: KeyedEntityDef[A, _]): ManyToManyRelationImpl[L, R, A] = {
       val m2m = new ManyToManyRelationImpl(l, r, manifestA.runtimeClass.asInstanceOf[Class[A]], f, schema, nameOverride, kedL, kedR, kedA)
       schema._addTable(m2m)
       m2m
@@ -396,7 +396,7 @@ trait QueryDsl
                                          val leftTable: Table[L],
                                          val rightTable: Table[R],
                                          aClass: Class[A],
-                                         f: (L, R, A) => ((EqualityExpression, EqualityExpression)),
+                                         f: (L, R, A) => (EqualityExpression, EqualityExpression),
                                          schema: Schema,
                                          nameOverride: Option[String],
                                          kedL: KeyedEntityDef[L, _],
