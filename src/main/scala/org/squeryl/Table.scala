@@ -17,12 +17,13 @@ package org.squeryl
 
 ;
 
-import dsl.ast._
-import dsl.{CompositeKey, QueryDsl}
-import internals._
-import java.sql.{Statement}
-import logging.StackMarker
-import collection.mutable.ArrayBuffer
+import org.squeryl.dsl.ast._
+import org.squeryl.dsl.{CompositeKey, QueryDsl}
+import org.squeryl.internals._
+import org.squeryl.logging.StackMarker
+
+import java.sql.Statement
+import scala.collection.mutable.ArrayBuffer
 
 //private [squeryl] object DummySchema extends Schema
 

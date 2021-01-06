@@ -15,11 +15,10 @@
  * **************************************************************************** */
 package org.squeryl.dsl.fsm
 
-import org.squeryl.dsl._
-import ast.{LogicalBoolean, UpdateStatement, UpdateAssignment}
-import boilerplate.{ComputeMeasuresSignaturesFromStartOrWhereState, ComputeMeasuresSignaturesFromGroupByState, GroupBySignatures, OrderBySignatures}
-
 import org.squeryl.Query
+import org.squeryl.dsl._
+import org.squeryl.dsl.ast.{LogicalBoolean, UpdateAssignment, UpdateStatement}
+import org.squeryl.dsl.boilerplate.{ComputeMeasuresSignaturesFromGroupByState, ComputeMeasuresSignaturesFromStartOrWhereState, GroupBySignatures, OrderBySignatures}
 
 abstract sealed class Conditioned
 

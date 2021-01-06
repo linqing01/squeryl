@@ -17,6 +17,7 @@ package org.squeryl.dsl
 
 import org.squeryl.Queryable
 import org.squeryl.internals.ResultSetMapper
+
 import java.sql.ResultSet
 
 

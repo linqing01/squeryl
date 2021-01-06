@@ -15,9 +15,9 @@
  * **************************************************************************** */
 package org.squeryl.dsl.boilerplate
 
-import org.squeryl.dsl.{QueryYield}
-import org.squeryl.dsl.internal.{JoinedQueryable, InnerJoinedQueryable, OuterJoinedQueryable}
-import org.squeryl.{Queryable, Query}
+import org.squeryl.dsl.QueryYield
+import org.squeryl.dsl.internal.{InnerJoinedQueryable, JoinedQueryable, OuterJoinedQueryable}
+import org.squeryl.{Query, Queryable}
 
 trait JoinSignatures {
   self: FromSignatures =>

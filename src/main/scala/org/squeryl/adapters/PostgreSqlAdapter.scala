@@ -16,10 +16,11 @@
 package org.squeryl.adapters
 
 import org.squeryl.dsl.ast.FunctionNode
+import org.squeryl.internals.{DatabaseAdapter, FieldMetaData, StatementWriter}
+import org.squeryl.{Session, Table}
+
 import java.sql.{ResultSet, SQLException}
 import java.util.UUID
-import org.squeryl.internals.{StatementWriter, DatabaseAdapter, FieldMetaData}
-import org.squeryl.{Session, Table}
 
 class PostgreSqlAdapter extends DatabaseAdapter {
 

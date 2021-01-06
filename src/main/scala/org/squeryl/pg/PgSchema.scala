@@ -1,8 +1,8 @@
 package org.squeryl.pg
 
 import org.squeryl._
-import internals.{StatementWriter, FieldMapper}
-import dsl.ast.{ViewExpressionNode, ExpressionNode}
+import org.squeryl.dsl.ast.{ExpressionNode, ViewExpressionNode}
+import org.squeryl.internals.{FieldMapper, StatementWriter}
 
 class PgSchema(implicit fieldMapper: FieldMapper)
   extends Schema()(fieldMapper) {

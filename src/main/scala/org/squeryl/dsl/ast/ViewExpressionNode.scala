@@ -15,14 +15,15 @@
  * **************************************************************************** */
 package org.squeryl.dsl.ast
 
-import collection.mutable.HashMap
-import org.squeryl.internals.{StatementWriter, ResultSetMapper, FieldMetaData}
+import org.squeryl.internals.{FieldMetaData, ResultSetMapper, StatementWriter}
 import org.squeryl.{Session, View}
+
+import scala.collection.mutable
 
 class ViewExpressionNode[U](val view: View[U])
   extends QueryableExpressionNode {
 
-  private[this] val _selectElements = new HashMap[FieldMetaData, SelectElement]
+  private[this] val _selectElements = new mutable.HashMap[FieldMetaData, SelectElement]
 
   def isChild(q: QueryableExpressionNode) = false
 

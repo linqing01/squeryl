@@ -15,8 +15,8 @@
  * **************************************************************************** */
 package org.squeryl.dsl.boilerplate
 
-import org.squeryl.dsl.fsm._
 import org.squeryl.dsl.TypedExpression
+import org.squeryl.dsl.fsm._
 
 trait ComputeMeasuresSignaturesFromGroupByState[G] {
   self: GroupQueryYield[G] =>

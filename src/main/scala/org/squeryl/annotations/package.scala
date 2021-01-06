@@ -15,7 +15,7 @@
  * **************************************************************************** */
 package org.squeryl
 
-import annotation.meta.field
+import scala.annotation.meta.field
 
 package object annotations {
   /**

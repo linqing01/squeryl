@@ -17,6 +17,7 @@ package org.squeryl.dsl.internal
 
 import org.squeryl.Queryable
 import org.squeryl.internals.ResultSetMapper
+
 import java.sql.ResultSet
 
 trait JoinedQueryable[A] extends Queryable[A] {

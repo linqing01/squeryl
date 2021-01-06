@@ -23,7 +23,6 @@ import org.squeryl.annotations.{ColumnBase, Column}
 import collection.mutable.{HashMap, HashSet}
 import org.squeryl.Session
 import org.squeryl.dsl.CompositeKey
-import org.squeryl.customtypes.CustomType
 import org.json4s.scalap.scalasig._
 import java.lang.reflect.Member
 import org.squeryl.dsl.ast.ConstantTypedExpression

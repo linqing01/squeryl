@@ -15,8 +15,8 @@
  * **************************************************************************** */
 package org.squeryl.dsl.boilerplate
 
-import org.squeryl.dsl.fsm.{MeasuresQueryYield, QueryElements, ComputeStateStartOrWhereState}
 import org.squeryl.dsl.TypedExpression
+import org.squeryl.dsl.fsm.{ComputeStateStartOrWhereState, MeasuresQueryYield, QueryElements}
 
 trait ComputeMeasuresSignaturesFromStartOrWhereState {
   self: QueryElements[_] =>

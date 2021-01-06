@@ -1,8 +1,8 @@
 package org.squeryl.logging
 
-import org.squeryl.{AbstractSession, Session}
-import org.squeryl.adapters.H2Adapter
 import org.squeryl.InternalFieldMapper._
+import org.squeryl.adapters.H2Adapter
+import org.squeryl.{AbstractSession, Session}
 
 object LocalH2SinkStatisticsListener {
 

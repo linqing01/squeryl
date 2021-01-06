@@ -15,14 +15,15 @@
  * **************************************************************************** */
 package org.squeryl.dsl
 
-import ast._
-import internal.{InnerJoinedQueryable, OuterJoinedQueryable}
-import java.sql.ResultSet
+import org.squeryl.dsl.ast._
+import org.squeryl.dsl.internal.{InnerJoinedQueryable, OuterJoinedQueryable}
 import org.squeryl.internals._
-import org.squeryl.{View, Queryable, Session, Query}
-import collection.mutable.ArrayBuffer
 import org.squeryl.logging._
+import org.squeryl.{Query, Queryable, Session, View}
+
 import java.io.Closeable
+import java.sql.ResultSet
+import scala.collection.mutable.ArrayBuffer
 
 abstract class AbstractQuery[R](
                                  val isRoot: Boolean,

@@ -15,9 +15,10 @@
  * **************************************************************************** */
 package org.squeryl
 
-import dsl.ast.ViewExpressionNode
-import dsl.{TypedExpression, QueryDsl}
-import internals._
+import org.squeryl.dsl.ast.ViewExpressionNode
+import org.squeryl.dsl.{QueryDsl, TypedExpression}
+import org.squeryl.internals._
+
 import java.sql.ResultSet
 
 /**

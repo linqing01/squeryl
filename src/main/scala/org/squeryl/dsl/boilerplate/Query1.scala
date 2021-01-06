@@ -15,10 +15,11 @@
  * **************************************************************************** */
 package org.squeryl.dsl.boilerplate
 
-import java.sql.ResultSet
+import org.squeryl.dsl.{AbstractQuery, QueryYield}
 import org.squeryl.internals.ResultSetMapper
-import org.squeryl.dsl.{QueryYield, AbstractQuery}
 import org.squeryl.{Query, Queryable}
+
+import java.sql.ResultSet
 
 class Query1[T1, R]
 (t1: Queryable[T1], f: Function1[T1, QueryYield[R]], isRoot: Boolean, unions: List[(String, Query[R])])

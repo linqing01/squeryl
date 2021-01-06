@@ -15,12 +15,13 @@
  * **************************************************************************** */
 package org.squeryl.dsl
 
-import ast._
-import boilerplate._
-import fsm._
-import org.squeryl.internals._
 import org.squeryl._
-import java.sql.{SQLException, ResultSet}
+import org.squeryl.dsl.ast._
+import org.squeryl.dsl.boilerplate._
+import org.squeryl.dsl.fsm._
+import org.squeryl.internals._
+
+import java.sql.{ResultSet, SQLException}
 
 
 trait BaseQueryDsl {

@@ -15,7 +15,7 @@
  * **************************************************************************** */
 package org.squeryl.dsl
 
-import ast._
+import org.squeryl.dsl.ast._
 import org.squeryl.internals.{AttributeValidOnMultipleColumn, FieldMetaData}
 
 trait CompositeKey {

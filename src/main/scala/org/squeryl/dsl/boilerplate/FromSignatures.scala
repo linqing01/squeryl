@@ -16,7 +16,7 @@
 package org.squeryl.dsl.boilerplate
 
 import org.squeryl.dsl.QueryYield
-import org.squeryl.{Queryable, Query}
+import org.squeryl.{Query, Queryable}
 
 
 trait FromSignatures {

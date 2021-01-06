@@ -15,11 +15,11 @@
  * **************************************************************************** */
 package org.squeryl.adapters
 
-import org.squeryl.internals.{StatementWriter, DatabaseAdapter}
-import org.squeryl.dsl.ast.ConstantTypedExpression
+import org.squeryl.dsl.ast.{ConstantTypedExpression, _}
+import org.squeryl.internals.{DatabaseAdapter, StatementWriter}
 import org.squeryl.{Session, Table}
+
 import java.sql.SQLException
-import org.squeryl.dsl.ast._
 
 class DB2Adapter extends DatabaseAdapter {
 

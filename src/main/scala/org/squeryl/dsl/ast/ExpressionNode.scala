@@ -16,11 +16,11 @@
 package org.squeryl.dsl.ast
 
 
-import scala.collection.mutable.ArrayBuffer
-
-import org.squeryl.internals._
-import org.squeryl.dsl._
 import org.squeryl.Session
+import org.squeryl.dsl._
+import org.squeryl.internals._
+
+import scala.collection.mutable.ArrayBuffer
 
 trait ExpressionNode {
 

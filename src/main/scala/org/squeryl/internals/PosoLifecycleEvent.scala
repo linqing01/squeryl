@@ -1,6 +1,6 @@
 package org.squeryl.internals
 
-import org.squeryl.{View, Schema}
+import org.squeryl.{Schema, View}
 
 object PosoLifecycleEvent extends Enumeration {
   type PosoLifeCycleEvent = Value

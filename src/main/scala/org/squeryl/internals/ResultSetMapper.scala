@@ -15,9 +15,10 @@
  * **************************************************************************** */
 package org.squeryl.internals
 
-import java.sql.ResultSet
-import collection.mutable.ArrayBuffer
 import org.squeryl.dsl.ast.SelectElement
+
+import java.sql.ResultSet
+import scala.collection.mutable.ArrayBuffer
 
 
 trait ResultSetUtils {

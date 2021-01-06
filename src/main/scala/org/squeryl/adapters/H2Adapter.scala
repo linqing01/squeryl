@@ -16,8 +16,9 @@
 package org.squeryl.adapters
 
 import org.squeryl.Schema
+import org.squeryl.internals.{DatabaseAdapter, FieldMetaData}
+
 import java.sql.SQLException
-import org.squeryl.internals.{FieldMetaData, DatabaseAdapter}
 
 class H2Adapter extends DatabaseAdapter {
 

@@ -15,12 +15,12 @@
  * **************************************************************************** */
 package org.squeryl.dsl
 
-import ast.{LogicalBoolean, ExpressionNode, QueryExpressionNode, SelectElement}
-import boilerplate._
-import org.squeryl.internals.{ResultSetMapper}
-import java.sql.ResultSet
-
 import org.squeryl.Query
+import org.squeryl.dsl.ast.{ExpressionNode, LogicalBoolean, QueryExpressionNode, SelectElement}
+import org.squeryl.dsl.boilerplate._
+import org.squeryl.internals.ResultSetMapper
+
+import java.sql.ResultSet
 
 trait QueryYield[R] {
 

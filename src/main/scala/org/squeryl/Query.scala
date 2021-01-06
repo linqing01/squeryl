@@ -15,8 +15,9 @@
  * **************************************************************************** */
 package org.squeryl
 
-import dsl.ast._
-import internals.ResultSetMapper
+import org.squeryl.dsl.ast._
+import org.squeryl.internals.ResultSetMapper
+
 import java.sql.ResultSet
 
 trait Query[R] extends Queryable[R] {

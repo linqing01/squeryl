@@ -15,14 +15,11 @@
  * **************************************************************************** */
 package org.squeryl.dsl
 
+import org.squeryl.{Query, Schema, Session}
 import org.squeryl.dsl.ast._
-import org.squeryl.internals._
-import org.squeryl.Session
-import org.squeryl.Schema
-import org.squeryl.internals.AttributeValidOnNumericalColumn
-import org.squeryl.Query
+import org.squeryl.internals.{AttributeValidOnNumericalColumn, Utils, _}
+
 import java.sql.ResultSet
-import org.squeryl.internals.Utils
 
 sealed trait TNumeric
 

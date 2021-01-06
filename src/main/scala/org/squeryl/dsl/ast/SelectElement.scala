@@ -15,9 +15,10 @@
  * **************************************************************************** */
 package org.squeryl.dsl.ast
 
-import org.squeryl.internals._
 import org.squeryl.Session
 import org.squeryl.dsl.TypedExpression
+import org.squeryl.internals._
+
 import scala.annotation.tailrec
 
 /**

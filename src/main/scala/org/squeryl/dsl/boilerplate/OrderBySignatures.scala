@@ -15,9 +15,9 @@
  * **************************************************************************** */
 package org.squeryl.dsl.boilerplate
 
-import org.squeryl.dsl.{QueryYield}
-import org.squeryl.dsl.fsm.BaseQueryYield
+import org.squeryl.dsl.QueryYield
 import org.squeryl.dsl.ast.ExpressionNode
+import org.squeryl.dsl.fsm.BaseQueryYield
 
 trait OrderBySignatures[R] {
   self: BaseQueryYield[R] =>

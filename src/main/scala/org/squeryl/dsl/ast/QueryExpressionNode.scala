@@ -15,8 +15,8 @@
  * **************************************************************************** */
 package org.squeryl.dsl.ast
 
+import org.squeryl.dsl.{AbstractQuery, QueryYield}
 import org.squeryl.internals._
-import org.squeryl.dsl.{QueryYield, AbstractQuery}
 
 class QueryExpressionNode[R](val _query: AbstractQuery[R],
                              _queryYield: QueryYield[R],

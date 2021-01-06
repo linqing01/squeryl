@@ -1,9 +1,9 @@
 package org.squeryl.internals
 
-import java.sql.ResultSet
 import org.squeryl.Session
-import org.squeryl.dsl.TypedExpressionFactory
-import org.squeryl.dsl.ArrayJdbcMapper
+import org.squeryl.dsl.{ArrayJdbcMapper, TypedExpressionFactory}
+
+import java.sql.ResultSet
 
 abstract class ArrayTEF[P, TE] extends TypedExpressionFactory[Array[P], TE] with ArrayJdbcMapper[java.sql.Array, Array[P]] {
   // must define "sample" that includes an element. e.g. Array[Int](0)

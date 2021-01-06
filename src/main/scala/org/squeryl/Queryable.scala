@@ -15,9 +15,10 @@
  * **************************************************************************** */
 package org.squeryl
 
-import dsl.ast.{LogicalBoolean}
-import dsl.{QueryDsl}
-import internals.ResultSetMapper
+import org.squeryl.dsl.QueryDsl
+import org.squeryl.dsl.ast.LogicalBoolean
+import org.squeryl.internals.ResultSetMapper
+
 import java.sql.ResultSet
 
 trait Queryable[T] {

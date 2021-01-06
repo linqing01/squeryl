@@ -15,8 +15,8 @@
  * **************************************************************************** */
 package org.squeryl.dsl.boilerplate
 
-import org.squeryl.dsl.fsm.{GroupQueryYield, QueryElements, GroupByState}
 import org.squeryl.dsl.TypedExpression
+import org.squeryl.dsl.fsm.{GroupByState, GroupQueryYield, QueryElements}
 
 trait GroupBySignatures {
   self: QueryElements[_] =>

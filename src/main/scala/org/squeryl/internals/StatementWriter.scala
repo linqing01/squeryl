@@ -15,10 +15,10 @@
  * **************************************************************************** */
 package org.squeryl.internals
 
-import org.squeryl.dsl.ast.{ExpressionNode}
-import collection.mutable.{HashSet, ArrayBuffer}
-import org.squeryl.dsl.ast.ConstantTypedExpression
-import org.squeryl.dsl.ast.ConstantExpressionNodeList
+import org.squeryl.dsl.ast.{ConstantExpressionNodeList, ConstantTypedExpression, ExpressionNode}
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 
 trait StatementParam
@@ -49,7 +49,7 @@ class StatementWriter(val isForDisplay: Boolean, val databaseAdapter: DatabaseAd
 
   def this(databaseAdapter: DatabaseAdapter) = this(false, databaseAdapter)
 
-  val scope = new HashSet[String]
+  val scope = new mutable.HashSet[String]
 
   protected val _paramList = new ArrayBuffer[StatementParam]
 
