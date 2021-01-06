@@ -1,6 +1,6 @@
 [![maven central](https://maven-badges.herokuapp.com/maven-central/org.squeryl/squeryl_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.squeryl/squeryl_2.12)
 [![javadoc](https://javadoc-badge.appspot.com/org.squeryl/squeryl_2.12.svg?label=scaladoc)](https://javadoc-badge.appspot.com/org.squeryl/squeryl_2.12/org/squeryl/index.html?javadocio=true)
-
+## 测试迁移到scala3
 ## How to build
 1. Download or clone repository:  
      `git clone git://github.com/squeryl/squeryl.git`
