@@ -12,15 +12,15 @@ trait QueryTester extends Matchers {
 
   var dumpAst = false
 
-  var doNotExecute = false
+  val doNotExecute = false
 
-  def activateWorkbenchMode: Unit = {
+  def activateWorkbenchMode(): Unit = {
     logQueries = true
     dumpAst = true
     validateFirstAndExit = 0
   }
 
-  def loggerOn: Unit =
+  def loggerOn(): Unit =
     Session.currentSession.setLogger((s: String) => println(s))
 
   def log(queryName: String, query: Query[_]): Unit = {

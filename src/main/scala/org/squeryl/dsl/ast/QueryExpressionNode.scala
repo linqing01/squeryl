@@ -88,8 +88,8 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
       case None => throw new IllegalStateException("method cannot be called before initialization")
       case Some(p: Product) =>
         if (p.getClass.getName.startsWith("scala.Tuple")) {
-          val z = (for (i <- 0 to (p.productArity - 1)) yield p.productElement(i))
-          !(z.exists(o => _isPrimitiveType(o.asInstanceOf[AnyRef])))
+          val z = for (i <- 0 until p.productArity) yield p.productElement(i)
+          !z.exists(o => _isPrimitiveType(o.asInstanceOf[AnyRef]))
         }
         else
           true
@@ -100,7 +100,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
   def sample: AnyRef = _sample.get
 
   def owns(aSample: AnyRef) =
-    _sample != None && _sample.get.eq(aSample)
+    _sample.isDefined && _sample.get.eq(aSample)
 
   def getOrCreateSelectElement(fmd: FieldMetaData, forScope: QueryExpressionElements) = throw new UnsupportedOperationException("implement me")
 
@@ -225,27 +225,27 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
   def selectList: Iterable[SelectElement] = _selectList
 
   def doWrite(sw: StatementWriter): Unit = {
-    def writeCompleteQuery: Unit = {
-      val isNotRoot = parent != None
-      val isContainedInUnion = parent map (_.isInstanceOf[UnionExpressionNode]) getOrElse (false)
+    def writeCompleteQuery(): Unit = {
+      val isNotRoot = parent.isDefined
+      val isContainedInUnion = parent map (_.isInstanceOf[UnionExpressionNode]) getOrElse false
 
       if ((isNotRoot && !isContainedInUnion) || hasUnionQueryOptions) {
         sw.write("(")
         sw.indent(1)
       }
 
-      if (!unionClauses.isEmpty) {
+      if (unionClauses.nonEmpty) {
         sw.write("(")
-        sw.nextLine
+        sw.nextLine()
         sw.indent(1)
       }
 
       sw.databaseAdapter.writeQuery(this, sw)
 
-      if (!unionClauses.isEmpty) {
+      if (unionClauses.nonEmpty) {
         sw.unindent(1)
         sw.write(")")
-        sw.nextLine
+        sw.nextLine()
       }
 
       unionClauses.foreach { u =>
@@ -265,9 +265,9 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
     if (sw.databaseAdapter.supportsCommonTableExpressions) {
       cteRoot.map { r =>
         sw.databaseAdapter.writeCteReference(sw, r)
-      }.getOrElse(writeCompleteQuery)
+      }.getOrElse(writeCompleteQuery())
     } else {
-      writeCompleteQuery
+      writeCompleteQuery()
     }
   }
 }

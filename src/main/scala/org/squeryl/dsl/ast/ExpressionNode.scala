@@ -57,14 +57,14 @@ trait ExpressionNode {
   }
 
 
-  private def _filterDescendants(n: ExpressionNode, ab: ArrayBuffer[ExpressionNode], predicate: (ExpressionNode) => Boolean): Iterable[ExpressionNode] = {
+  private def _filterDescendants(n: ExpressionNode, ab: ArrayBuffer[ExpressionNode], predicate: ExpressionNode => Boolean): Iterable[ExpressionNode] = {
     if (predicate(n))
       ab.append(n)
     n.children.foreach(child => _filterDescendants(child, ab, predicate))
     ab
   }
 
-  def filterDescendants(predicate: (ExpressionNode) => Boolean) =
+  def filterDescendants(predicate: ExpressionNode => Boolean) =
     _filterDescendants(this, new ArrayBuffer[ExpressionNode], predicate)
 
 
@@ -169,7 +169,7 @@ class BinaryOperatorNodeLogicalBoolean(left: ExpressionNode, right: ExpressionNo
     if (nonInh.hasNext) {
       sw.write(operatorToken)
       if (newLineAfterOperator)
-        sw.nextLine
+        sw.nextLine()
       sw.write(" ")
 
       if (rightArgInParent)
@@ -215,10 +215,10 @@ trait LogicalBoolean extends ExpressionNode {
     new BinaryOperatorNodeLogicalBoolean(this, b, "or")
 
   def and(b: Option[LogicalBoolean]): LogicalBoolean =
-    b.map(this and _).getOrElse(this)
+    b.map(this and).getOrElse(this)
 
   def or(b: Option[LogicalBoolean]): LogicalBoolean =
-    b.map(this or _).getOrElse(this)
+    b.map(this or).getOrElse(this)
 
 }
 
@@ -261,7 +261,7 @@ class UpdateAssignment(val left: FieldMetaData, val right: ExpressionNode)
 
 trait BaseColumnAttributeAssignment {
 
-  def clearColumnAttributes: Unit
+  def clearColumnAttributes(): Unit
 
   def isIdFieldOfKeyedEntity: Boolean
 
@@ -271,7 +271,7 @@ trait BaseColumnAttributeAssignment {
   def columnAttributes: collection.Seq[ColumnAttribute]
 
   def hasAttribute[A <: ColumnAttribute](implicit m: Manifest[A]) =
-    findAttribute[A](m) != None
+    findAttribute[A](m).isDefined
 
   def findAttribute[A <: ColumnAttribute](implicit m: Manifest[A]) =
     columnAttributes.find(ca => m.runtimeClass.isAssignableFrom(ca.getClass))
@@ -289,7 +289,7 @@ class ColumnGroupAttributeAssignment(cols: collection.Seq[FieldMetaData], column
   def addAttribute(a: ColumnAttribute) =
     _columnAttributes.append(a)
 
-  def clearColumnAttributes: Unit = columns.foreach(_._clearColumnAttributes)
+  def clearColumnAttributes(): Unit = columns.foreach(_._clearColumnAttributes())
 
   def columns: collection.Seq[FieldMetaData] = cols
 
@@ -303,10 +303,10 @@ class CompositeKeyAttributeAssignment(val group: CompositeKey, _columnAttributes
 
   override def isIdFieldOfKeyedEntity = {
     val fmdHead = group._fields.head
-    fmdHead.parentMetaData.viewOrTable.ked.map(_.idPropertyName == group._propertyName).getOrElse(false)
+    fmdHead.parentMetaData.viewOrTable.ked.exists(_.idPropertyName == group._propertyName)
   }
 
-  assert(group._propertyName != None)
+  assert(group._propertyName.isDefined)
 
   override def name: Option[String] = group._propertyName
 }
@@ -314,7 +314,7 @@ class CompositeKeyAttributeAssignment(val group: CompositeKey, _columnAttributes
 class ColumnAttributeAssignment(val left: FieldMetaData, val columnAttributes: collection.Seq[ColumnAttribute])
   extends BaseColumnAttributeAssignment {
 
-  def clearColumnAttributes: Unit = left._clearColumnAttributes
+  def clearColumnAttributes(): Unit = left._clearColumnAttributes()
 
   def isIdFieldOfKeyedEntity = left.isIdFieldOfKeyedEntity
 }
@@ -324,7 +324,7 @@ class DefaultValueAssignment(val left: FieldMetaData, val value: TypedExpression
 
   def isIdFieldOfKeyedEntity = left.isIdFieldOfKeyedEntity
 
-  def clearColumnAttributes: Unit = left._clearColumnAttributes
+  def clearColumnAttributes(): Unit = left._clearColumnAttributes()
 
   def columnAttributes = Nil
 }
@@ -418,7 +418,7 @@ class TypeConversion(e: ExpressionNode) extends ExpressionNode {
 
   override def inhibited = e.inhibited
 
-  override def doWrite(sw: StatementWriter): Unit = e.doWrite((sw))
+  override def doWrite(sw: StatementWriter): Unit = e.doWrite(sw)
 
   override def children = e.children
 }
@@ -441,7 +441,7 @@ class BinaryOperatorNode
     sw.write(" ")
     sw.write(operatorToken)
     if (newLineAfterOperator)
-      sw.nextLine
+      sw.nextLine()
     sw.write(" ")
     right.write(sw)
     sw.write(")")
@@ -462,7 +462,7 @@ class PrefixOperatorNode
     sw.write("(")
     sw.write(operatorToken)
     if (newLineAfterOperator)
-      sw.nextLine
+      sw.nextLine()
     child.write(sw)
     sw.write(")")
   }
@@ -497,13 +497,13 @@ trait QueryableExpressionNode extends ExpressionNode with UniqueIdInAliaseRequir
    * When the join syntax is used, isMemberOfJoinList is true if this instance is not in the from clause
    * but a 'join element'. 
    */
-  def isMemberOfJoinList = joinKind != None
+  def isMemberOfJoinList = joinKind.isDefined
 
   // new join syntax
   var joinKind: Option[(String, String)] = None
 
   def isOuterJoined =
-    joinKind != None && joinKind.get._2 == "outer"
+    joinKind.isDefined && joinKind.get._2 == "outer"
 
   var joinExpression: Option[LogicalBoolean] = None
 
@@ -629,18 +629,18 @@ class RightHandSideOfIn[A](val ast: ExpressionNode, val isIn: Option[Boolean] = 
 class UnionExpressionNode(val kind: String, val ast: ExpressionNode) extends ExpressionNode {
   def doWrite(sw: StatementWriter): Unit = {
     sw.write(kind)
-    sw.nextLine
+    sw.nextLine()
     sw.write("(")
-    sw.nextLine
+    sw.nextLine()
     sw.indent(1)
     ast.write(sw)
     sw.unindent(1)
     sw.write(")")
-    sw.nextLine
+    sw.nextLine()
   }
 
   override def toString = {
-    s"'UnionExpressionNode[with${kind}]"
+    s"'UnionExpressionNode[with$kind]"
   }
 
   override def children =

@@ -254,9 +254,8 @@ trait TypedExpression[A1, T1] extends ExpressionNode {
         this.asInstanceOf[SelectElementReference[_, _]]
       }
       catch { // TODO: validate this at compile time with a scalac plugin
-        case e: ClassCastException => {
+        case e: ClassCastException =>
           throw new RuntimeException("left side of assignment '" + Utils.failSafeString(this.toString) + "' is invalid, make sure statement uses *only* closure argument.", e)
-        }
       }
 
     val fmd =
@@ -264,9 +263,8 @@ trait TypedExpression[A1, T1] extends ExpressionNode {
         ser.selectElement.asInstanceOf[FieldSelectElement].fieldMetaData
       }
       catch { // TODO: validate this at compile time with a scalac plugin
-        case e: ClassCastException => {
+        case e: ClassCastException =>
           throw new RuntimeException("left side of assignment '" + Utils.failSafeString(this.toString) + "' is invalid, make sure statement uses *only* closure argument.", e)
-        }
       }
     fmd
   }
@@ -279,7 +277,7 @@ class TypedExpressionConversion[A1, T1](val e: ExpressionNode, bf: TypedExpressi
 
   override def inhibited = e.inhibited
 
-  override def doWrite(sw: StatementWriter): Unit = e.doWrite((sw))
+  override def doWrite(sw: StatementWriter): Unit = e.doWrite(sw)
 
   override def children = e.children
 }
@@ -406,7 +404,7 @@ trait DeOptionizer[P1, A1, T1, A2 >: Option[A1] <: Option[A1], T2] extends JdbcM
   def convertFromJdbc(v: P1): A2 = Option(deOptionizer.convertFromJdbc(v))
 
   def convertToJdbc(v: A2): P1 =
-    v map (p => deOptionizer.convertToJdbc(p)) getOrElse (null.asInstanceOf[P1])
+    v map (p => deOptionizer.convertToJdbc(p)) getOrElse null.asInstanceOf[P1]
 
   def extractNativeJdbcValue(rs: ResultSet, i: Int) = deOptionizer.extractNativeJdbcValue(rs, i)
 

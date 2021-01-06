@@ -34,10 +34,10 @@ abstract class LeftJoinTest extends SchemaTester with RunTestsInsideTransaction 
   }
 
   test("return the correct results if an inner join is used") {
-    val subquery = from(ordrs)((o) =>
+    val subquery = from(ordrs)(o =>
       groupBy(o.monthId)
-        compute (sum(o.qty))
-        orderBy (o.monthId))
+        compute sum(o.qty)
+        orderBy o.monthId)
 
     val mainquery = join(months, subquery)((m, sq) =>
       select(m, sq.measures)
@@ -48,14 +48,14 @@ abstract class LeftJoinTest extends SchemaTester with RunTestsInsideTransaction 
     }
 
     res.size should equal(2)
-    res(0)._2 should equal(Some(60))
+    res.head._2 should equal(Some(60))
     res(1)._2 should equal(Some(15))
   }
   test("return the correct results if a left outer join is used") {
-    val subquery = from(ordrs)((o) =>
+    val subquery = from(ordrs)(o =>
       groupBy(o.monthId)
-        compute (sum(o.qty))
-        orderBy (o.monthId))
+        compute sum(o.qty)
+        orderBy o.monthId)
 
     val mainquery =
       join(months, subquery.leftOuter)((m, sq) =>
@@ -65,13 +65,13 @@ abstract class LeftJoinTest extends SchemaTester with RunTestsInsideTransaction 
 
     val res = transaction {
       mainquery.map(e =>
-        if (e._2 == None) None
+        if (e._2.isEmpty) None
         else e._2.get.measures
       ).toSeq
     }
 
     res.size should equal(12)
-    res(0) should equal(Some(60))
+    res.head should equal(Some(60))
     res(1) should equal(None)
     res(2) should equal(None)
     res(3) should equal(None)
@@ -100,7 +100,7 @@ object LeftJoinSchema extends Schema {
 
   val ordrs = table[Ordr]("Ordr")
 
-  override def drop: Unit = super.drop
+  override def drop(): Unit = super.drop()
 }
 
 class Item(val id: Int, val name: String)

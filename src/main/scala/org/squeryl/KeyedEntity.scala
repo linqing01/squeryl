@@ -153,7 +153,7 @@ class ForeignKeyDeclaration(val idWithinSchema: Int, val foreignKeyColumnName: S
   private[this] var _referentialActions: Option[(Option[ReferentialAction], Option[ReferentialAction])] = None
 
   private[squeryl] def _isActive =
-    _referentialActions != None
+    _referentialActions.isDefined
 
   private[squeryl] def _referentialAction1: Option[ReferentialAction] =
     _referentialActions.get._1

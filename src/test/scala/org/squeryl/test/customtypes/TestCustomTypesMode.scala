@@ -30,7 +30,7 @@ abstract class TestCustomTypesMode extends SchemaTester with Matchers with Query
 
   import schema._
 
-  var sharedTestObjects: TestData = null
+  var sharedTestObjects: TestData = _
 
   override def prePopulate(): Unit = {
     sharedTestObjects = new TestData(schema)
@@ -42,11 +42,11 @@ abstract class TestCustomTypesMode extends SchemaTester with Matchers with Query
   def simpleSelect =
     from(patients)(p =>
       where(p.age > 70)
-        select (p)
+        select p
     )
 
   test("Queries") {
-    val testObjects = sharedTestObjects;
+    val testObjects = sharedTestObjects
     import testObjects._
 
     validateQuery("simpleSelect", simpleSelect, (p: Patient) => p.id.value, List(joseCuervo.id.value))
@@ -87,14 +87,14 @@ class HospitalDb extends Schema {
     oneToManyRelation(patients, patientInfo).
       via((p, pi) => p.id === pi.patientId)
 
-  override def drop: Unit = super.drop
+  override def drop(): Unit = super.drop()
 }
 
 class Patient(var firstName: FirstName, var age: Option[Age], var weight: Option[WeightInKilograms]) extends KeyedEntity[IntField] {
 
   def this() = this(null, Some(new Age(1)), Some(new WeightInKilograms(1)))
 
-  var id: IntField = null
+  val id: IntField = null
 
   lazy val patientInfo = HospitalDb.patienttoPatientInfo.left(this)
 }

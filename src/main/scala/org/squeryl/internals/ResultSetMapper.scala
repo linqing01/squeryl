@@ -134,10 +134,10 @@ class ColumnToTupleMapper(val outMappers: Array[OutMapper[_]]) {
   def isNull(i: Int, rs: ResultSet) = outMappers.apply(i).isNull(rs)
 
   def mapToTuple[T](rs: ResultSet): T = {
-    val size = outMappers.size
+    val size = outMappers.length
     val m = outMappers
     val res = size match {
-      case 1 => (m(0).map(rs))
+      case 1 => m(0).map(rs)
       case 2 => (m(0).map(rs), m(1).map(rs))
       case 3 => (m(0).map(rs), m(1).map(rs), m(2).map(rs))
       case 4 => (m(0).map(rs), m(1).map(rs), m(2).map(rs), m(3).map(rs))
@@ -213,7 +213,7 @@ class ResultSetMapper extends ResultSetUtils {
 
     //decide based on the nullity of the first non Option field :
 
-    if (_firstNonOption != None) {
+    if (_firstNonOption.isDefined) {
       return rs.getObject(_firstNonOption.get.index) == null
     }
 
@@ -225,7 +225,7 @@ class ResultSetMapper extends ResultSetUtils {
     }
 
     //outMappers
-    for (col2TupleMapper <- List(groupKeysMapper, groupMeasuresMapper).filter(_ != None).map(_.get);
+    for (col2TupleMapper <- List(groupKeysMapper, groupMeasuresMapper).filter(_.isDefined).map(_.get);
          outMapper <- col2TupleMapper.outMappers) {
 
       if (outMapper.isActive && rs.getObject(outMapper.index) != null)
@@ -248,9 +248,8 @@ class ResultSetMapper extends ResultSetUtils {
         fm.map(o, resultSet)
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         throw new RuntimeException("could not map row :\n" + dumpRow(resultSet) + "\n with mapper :\n" + this, e)
-      }
     }
   }
 }

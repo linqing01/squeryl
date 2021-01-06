@@ -10,7 +10,7 @@ object SubQueryTestSchema {
 
   class Entity(
                 val name: String) extends KeyedEntity[UUID] {
-    var id: UUID = new UUID(0, 0)
+    val id: UUID = new UUID(0, 0)
   }
 
   class EntityToTypeJoins(
@@ -31,9 +31,9 @@ object SubQueryTestSchema {
     val entityType = table[EntityToTypeJoins]()
     val entityEdges = table[EntityEdge]()
 
-    override def drop: Unit = {
-      Session.cleanupResources
-      super.drop
+    override def drop(): Unit = {
+      Session.cleanupResources()
+      super.drop()
     }
   }
 
@@ -54,10 +54,10 @@ abstract class SubQueryTests extends SchemaTester with RunTestsInsideTransaction
     val typeName = "mmmm"
     val relType = "owns"
 
-    val nameQuery = from(entity)(e => where(e.name === name) select (e))
+    val nameQuery = from(entity)(e => where(e.name === name) select e)
 
     val nameQueryId = from(nameQuery)(i => select(i.id))
-    val typeQuery = from(entityType)((eType) => where(eType.entType === typeName) select (eType.entityId))
+    val typeQuery = from(entityType)(eType => where(eType.entType === typeName) select eType.entityId)
 
     val entEdges =
       from(entity, entityEdges)((e, edge) =>

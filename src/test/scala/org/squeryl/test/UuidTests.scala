@@ -20,7 +20,7 @@ object UuidTests {
   }
 
   class UuidAsId extends KeyedEntity[UUID] {
-    var id = UUID.randomUUID
+    val id = UUID.randomUUID
     lazy val foreigns = TestSchema.uuidOneToMany.left(this)
   }
 
@@ -36,9 +36,9 @@ object UuidTests {
 
     val uuidOneToMany = oneToManyRelation(uuidAsId, uuidAsForeignKey).via(_.id === _.foreignUuid)
 
-    override def drop: Unit = {
-      Session.cleanupResources
-      super.drop
+    override def drop(): Unit = {
+      Session.cleanupResources()
+      super.drop()
     }
   }
 

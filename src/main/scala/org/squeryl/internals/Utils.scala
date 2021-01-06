@@ -46,26 +46,26 @@ object Utils {
 
   def close(s: Statement): Unit =
     try {
-      s.close
+      s.close()
     }
     catch {
-      case e: SQLException => {}
+      case e: SQLException =>
     }
 
   def close(rs: ResultSet): Unit =
     try {
-      rs.close
+      rs.close()
     }
     catch {
-      case e: SQLException => {}
+      case e: SQLException =>
     }
 
   def close(c: Connection): Unit =
     try {
-      c.close
+      c.close()
     }
     catch {
-      case e: SQLException => {}
+      case e: SQLException =>
     }
 
   private class DummyQueryElements[Cond](override val whereClause: Option[() => LogicalBoolean]) extends QueryElements[Cond]
@@ -74,9 +74,9 @@ object Utils {
   private class DummyQuery[A, B](q: Queryable[A], f: A => B, g: B => Unit) extends Query1[A, Int](
     q,
     a => {
-      val res = f(a);
+      val res = f(a)
       g(res)
-      (new DummyQueryElements(None)).select(0)
+      new DummyQueryElements(None).select(0)
     },
     true,
     Nil)
@@ -84,7 +84,7 @@ object Utils {
   private class DummyQuery4WhereClause[A, B](q: Queryable[A], whereClause: A => LogicalBoolean) extends Query1[A, Int](
     q,
     a => {
-      (new DummyQueryElements(Some(() => whereClause(a)))).select(0)
+      new DummyQueryElements(Some(() => whereClause(a))).select(0)
     },
     true,
     Nil)
@@ -125,7 +125,7 @@ class IteratorConcatenation[R](first: Iterator[R], second: Iterator[R]) extends 
   def _hasNext =
     if (currentIterator.hasNext)
       true
-    else if (currentIterator == second)
+    else if (currentIterator sameElements second)
       false
     else {
       currentIterator = second

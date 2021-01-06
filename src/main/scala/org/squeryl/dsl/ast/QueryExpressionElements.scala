@@ -51,7 +51,7 @@ trait QueryExpressionElements extends ExpressionNode {
       case Some(e: ExpressionNode) =>
         if (e.inhibited) false
         else if (e.children.isEmpty) true // for constant
-        else (e.children.exists(!_.inhibited))
+        else e.children.exists(!_.inhibited)
     }
 
   def havingClause: Option[ExpressionNode]

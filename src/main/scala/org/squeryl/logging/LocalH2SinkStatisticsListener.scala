@@ -13,7 +13,7 @@ object LocalH2SinkStatisticsListener {
     initialize(schemaName, overwrite = false, workingDir)
 
   def initialize(schemaName: String, overwrite: Boolean, workingDir: String) = {
-    Class.forName("org.h2.Driver");
+    Class.forName("org.h2.Driver")
 
     val file = new java.io.File(workingDir, schemaName + ".h2.db").getCanonicalFile
 
@@ -26,7 +26,7 @@ object LocalH2SinkStatisticsListener {
 
     if ((!file.exists) || overwrite)
       using(s) {
-        StatsSchema.create
+        StatsSchema.create()
       }
 
     val l = new LocalH2SinkStatisticsListener(s)
@@ -43,7 +43,7 @@ class LocalH2SinkStatisticsListener(val h2Session: AbstractSession) extends Stat
   private[this] val _worker = new Thread {
 
     override def run(): Unit = {
-      h2Session.bindToCurrentThread
+      h2Session.bindToCurrentThread()
       while (!_closed) {
         val op = _queue.take
         op()
@@ -51,9 +51,9 @@ class LocalH2SinkStatisticsListener(val h2Session: AbstractSession) extends Stat
     }
   }
 
-  _worker.start
+  _worker.start()
 
-  def shutdown: Unit = _closed = true
+  def shutdown(): Unit = _closed = true
 
   private def _pushOp(op: => Unit): Unit =
     if (!_closed) {
@@ -68,12 +68,12 @@ class LocalH2SinkStatisticsListener(val h2Session: AbstractSession) extends Stat
 
   def queryExecuted(se: StatementInvocationEvent): Unit = _pushOp {
     StatsSchema.recordStatementInvocation(se)
-    h2Session.connection.commit
+    h2Session.connection.commit()
   }
 
   def resultSetIterationEnded(invocationId: String, iterationEndTime: Long, rowCount: Int, iterationCompleted: Boolean): Unit = _pushOp {
     StatsSchema.recordEndOfIteration(invocationId, iterationEndTime: Long, rowCount: Int, iterationCompleted: Boolean)
-    h2Session.connection.commit
+    h2Session.connection.commit()
   }
 
   def updateExecuted(se: StatementInvocationEvent): Unit = {}

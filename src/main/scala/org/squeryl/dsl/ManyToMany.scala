@@ -44,9 +44,9 @@ class StatefulOneToMany[M](val relation: OneToMany[M]) extends Iterable[M] {
 
   private[this] val _buffer = new ArrayBuffer[M]
 
-  refresh
+  refresh()
 
-  def refresh: Unit = {
+  def refresh(): Unit = {
     _buffer.clear()
     for (m <- relation.iterator.toSeq)
       _buffer.append(m)
@@ -60,8 +60,8 @@ class StatefulOneToMany[M](val relation: OneToMany[M]) extends Iterable[M] {
     m
   }
 
-  def deleteAll: Int = {
-    val r = relation.deleteAll
+  def deleteAll(): Int = {
+    val r = relation.deleteAll()
     _buffer.clear()
     r
   }
@@ -71,9 +71,9 @@ class StatefulManyToOne[O](val relation: ManyToOne[O]) {
 
   private[this] var _one: Option[O] = None
 
-  refresh
+  refresh()
 
-  def refresh: Unit =
+  def refresh(): Unit =
     _one = relation.iterator.toSeq.headOption
 
   def one = _one
@@ -191,9 +191,9 @@ class StatefulManyToMany[O, A](val relation: ManyToMany[O, A]) extends Iterable[
 
   private[this] val _map = new mutable.HashMap[O, A]
 
-  refresh
+  refresh()
 
-  def refresh: Unit = {
+  def refresh(): Unit = {
     _map.clear()
     for (e <- relation.associationMap.iterator.toSeq)
       _map.put(e._1, e._2)
@@ -215,7 +215,7 @@ class StatefulManyToMany[O, A](val relation: ManyToMany[O, A]) extends Iterable[
 
   def dissociate(o: O): Boolean = {
     val b1 = relation.dissociate(o)
-    val b2 = _map.remove(o) != None
+    val b2 = _map.remove(o).isDefined
     assert(b1 == b2,
       "'MutableManyToMany out of sync " + o.asInstanceOf[AnyRef].getClass.getName + " with id=" +
         relation.kedL.getId(o) + (if (b1) "" else "does not") + " exist in the db, and cached collection says the opposite")
@@ -251,7 +251,7 @@ trait OneToMany[M] extends Query[M] {
    */
   def associate(m: M): M
 
-  def deleteAll: Int
+  def deleteAll(): Int
 }
 
 trait ManyToOne[O] extends Query[O] {

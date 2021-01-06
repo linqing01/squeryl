@@ -72,9 +72,9 @@ object SchoolDb2 extends Schema {
   override def applyDefaultForeignKeyPolicy(foreignKeyDeclaration: ForeignKeyDeclaration): Unit =
     foreignKeyDeclaration.constrainReference()
 
-  override def drop: Unit = {
-    Session.cleanupResources
-    super.drop
+  override def drop(): Unit = {
+    Session.cleanupResources()
+    super.drop()
   }
 }
 
@@ -143,7 +143,7 @@ abstract class SchoolDb2MetableRelations extends SchemaTester with QueryTester w
 
     professeurTournesol.lastName shouldBe profT.lastName
 
-    professeurTournesol.courses.refresh
+    professeurTournesol.courses.refresh()
 
     val ca = professeurTournesol.courses.associations.head: CourseAssignment
 
@@ -160,7 +160,7 @@ abstract class SchoolDb2MetableRelations extends SchemaTester with QueryTester w
 
     physicsCourse.professors.head: Professor
 
-    professeurTournesol.courses.refresh
+    professeurTournesol.courses.refresh()
 
     physicsCourse.professors.dissociate(professeurTournesol) shouldBe true
     physicsCourse.professors.dissociate(professeurTournesol) shouldBe false
@@ -184,8 +184,8 @@ abstract class SchoolDb2MetableRelations extends SchemaTester with QueryTester w
 
 
     val s = from(subjects)(s0 =>
-      where(s0.id notIn (Seq(computationTheory.id, physics.id)))
-        select (s0)
+      where(s0.id notIn Seq(computationTheory.id, physics.id))
+        select s0
     )
 
     var cnt = 0
@@ -219,7 +219,7 @@ abstract class SchoolDb2MetableRelations extends SchemaTester with QueryTester w
     computationTheory.courses.associate(philosophyCourse3PMFriday)
     pk1 shouldBe philosophyCourse3PMFriday.id
 
-    philosophy.courses.refresh
+    philosophy.courses.refresh()
 
     // verify that the reassociation worked, which means that
     // 1) : the set of philosophy.courses was reduced properly

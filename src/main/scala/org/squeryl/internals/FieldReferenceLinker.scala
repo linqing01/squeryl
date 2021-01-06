@@ -80,7 +80,7 @@ object FieldReferenceLinker {
   }
 
   private[squeryl] def _lastAccessedFieldReference_=(se: Option[SelectElement]): Unit =
-    if (se == None) {
+    if (se.isEmpty) {
       __lastAccessedFieldReference.remove()
     } else {
       __lastAccessedFieldReference.set(se)
@@ -108,8 +108,8 @@ object FieldReferenceLinker {
 
     private[this] val _utilizedFields = new ArrayBuffer[SelectElement]
     var _on = false
-    var queryExpressionNode: QueryExpressionNode[_] = null
-    var _resultSetMapper: ResultSetMapper = null
+    var queryExpressionNode: QueryExpressionNode[_] = _
+    var _resultSetMapper: ResultSetMapper = _
 
     def isOn = _on
 
@@ -133,10 +133,10 @@ object FieldReferenceLinker {
 
     def reentranceDepth = _reentranceDepth
 
-    def incrementReentranceDepth: Unit =
+    def incrementReentranceDepth(): Unit =
       _reentranceDepth += 1
 
-    def decrementReentranceDepth: Unit =
+    def decrementReentranceDepth(): Unit =
       _reentranceDepth -= 1
 
     def turnOn(q: QueryExpressionNode[_], rsm: ResultSetMapper): Unit = {
@@ -186,7 +186,7 @@ object FieldReferenceLinker {
 
   def createEqualityExpressionWithLastAccessedFieldReferenceAndConstant(c: Any, lOpt: Option[SimpleKeyLookup[_]]): LogicalBoolean = {
     val left = _takeLastAccessedUntypedFieldReference
-    val right = lOpt map (l => l.convert.asInstanceOf[Any => TypedExpression[_, _]](c)) getOrElse (new InputOnlyConstantExpressionNode(c))
+    val right = lOpt map (l => l.convert.asInstanceOf[Any => TypedExpression[_, _]](c)) getOrElse new InputOnlyConstantExpressionNode(c)
 
     new BinaryOperatorNodeLogicalBoolean(left, right, "=")
   }
@@ -244,11 +244,11 @@ object FieldReferenceLinker {
       Map[Class[_], Array[Field]]()
 
     def apply(cls: Class[_]) =
-      _cache.get(cls) getOrElse {
+      _cache.getOrElse(cls, {
         val declaredFields = cls.getDeclaredFields()
         _cache += ((cls, declaredFields))
         declaredFields
-      }
+      })
 
   }
 
@@ -264,7 +264,7 @@ object FieldReferenceLinker {
           visited.put(o, o)
           _populateSelectCols(yi, q, o)
           for (f <- _declaredFieldCache(clazz)) {
-            f.setAccessible(true);
+            f.setAccessible(true)
             val ob = f.get(o)
             if (!f.getName.startsWith("CGLIB$") &&
               !f.getType.getName.startsWith("scala.Function") &&
@@ -313,14 +313,14 @@ object FieldReferenceLinker {
         classOf[CompositeKey].isAssignableFrom(m.getReturnType)
 
       try {
-        if (fmd != None && yi != null)
-          yi.incrementReentranceDepth
+        if (fmd.isDefined && yi != null)
+          yi.incrementReentranceDepth()
 
         _intercept(o, m, args, proxy, fmd, yi, isComposite)
       }
       finally {
-        if (fmd != None && yi != null)
-          yi.decrementReentranceDepth
+        if (fmd.isDefined && yi != null)
+          yi.decrementReentranceDepth()
       }
     }
 
@@ -333,7 +333,7 @@ object FieldReferenceLinker {
         if (m.getName.equals("toString") && m.getParameterTypes.length == 0)
           "sample:" + viewExpressionNode.view.name + "[" + Integer.toHexString(System.identityHashCode(o)) + "]"
         else
-          proxy.invokeSuper(o, args);
+          proxy.invokeSuper(o, args)
 
       if (isComposite) {
         val ck = res.asInstanceOf[CompositeKey]
@@ -342,14 +342,14 @@ object FieldReferenceLinker {
         _compositeKeyMembers.remove()
       }
 
-      if (fmd != None) {
+      if (fmd.isDefined) {
 
         if (yi != null && yi.reentranceDepth == 1)
           yi.addSelectElement(viewExpressionNode.getOrCreateSelectElement(fmd.get, yi.queryExpressionNode))
 
         if (_compositeKeyMembers.get == null) {
           _compositeKeyMembers.remove()
-          _lastAccessedFieldReference = Some(viewExpressionNode.getOrCreateSelectElement(fmd.get));
+          _lastAccessedFieldReference = Some(viewExpressionNode.getOrCreateSelectElement(fmd.get))
         } else
           _compositeKeyMembers.get.get.append(viewExpressionNode.getOrCreateSelectElement(fmd.get))
       }

@@ -72,7 +72,7 @@ trait DatabaseAdapter {
         if (!z.isLast) {
           sw.write(",")
         }
-        sw.nextLine
+        sw.nextLine()
       }
     }
 
@@ -83,13 +83,13 @@ trait DatabaseAdapter {
     if (qen.selectDistinct)
       sw.write(" distinct")
 
-    sw.nextLine
+    sw.nextLine()
     sw.writeIndented {
       sw.writeNodesWithSeparator(qen.selectList.filter(e => !e.inhibited), ",", newLineAfterSeparator = true)
     }
-    sw.nextLine
+    sw.nextLine()
     sw.write("From")
-    sw.nextLine
+    sw.nextLine()
 
     if (!qen.isJoinForm) {
       sw.writeIndented {
@@ -99,10 +99,10 @@ trait DatabaseAdapter {
           sw.write(sw.quoteName(z.element.alias))
           if (!z.isLast) {
             sw.write(",")
-            sw.nextLine
+            sw.nextLine()
           }
         }
-        sw.pushPendingNextLine
+        sw.pushPendingNextLine()
       }
     }
     else {
@@ -113,13 +113,13 @@ trait DatabaseAdapter {
       firstJoinExpr.write(sw)
       sw.write(" ")
       sw.write(sw.quoteName(firstJoinExpr.alias))
-      sw.nextLine
+      sw.nextLine()
 
       for (z <- restOfJoinExpr.zipi) {
         writeJoin(z.element, sw)
         if (z.isLast)
-          sw.unindent
-        sw.pushPendingNextLine
+          sw.unindent()
+        sw.pushPendingNextLine()
       }
     }
 
@@ -127,40 +127,40 @@ trait DatabaseAdapter {
 
     if (qen.hasUnInhibitedWhereClause) {
       sw.write("Where")
-      sw.nextLine
+      sw.nextLine()
       sw.writeIndented {
         qen.whereClause.get.write(sw)
       }
-      sw.pushPendingNextLine
+      sw.pushPendingNextLine()
     }
 
     if (qen.groupByClause.exists(e => !e.inhibited)) {
       sw.write("Group By")
-      sw.nextLine
+      sw.nextLine()
       sw.writeIndented {
         sw.writeNodesWithSeparator(qen.groupByClause.filter(e => !e.inhibited), ",", newLineAfterSeparator = true)
       }
-      sw.pushPendingNextLine
+      sw.pushPendingNextLine()
     }
 
     if (qen.havingClause.exists(e => !e.inhibited)) {
       sw.write("Having")
-      sw.nextLine
+      sw.nextLine()
       sw.writeIndented {
         sw.writeNodesWithSeparator(qen.havingClause.filter(e => !e.inhibited), ",", newLineAfterSeparator = true)
       }
-      sw.pushPendingNextLine
+      sw.pushPendingNextLine()
     }
 
     if (qen.orderByClause.exists(e => !e.inhibited)) {
       sw.write("Order By")
-      sw.nextLine
+      sw.nextLine()
       val ob0 = qen.orderByClause.filter(e => !e.inhibited)
       val ob = if (inverseOrderBy) ob0.map(_.asInstanceOf[OrderByExpression].inverse) else ob0
       sw.writeIndented {
         sw.writeNodesWithSeparator(ob, ",", newLineAfterSeparator = true)
       }
-      sw.pushPendingNextLine
+      sw.pushPendingNextLine()
     }
 
     writePaginatedQueryDeclaration(() => qen.page, qen, sw)
@@ -179,7 +179,7 @@ trait DatabaseAdapter {
   def writeEndOfQueryHint(isForUpdate: () => Boolean, qen: QueryExpressionElements, sw: StatementWriter): Unit =
     if (isForUpdate()) {
       sw.write("for update")
-      sw.pushPendingNextLine
+      sw.pushPendingNextLine()
     }
 
   def writeEndOfFromHint(qen: QueryExpressionElements, sw: StatementWriter): Unit = {}
@@ -190,7 +190,7 @@ trait DatabaseAdapter {
       sw.write(p._2.toString)
       sw.write(" offset ")
       sw.write(p._1.toString)
-      sw.pushPendingNextLine
+      sw.pushPendingNextLine()
     })
 
 
@@ -335,7 +335,7 @@ trait DatabaseAdapter {
 
     sw.write("create table ")
     sw.write(quoteName(t.prefixedName))
-    sw.write(" (\n");
+    sw.write(" (\n")
     sw.writeIndented {
       sw.writeLinesWithSeparator(
         t.posoMetaData.fieldsMetaData.map(
@@ -348,7 +348,7 @@ trait DatabaseAdapter {
   }
 
   def fillParamsInto(params: Iterable[StatementParam], s: PreparedStatement): Unit = {
-    var i = 1;
+    var i = 1
     for (p <- params) {
       setParamInto(s, p, i)
       i += 1
@@ -398,7 +398,7 @@ trait DatabaseAdapter {
     val c = s.connection
     val stat = createStatement(c)
     val sp =
-      if (failureOfStatementRequiresRollback) Some(c.setSavepoint)
+      if (failureOfStatementRequiresRollback) Some(c.setSavepoint())
       else None
 
     try {
@@ -409,7 +409,7 @@ trait DatabaseAdapter {
     catch {
       case e: SQLException =>
         if (silenceException(e))
-          sp.foreach(c.rollback(_))
+          sp.foreach(c.rollback)
         else
           throw SquerylSQLException(
             "Exception while executing statement,\n" +
@@ -417,7 +417,7 @@ trait DatabaseAdapter {
               sw.statement, e)
     }
     finally {
-      sp.foreach(c.releaseSavepoint(_))
+      sp.foreach(c.releaseSavepoint)
       Utils.close(stat)
     }
   }
@@ -457,7 +457,7 @@ trait DatabaseAdapter {
       st.executeUpdate
     }
     finally {
-      st.close
+      st.close()
     }
   }
 
@@ -473,14 +473,14 @@ trait DatabaseAdapter {
     val o_ = o.asInstanceOf[AnyRef]
     val f = getInsertableFields(t.posoMetaData.fieldsMetaData)
 
-    sw.write("insert into ");
-    sw.write(quoteName(t.prefixedName));
-    sw.write(" (");
-    sw.write(f.map(fmd => quoteName(fmd.columnName)).mkString(", "));
-    sw.write(") values ");
+    sw.write("insert into ")
+    sw.write(quoteName(t.prefixedName))
+    sw.write(" (")
+    sw.write(f.map(fmd => quoteName(fmd.columnName)).mkString(", "))
+    sw.write(") values ")
     sw.write(
       f.map(fmd => writeValue(o_, fmd, sw)
-      ).mkString("(", ",", ")"));
+      ).mkString("(", ",", ")"))
   }
 
   /**
@@ -502,7 +502,7 @@ trait DatabaseAdapter {
     }
 
     v match {
-      case x: java.util.Date if (!v.isInstanceOf[java.sql.Date] && !v.isInstanceOf[Timestamp]) =>
+      case x: java.util.Date if !v.isInstanceOf[java.sql.Date] && !v.isInstanceOf[Timestamp] =>
         v = new java.sql.Date(x.getTime)
       case x: scala.math.BigDecimal =>
         v = x.bigDecimal
@@ -572,8 +572,8 @@ trait DatabaseAdapter {
 
 
     sw.write("update ", quoteName(t.prefixedName), " set ")
-    sw.nextLine
-    sw.indent
+    sw.nextLine()
+    sw.indent()
     sw.writeLinesWithSeparator(
       t.posoMetaData.fieldsMetaData.
         filter(fmd => !fmd.isIdFieldOfKeyedEntity && fmd.isUpdatable).
@@ -585,10 +585,10 @@ trait DatabaseAdapter {
         }),
       ","
     )
-    sw.unindent
+    sw.unindent()
     sw.write("where")
-    sw.nextLine
-    sw.indent
+    sw.nextLine()
+    sw.indent()
 
     t.posoMetaData.primaryKey.getOrElse(throw new UnsupportedOperationException("writeUpdate was called on an object that does not extend from KeyedEntity[]")).fold(
       pkMd => {
@@ -600,7 +600,7 @@ trait DatabaseAdapter {
           val ck = pkGetter.invoke(t0).asInstanceOf[CompositeKey]
 
           val fieldWhere = ck._fields map {
-            case fmd if (fmd.getNativeJdbcValue(o_) == null) =>
+            case fmd if fmd.getNativeJdbcValue(o_) == null =>
               quoteName(fmd.columnName) + " is null"
             case fmd =>
               quoteName(fmd.columnName) + " = " + writeValue(o_, fmd, sw)
@@ -625,10 +625,10 @@ trait DatabaseAdapter {
 
     sw.write("delete from ")
     sw.write(quoteName(t.prefixedName))
-    if (whereClause != None) {
-      sw.nextLine
+    if (whereClause.isDefined) {
+      sw.nextLine()
       sw.write("where")
-      sw.nextLine
+      sw.nextLine()
       sw.writeIndented {
         whereClause.get.write(sw)
       }
@@ -660,46 +660,44 @@ trait DatabaseAdapter {
     sw.write("update ")
     sw.write(quoteName(t.prefixedName))
     sw.write(" set")
-    sw.indent
-    sw.nextLine
+    sw.indent()
+    sw.nextLine()
     for (z <- us.values.zipi) {
       val col = colsToUpdate.next()
       sw.write(quoteName(col.columnName))
       sw.write(" = ")
       val v = z.element
       col.explicitDbTypeDeclaration match {
-        case Some(dbType) if col.explicitDbTypeCast => {
+        case Some(dbType) if col.explicitDbTypeCast =>
           sw.write("cast(")
           v.write(sw)
           sw.write(s" as ${sw.quoteName(dbType)})")
-        }
-        case _ => {
+        case _ =>
           sw.write("(")
           v.write(sw)
           sw.write(")")
-        }
       }
       if (!z.isLast) {
         sw.write(",")
-        sw.nextLine
+        sw.nextLine()
       }
     }
 
     if (t.posoMetaData.isOptimistic) {
       sw.write(",")
-      sw.nextLine
+      sw.nextLine()
       val occ = t.posoMetaData.optimisticCounter.get
       sw.write(quoteName(occ.columnName))
       sw.write(" = ")
       sw.write(quoteName(occ.columnName) + " + 1")
     }
 
-    sw.unindent
+    sw.unindent()
 
-    if (us.whereClause != None) {
-      sw.nextLine
+    if (us.whereClause.isDefined) {
+      sw.nextLine()
       sw.write("Where")
-      sw.nextLine
+      sw.nextLine()
       sw.writeIndented {
         us.whereClause.get.write(sw)
       }
@@ -727,7 +725,7 @@ trait DatabaseAdapter {
     foreignKeyTable.name + "FK" + idWithinSchema
 
   def viewAlias(vn: ViewExpressionNode[_]) =
-    if (vn.view.prefix != None)
+    if (vn.view.prefix.isDefined)
       vn.view.prefix.get + "_" + vn.view.name + vn.uniqueId.get
     else
       vn.view.name + vn.uniqueId.get
@@ -786,7 +784,7 @@ trait DatabaseAdapter {
     execFailSafeExecute(writeDropTable(t.prefixedName), e => isTableDoesNotExistException(e))
 
   def writeCompositePrimaryKeyConstraint(t: Table[_], cols: Iterable[FieldMetaData]) =
-    writeUniquenessConstraint(t, cols);
+    writeUniquenessConstraint(t, cols)
 
   def writeUniquenessConstraint(t: Table[_], cols: Iterable[FieldMetaData]) = {
     //ALTER TABLE TEST ADD CONSTRAINT NAME_UNIQUE UNIQUE(NAME)
@@ -797,7 +795,7 @@ trait DatabaseAdapter {
     sb.append(" add constraint ")
     sb.append(quoteName(t.prefixedName + "CPK"))
     sb.append(" unique(")
-    sb.append(cols.map(_.columnName).map(quoteName(_)).mkString(","))
+    sb.append(cols.map(_.columnName).map(quoteName).mkString(","))
     sb.append(")")
     sb.toString
   }
@@ -837,9 +835,9 @@ trait DatabaseAdapter {
 
     val tableName = columnDefs.head.parentMetaData.viewOrTable.prefixedName
 
-    if (name != None)
+    if (name.isDefined)
       sb.append(quoteName(name.get))
-    else if (nameOfCompositeKey != None)
+    else if (nameOfCompositeKey.isDefined)
       sb.append(quoteName("idx" + nameOfCompositeKey.get))
     else
       sb.append(quoteName("idx" + generateAlmostUniqueSuffixWithHash(tableName + "-" + columnDefs.map(_.columnName).mkString("-"))))
@@ -848,7 +846,7 @@ trait DatabaseAdapter {
 
     sb.append(quoteName(tableName))
 
-    sb.append(columnDefs.map(_.columnName).map(quoteName(_)).mkString(" (", ",", ")"))
+    sb.append(columnDefs.map(_.columnName).map(quoteName).mkString(" (", ",", ")"))
 
     sb.toString
   }
@@ -866,7 +864,7 @@ trait DatabaseAdapter {
 
   def quoteIdentifier(s: String) = s
 
-  def quoteName(s: String) = s.split('.').map(quoteIdentifier(_)).mkString(".")
+  def quoteName(s: String) = s.split('.').map(quoteIdentifier).mkString(".")
 
   def fieldAlias(n: QueryableExpressionNode, fse: FieldSelectElement) =
     n.alias + "_" + fse.fieldMetaData.columnName

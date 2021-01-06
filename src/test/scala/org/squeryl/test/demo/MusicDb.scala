@@ -27,10 +27,10 @@ class MusicDbObject extends KeyedEntity[Long] {
   val id: Long = 0
 }
 
-case class Artist(val name: String) extends MusicDbObject {
+case class Artist(name: String) extends MusicDbObject {
 
   // this returns a Query[Song] which is also an Iterable[Song] :
-  def songs = from(MusicDb.songs)(s => where(s.artistId === id) select (s))
+  def songs = from(MusicDb.songs)(s => where(s.artistId === id) select s)
 
   def newSong(title: String, filePath: Option[String], year: Int) =
     MusicDb.songs.insert(new Song(title, id, filePath, year))
@@ -67,7 +67,7 @@ class Playlist(val name: String, val path: String) extends MusicDbObject {
   def songsInPlaylistOrder =
     from(playlistElements, songs)((ple, s) =>
       where(ple.playlistId === id and ple.songId === s.id)
-        select (s)
+        select s
         orderBy (ple.songNumber asc)
     )
 
@@ -80,7 +80,7 @@ class Playlist(val name: String, val path: String) extends MusicDbObject {
     val nextSongNumber: Int =
     from(playlistElements)(ple =>
       where(ple.playlistId === id)
-        compute (nvl(max(ple.songNumber), 0))
+        compute nvl(max(ple.songNumber), 0)
     )
 
     playlistElements.insert(new PlaylistElement(nextSongNumber, id, s.id))
@@ -101,8 +101,8 @@ class Playlist(val name: String, val path: String) extends MusicDbObject {
   def _songCountByArtistId: Query[GroupWithMeasures[Long, Long]] =
     from(artists, songs)((a, s) =>
       where(a.id === s.artistId)
-        groupBy (a.id)
-        compute (count)
+        groupBy a.id
+        compute count
     )
 
   // Queries are nestable just as they would in SQL
@@ -124,7 +124,7 @@ class Playlist(val name: String, val path: String) extends MusicDbObject {
   def songsOf(artistId: Long) =
     from(playlistElements, songs)((ple, s) =>
       where(id === ple.playlistId and ple.songId === s.id and s.artistId === artistId)
-        select (s)
+        select s
     )
 }
 
@@ -144,17 +144,17 @@ object MusicDb extends Schema {
   val ratings = table[Rating]()
 
   // drop (schema) is normally protected... for safety, here we live dangerously !
-  override def drop: Unit = super.drop
+  override def drop(): Unit = super.drop()
 }
 
 class TestData {
 
   import MusicDb._
 
-  val herbyHancock = artists.insert(new Artist("Herby Hancock"))
-  val ponchoSanchez = artists.insert(new Artist("Poncho Sanchez"))
-  val mongoSantaMaria = artists.insert(new Artist("Mongo Santa Maria"))
-  val theMeters = artists.insert(new Artist("The Meters"))
+  val herbyHancock = artists.insert(Artist("Herby Hancock"))
+  val ponchoSanchez = artists.insert(Artist("Poncho Sanchez"))
+  val mongoSantaMaria = artists.insert(Artist("Mongo Santa Maria"))
+  val theMeters = artists.insert(Artist("The Meters"))
 
   val watermelonMan = herbyHancock.newSong("Watermelon Man", None, 1962)
   val besameMama = mongoSantaMaria.newSong("Besame Mama", Some("c:/MyMusic/besameMama.flac"), 1998)
@@ -171,7 +171,7 @@ abstract class KickTheTires extends SchemaTester with RunTestsInsideTransaction 
 
   import schema._
 
-  var sharedTestData: TestData = null
+  var sharedTestData: TestData = _
 
   override def prePopulate(): Unit = {
     sharedTestData = new TestData()
@@ -179,7 +179,7 @@ abstract class KickTheTires extends SchemaTester with RunTestsInsideTransaction 
 
 
   test("kick tires") {
-    val testData = sharedTestData;
+    val testData = sharedTestData
     import testData._
 
     funkAndLatinJazz.addSong(watermelonMan)
@@ -198,7 +198,7 @@ abstract class KickTheTires extends SchemaTester with RunTestsInsideTransaction 
     val songsFromThe60sInFunkAndLatinJazzPlaylist =
       from(songs)(s =>
         where(s.id in from(funkAndLatinJazz.songsInPlaylistOrder)(s2 => select(s2.id)))
-          select (s)
+          select s
       )
 
     val songIds =
@@ -209,7 +209,7 @@ abstract class KickTheTires extends SchemaTester with RunTestsInsideTransaction 
     // Nesting in From clause :
     from(funkAndLatinJazz.songsInPlaylistOrder)(s =>
       where(s.id === 123)
-        select (s)
+        select s
     )
 
     // Left Outer Join :

@@ -45,7 +45,7 @@ abstract class AbstractQuery[R](
 
   val name = "query"
 
-  private def isUnionQuery = !unions.isEmpty
+  private def isUnionQuery = unions.nonEmpty
 
   override private[squeryl] def root = __root
 
@@ -160,7 +160,7 @@ abstract class AbstractQuery[R](
       Utils.throwError("distinct is not supported on union queries")
     }
     val c = copy(asRoot = true, Nil)
-    c.selectDistinct = true;
+    c.selectDistinct = true
     c
   }
 
@@ -179,7 +179,7 @@ abstract class AbstractQuery[R](
     if (c.isUnionQuery)
       c.unionIsForUpdate = true
     else
-      c.isForUpdate = true;
+      c.isForUpdate = true
     c
   }
 
@@ -195,30 +195,30 @@ abstract class AbstractQuery[R](
 
     lazy val statEx = new StatementInvocationEvent(definitionSite.get, beforeQueryExecute, System.currentTimeMillis, -1, sw.statement)
 
-    if (s.statisticsListener != None)
+    if (s.statisticsListener.isDefined)
       s.statisticsListener.get.queryExecuted(statEx)
 
     s._addStatement(stmt) // if the iteration doesn't get completed, we must hang on to the statement to clean it up at session end.
     s._addResultSet(rs) // same for the result set
 
-    var _nextCalled = false;
-    var _hasNext = false;
+    var _nextCalled = false
+    var _hasNext = false
 
     var rowCount = 0
 
     def close(): Unit = {
-      stmt.close
-      rs.close
+      stmt.close()
+      rs.close()
     }
 
-    def _next: Unit = {
+    def _next(): Unit = {
       _hasNext = rs.next
 
       if (!_hasNext) { // close it since we've completed the iteration
         Utils.close(rs)
-        stmt.close
+        stmt.close()
 
-        if (s.statisticsListener != None) {
+        if (s.statisticsListener.isDefined) {
           s.statisticsListener.get.resultSetIterationEnded(statEx.uuid, System.currentTimeMillis, rowCount, iterationCompleted = true)
         }
       }
@@ -229,13 +229,13 @@ abstract class AbstractQuery[R](
 
     def hasNext = {
       if (!_nextCalled)
-        _next
+        _next()
       _hasNext
     }
 
     def next(): R = {
       if (!_nextCalled)
-        _next
+        _next()
       if (!_hasNext)
         throw new NoSuchElementException("next called with no rows available")
       _nextCalled = false
@@ -286,7 +286,7 @@ abstract class AbstractQuery[R](
    val node: QueryableExpressionNode) {
 
     def give(rs: ResultSet): U =
-      if (node.joinKind != None) {
+      if (node.joinKind.isDefined) {
         if (node.isOuterJoined) {
 
           val isNoneInOuterJoin =
@@ -300,7 +300,7 @@ abstract class AbstractQuery[R](
         else
           queryable.give(resultSetMapper, rs)
       }
-      else if ((node.isRightJoined) && resultSetMapper.isNoneInOuterJoin(rs))
+      else if (node.isRightJoined && resultSetMapper.isNoneInOuterJoin(rs))
         sample
       else
         queryable.give(resultSetMapper, rs)

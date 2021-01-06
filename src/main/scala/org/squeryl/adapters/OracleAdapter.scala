@@ -55,7 +55,7 @@ class OracleAdapter extends DatabaseAdapter {
       val sw = new StatementWriter(false, this)
       sw.write("create sequence ", fmd.sequenceName, " start with 1 increment by 1 nomaxvalue")
 
-      if (printSinkWhenWriteOnlyMode == None) {
+      if (printSinkWhenWriteOnlyMode.isEmpty) {
         val st = Session.currentSession.connection.createStatement
         st.execute(sw.statement)
       }
@@ -89,7 +89,7 @@ class OracleAdapter extends DatabaseAdapter {
 
     val autoIncPK = t.posoMetaData.fieldsMetaData.find(fmd => fmd.isAutoIncremented)
 
-    if (autoIncPK == None) {
+    if (autoIncPK.isEmpty) {
       super.writeInsert(o, t, sw)
       return
     }
@@ -99,12 +99,12 @@ class OracleAdapter extends DatabaseAdapter {
     val colNames = List(autoIncPK.get) ::: f.toList
     val colVals = List(autoIncPK.get.sequenceName + ".nextval") ::: f.map(fmd => writeValue(o_, fmd, sw)).toList
 
-    sw.write("insert into ");
-    sw.write(t.prefixedName);
-    sw.write(" (");
-    sw.write(colNames.map(fmd => fmd.columnName).mkString(", "));
-    sw.write(") values ");
-    sw.write(colVals.mkString("(", ",", ")"));
+    sw.write("insert into ")
+    sw.write(t.prefixedName)
+    sw.write(" (")
+    sw.write(colNames.map(fmd => fmd.columnName).mkString(", "))
+    sw.write(") values ")
+    sw.write(colVals.mkString("(", ",", ")"))
   }
 
   override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit =
@@ -125,27 +125,27 @@ class OracleAdapter extends DatabaseAdapter {
   override def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter): Unit = {}
 
   override def writeQuery(qen: QueryExpressionElements, sw: StatementWriter): Unit =
-    if (qen.page == None)
+    if (qen.page.isEmpty)
       super.writeQuery(qen, sw)
     else {
       sw.write("select sq____1.* from (")
-      sw.nextLine
+      sw.nextLine()
       sw.writeIndented {
         sw.write("select sq____0.*, rownum as rn____")
-        sw.nextLine
+        sw.nextLine()
         sw.write("from")
-        sw.nextLine
+        sw.nextLine()
         sw.writeIndented {
           sw.write("(")
           super.writeQuery(qen, sw)
           sw.write(") sq____0")
         }
       }
-      sw.nextLine
+      sw.nextLine()
       sw.write(") sq____1")
-      sw.nextLine
+      sw.nextLine()
       sw.write("where")
-      sw.nextLine
+      sw.nextLine()
       sw.writeIndented {
         sw.write("rn____ between ")
         val page = qen.page.get

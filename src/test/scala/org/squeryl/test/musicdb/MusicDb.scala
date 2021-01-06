@@ -72,9 +72,9 @@ class MusicDb extends Schema with Matchers {
 
   val cds = table[Cd]()
 
-  override def drop: Unit = {
-    Session.cleanupResources
-    super.drop
+  override def drop(): Unit = {
+    Session.cleanupResources()
+    super.drop()
   }
 }
 
@@ -108,7 +108,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
 
   import schema._
 
-  var sharedTestInstance: TestData = null
+  var sharedTestInstance: TestData = _
 
   override def prePopulate(): Unit = {
     sharedTestInstance = new TestData(schema)
@@ -116,17 +116,17 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
 
   lazy val poncho =
     from(artists)(a =>
-      where(a.firstName === "Poncho") select (a)
+      where(a.firstName === "Poncho") select a
     )
 
   test("JoinWithCompute") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
 
     val q =
       join(artists, songs.leftOuter)((a, s) =>
         groupBy(a.id, a.firstName)
-          compute (countDistinct(s.map(_.id)))
+          compute countDistinct(s.map(_.id))
           on (a.id === s.map(_.authorId))
       )
 
@@ -135,7 +135,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   }
 
   test("OuterJoinWithSubQuery") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
 
     val artistsQ = artists.where(_.firstName <> "zozo")
@@ -146,10 +146,10 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
           on (a.id === s.map(_.authorId))
       ).toList
 
-    val artistIdsWithoutSongs = q.filter(_._2 == None).map(_._1.id).toSet
+    val artistIdsWithoutSongs = q.filter(_._2.isEmpty).map(_._1.id).toSet
     artistIdsWithoutSongs shouldBe Set(alainCaron.id, hossamRamzy.id)
 
-    val artistIdsWithSongs = q.filter(_._2 != None).map(_._1.id).toSet
+    val artistIdsWithSongs = q.filter(_._2.isDefined).map(_._1.id).toSet
     artistIdsWithSongs shouldBe Set(herbyHancock.id, ponchoSanchez.id, mongoSantaMaria.id)
   }
 
@@ -157,7 +157,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     val firstSongs =
       from(songs)(s =>
         groupBy(s.authorId)
-          compute (min(s.id))
+          compute min(s.id)
       )
 
     val j2 =
@@ -178,16 +178,16 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   lazy val songsFeaturingPoncho =
     from(songs, artists)((s, a) =>
       where(a.firstName === "Poncho" and s.interpretId === a.id)
-        select (s)
+        select s
         orderBy(s.title, a.id desc)
     )
 
   lazy val songsFeaturingPonchoNestedInWhere =
     from(songs, artists)((s, a) =>
       where(
-        s.interpretId in from(artists)(a => where(a.firstName === "Poncho") select (a.id))
+        s.interpretId in from(artists)(a => where(a.firstName === "Poncho") select a.id)
       )
-        select (s)
+        select s
         orderBy (s.title asc)
     ).distinct
 
@@ -195,14 +195,14 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   def songCountPerAlbum(cds: Queryable[Cd]) =
     from(cds, songs)((cd, song) =>
       where(song.cdId === cd.id)
-        groupBy (cd.title) compute (count)
-        orderBy (cd.title)
+        groupBy cd.title compute count
+        orderBy cd.title
     )
 
   lazy val songCountPerAlbumFeaturingPoncho = songCountPerAlbum(
     from(songs, artists, cds)((s, a, cd) =>
       where(a.firstName === "Poncho" and s.interpretId === a.id and s.cdId === cd.id)
-        select (cd)
+        select cd
     ).distinct
   )
 
@@ -210,34 +210,34 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     from(songs, poncho)((s, a) =>
       where(s.interpretId === a.id)
         select ((s, a.firstName))
-        orderBy (s.title)
+        orderBy s.title
     )
 
   def songCountPerAlbumId(cds: Queryable[Cd]) =
     from(cds, songs)((cd, song) =>
       where(song.cdId === cd.id)
-        groupBy (cd.id) compute (count)
+        groupBy cd.id compute count
     )
 
   lazy val songCountPerAlbumIdJoinedWithAlbum =
     from(songCountPerAlbumId(cds), cds)((sc, cd) =>
       where(sc.key === cd.id)
         select ((cd.title, sc.measures))
-        orderBy (cd.title)
+        orderBy cd.title
     )
 
   lazy val songCountPerAlbumIdJoinedWithAlbumZ =
     from(songCountPerAlbumId(cds), cds)((sc, cd) =>
       where(sc.key === cd.id)
         select ((cd, sc))
-        orderBy (cd.title)
+        orderBy cd.title
     )
 
 
   def songCountPerAlbumIdJoinedWithAlbumNested =
     from(songCountPerAlbumIdJoinedWithAlbumZ)(q =>
       select((q._1.title, q._2.measures))
-        orderBy (q._1.title)
+        orderBy q._1.title
     )
 
   //TODO: list2Queryable conversion using 'select x0 as x from dual union ...'
@@ -245,21 +245,21 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     from(
       from(songs)(s =>
         where((s.authorId in songIds) or (s.interpretId in songIds))
-          select (s)
+          select s
       ),
       artists
     )((s, a) =>
       where(s.authorId === a.id or s.interpretId === a.id)
-        select (a)
+        select a
         orderBy (a.lastName desc)
     ).distinct
 
   def songsFeaturingPonchoNestedInWhereWithString =
     from(songs, artists)((s, a) =>
       where(
-        s.title in from(songs)(s => where(s.id === 123) select (s.title))
+        s.title in from(songs)(s => where(s.id === 123) select s.title)
       )
-        select (s)
+        select s
         orderBy (s.title asc)
     )
 
@@ -272,9 +272,9 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     from(
       from(artists, songs)((a, s) =>
         where(s.authorId === a.id)
-          groupBy (a.id) compute (count)
+          groupBy a.id compute count
       )
-    )((sonCountPerArtist) =>
+    )(sonCountPerArtist =>
       compute(avg(sonCountPerArtist.measures))
     )
 
@@ -347,7 +347,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     //    testDeleteVariations
     //
     //    testKeyedEntityImplicitLookup
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
     val q = songCountPerAlbumIdJoinedWithAlbumNested
 
@@ -382,7 +382,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     def yearOfCongaBluePlus1 =
       from(cds)(cd =>
         where(cd.title === testInstance.congaBlue.title)
-          select (&(cd.year plus 1))
+          select &(cd.year plus 1)
       )
 
     validateQuery("yearOfCongaBluePlus1", yearOfCongaBluePlus1, identity[Int], List(1999))
@@ -401,12 +401,12 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     def selfJoinNested3Level =
       from(
         from(
-          from(artists)(a => where(a.id === testInstance.ponchoSanchez.id) select (a))
+          from(artists)(a => where(a.id === testInstance.ponchoSanchez.id) select a)
         )(a => select(a))
       )(a => select(a))
 
     def selfJoinNested4LevelPartialSelect =
-      from(selfJoinNested3Level)(a => where(a.id gt -1) select (a.lastName))
+      from(selfJoinNested3Level)(a => where(a.id gt -1) select a.lastName)
 
     validateQuery("selfJoinNested4LevelPartialSelect", selfJoinNested4LevelPartialSelect,
       identity[String], List(ponchoSanchez.lastName))
@@ -483,12 +483,12 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
       val q =
         from(artists)(a =>
           where(a.firstName.regex(".*on.*"))
-            select (&(upper(a.firstName) || lower(a.firstName)))
-            orderBy (a.firstName)
+            select &(upper(a.firstName) || lower(a.firstName))
+            orderBy a.firstName
         )
 
 
-      val testInstance = sharedTestInstance;
+      val testInstance = sharedTestInstance
       import testInstance._
 
       val expected = List(mongoSantaMaria.firstName, ponchoSanchez.firstName).map(s => s.toUpperCase + s.toLowerCase)
@@ -502,14 +502,14 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
 
 
   test("ConcatFunc") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
 
     val q =
       from(artists)(a =>
-        where(a.firstName in (Seq(mongoSantaMaria.firstName, ponchoSanchez.firstName)))
-          select (&(a.firstName || "zozo"))
-          orderBy (a.firstName)
+        where(a.firstName in Seq(mongoSantaMaria.firstName, ponchoSanchez.firstName))
+          select &(a.firstName || "zozo")
+          orderBy a.firstName
       )
 
     val expected = List(mongoSantaMaria.firstName, ponchoSanchez.firstName).map(s => s + "zozo")
@@ -518,7 +518,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   }
 
   test("Timestamp") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
 
     var mongo = artists.where(_.firstName === mongoSantaMaria.firstName).single
@@ -529,7 +529,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
 
     val cal = Calendar.getInstance
     cal.setTime(mongo.timeOfLastUpdate)
-    cal.roll(Calendar.SECOND, 12);
+    cal.roll(Calendar.SECOND, 12)
 
     val tX2 = new Timestamp(cal.getTimeInMillis)
 
@@ -548,7 +548,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
           a.timeOfLastUpdate.between(tX1, tX2)
       ).headOption
 
-    assert(mustBeSome != None, "testTimestamp failed");
+    assert(mustBeSome.isDefined, "testTimestamp failed")
   }
 
   private def _truncateTimestampInTimeOfLastUpdate(p: Person) = {
@@ -557,11 +557,11 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     val cal = Calendar.getInstance
 
     cal.setTime(t1)
-    cal.set(Calendar.SECOND, 0);
-    cal.set(Calendar.MILLISECOND, 0);
+    cal.set(Calendar.SECOND, 0)
+    cal.set(Calendar.MILLISECOND, 0)
 
     p.timeOfLastUpdate = new Timestamp(cal.getTimeInMillis)
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
     artists.update(p)
     //cal
@@ -576,7 +576,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   private def _rollTimestamp(t: Timestamp, partToRoll: Int, rollAmount: Int) = {
     val cal = Calendar.getInstance
     cal.setTime(t)
-    cal.roll(partToRoll, rollAmount);
+    cal.roll(partToRoll, rollAmount)
     new Timestamp(cal.getTimeInMillis)
   }
 
@@ -588,7 +588,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   }
 
   ignore("TimestampPartialUpdate") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
 
     var mongo = artists.where(_.firstName === mongoSantaMaria.firstName).single
@@ -598,7 +598,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
 
     val cal = Calendar.getInstance
     cal.setTime(mongo.timeOfLastUpdate)
-    cal.roll(Calendar.SECOND, 12);
+    cal.roll(Calendar.SECOND, 12)
 
     update(artists)(a =>
       where(a.id === mongo.id)
@@ -616,7 +616,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     // Oracle : http://forums.oracle.com/forums/thread.jspa?threadID=239634
     // MySql  : http://bugs.mysql.com/bug.php?id=8523
     // MSSQL  : http://stackoverflow.com/questions/2620627/ms-sql-datetime-precision-problem
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
 
     val dbAdapter = Session.currentSession.databaseAdapter
@@ -633,7 +633,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
       artists.update(mongo)
       val shouldBeSome = artists.where(a => a.firstName === mongoSantaMaria.firstName and a.timeOfLastUpdate === tX2).headOption
 
-      if (shouldBeSome == None) org.squeryl.internals.Utils.throwError("testTimestampDownToMillis" + " failed.")
+      if (shouldBeSome.isEmpty) org.squeryl.internals.Utils.throwError("testTimestampDownToMillis" + " failed.")
 
       mongo = shouldBeSome.get
 
@@ -662,7 +662,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   }
 
   test("Update1") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
 
     var ac = artists.where(a => a.id === alainCaron.id).single
@@ -673,7 +673,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   }
 
   test("KeyedEntityImplicitLookup") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
 
     val ac = artists.lookup(alainCaron.id).get
@@ -686,7 +686,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
 
     assert(artists.delete(artistForDelete.id), "delete returned false, expected true")
 
-    assert(artists.lookup(artistForDelete.id) == None, "object still exist after delete")
+    assert(artists.lookup(artistForDelete.id).isEmpty, "object still exist after delete")
 
     artistForDelete = artists.insert(new Person("Delete", "Me", None))
 
@@ -694,23 +694,23 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
 
     assert(c == 1, "deleteWhere failed, expected 1 row delete count, got " + c)
 
-    assert(artists.lookup(artistForDelete.id) == None, "object still exist after delete")
+    assert(artists.lookup(artistForDelete.id).isEmpty, "object still exist after delete")
   }
 
   def inhibitedArtistsInQuery(inhibit: Boolean) =
     from(songs, artists.inhibitWhen(inhibit))((s, a) =>
       where(a.get.firstName === "Poncho" and s.interpretId === a.get.id)
-        select (s)
+        select s
         orderBy(s.title, a.get.id desc)
     )
 
   test("DynamicQuery1") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
     val allSongs =
       from(songs)(s =>
         select(s)
-          orderBy (s.title)
+          orderBy s.title
       ).toList.map(s => s.id)
 
     val q = inhibitedArtistsInQuery(true)
@@ -734,7 +734,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     )
 
   test("DynamicQuery2") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
     val q = inhibitedSongsInQuery(true)
     //println(q.dumpAst)
@@ -743,7 +743,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
 
     assert(ponchoSanchez.id == poncho.id, "inhibitedSongsInQuery" + " failed, expected " + ponchoSanchez.id + " got " + poncho.id)
 
-    assert(t._1 == None, "inhibited table in query should have returned None, returned " + t._1)
+    assert(t._1.isEmpty, "inhibited table in query should have returned None, returned " + t._1)
 
     val songArtistsTuples = inhibitedSongsInQuery(false)
 
@@ -760,7 +760,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   }
 
   test("PaginatedQuery1") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
     val q = from(artists)(a =>
       select(a)
@@ -785,13 +785,13 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   private def _betweenArtists(s1: String, s2: String) =
     from(artists)(a =>
       where(a.firstName between(s1, s2))
-        select (a)
+        select a
         orderBy (a.firstName asc)
     ).map(a => a.firstName).toList
 
 
   test("BetweenOperator") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
     val p1 = _betweenArtists(alainCaron.firstName, herbyHancock.firstName)
     val p2 = _betweenArtists(hossamRamzy.firstName, mongoSantaMaria.firstName)
@@ -825,11 +825,11 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   test("Enums IN") {
     val gs = List(Jazz, Rock)
     val mainstream = from(songs)(s =>
-      where(s.genre in (gs))
-        select (s)
+      where(s.genre in gs)
+        select s
     )
 
-    mainstream.size shouldBe songs.where(s => s.genre === gs(0) or s.genre === gs(1)).size
+    mainstream.size shouldBe songs.where(s => s.genre === gs.head or s.genre === gs(1)).size
   }
 
   test("Enums with groupBy", SingleTestRun) {
@@ -852,7 +852,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     def listSongs(genreFilter: Option[Genre]) =
       from(songs)(s =>
         where(Option(s.genre) === genreFilter.?)
-          select (s)
+          select s
       )
 
     listSongs(Some(Jazz)).size shouldBe songs.where(s => s.genre === Jazz).size
@@ -860,14 +860,12 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   }
 
   test("Enums") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
     val testAssemblaIssue9 =
       from(songs)(s =>
-        where(s.genre in (
-          from(songs)(s2 => select(s2.genre))
-          ))
-          select (s.genre)
+        where(s.genre in from(songs)(s2 => select(s2.genre)))
+          select s.genre
       )
 
     testAssemblaIssue9.map(_.id).toSet
@@ -937,7 +935,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   }
 
   test("DynamicWhereClause1") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
     val allArtists = artists.allRows
 
@@ -965,7 +963,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
         (a.firstName === firstName.?) and
           (a.lastName like lastName.?)
       )
-        select (a)
+        select a
     )
 
   // TODO: REFACTOR Z (reintroduce case statements tests)
@@ -986,7 +984,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   }
 
   test("AggregateQueryOnRightHandSideOfInOperator") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
     val q1 =
       from(cds)(cd =>
@@ -1019,7 +1017,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
   }
 
   test("AggregateComputeInSubQuery") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
     val q1 =
       from(cds)(cd =>
@@ -1029,7 +1027,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     val q2 =
       from(cds, q1)((cd, q) =>
         where(cd.id === q.measures.get)
-          select (cd)
+          select cd
       )
 
     val r1 = q2.single
@@ -1045,14 +1043,14 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     val q4 =
       from(cds, q3)((cd, q) =>
         where(cd.id === q.key)
-          select (cd)
+          select cd
       )
     // should run without exception against the Db :
     q4.toList
   }
 
   test("OptionalOuterJoin") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
     /*
      * First we'll verify some preconditions Hossam must 
@@ -1068,7 +1066,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
     join(artists, cds)((a, c) =>
       where(a.id === ponchoSanchez.id)
         select ((a, c))
-        on (a.id === c.mainArtist)).toList.size should be > (1)
+        on (a.id === c.mainArtist)).toList.size should be > 1
     /*
      * Since we know the hossam exists, a proper left outer join
      * should return at least 1 result
@@ -1077,7 +1075,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
       where(a.id === hossamRamzy.id)
         select ((a, c))
         on (c.map(_.mainArtist) === a.id))
-    query1.toList.size should be > (0)
+    query1.toList.size should be > 0
     /*
      * Properly inhibiting the left outer should result in one row even though
      * we know that at least 2 cds exist
@@ -1091,27 +1089,27 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
 
   test("Inhibit single LogicalBoolean") {
     from(artists)(a =>
-      where((a.age === 1000000).inhibitWhen(true)) select (a)).toList.size should be > (0)
+      where((a.age === 1000000).inhibitWhen(true)) select a).toList.size should be > 0
 
   }
 
   test("Inhibit one side of LogicalBoolean") {
-    val testInstance = sharedTestInstance;
+    val testInstance = sharedTestInstance
     import testInstance._
     //Left inhibit
     from(artists)(a =>
       where((a.age === 1000000).inhibitWhen(true) and a.id === hossamRamzy.id)
-        select (a)).toList.size should be(1)
+        select a).toList.size should be(1)
     //Right inhibit
     from(artists)(a =>
       where(a.id === hossamRamzy.id and (a.age === 1000000).inhibitWhen(true))
-        select (a)).toList.size should be(1)
+        select a).toList.size should be(1)
   }
 
   test("Inhibit both sides of LogicalBoolean") {
     from(artists)(a =>
       where((a.age === 1000000).inhibitWhen(true) and (a.id between(999, 1000)).inhibitWhen(true))
-        select (a)).toList.size should be > (0)
+        select a).toList.size should be > 0
   }
 
   test("Inhibit right hand side of enum") {

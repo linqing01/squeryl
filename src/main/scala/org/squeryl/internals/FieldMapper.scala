@@ -21,6 +21,7 @@ import org.squeryl.dsl.{ArrayJdbcMapper, _}
 import java.sql
 import java.sql.{ResultSet, Timestamp}
 import java.util.{Date, UUID}
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 trait FieldMapper {
@@ -151,7 +152,7 @@ trait FieldMapper {
 
       def toWrappedJDBCType(element: String): java.lang.Object = new java.lang.String(element)
 
-      def fromWrappedJDBCType(elements: Array[java.lang.Object]): Array[String] = elements.map(i => i.asInstanceOf[java.lang.String].toString)
+      def fromWrappedJDBCType(elements: Array[java.lang.Object]): Array[String] = elements.map(i => i.asInstanceOf[java.lang.String])
     }
 
     // FIXME: The type soup on this was beyond my patience for now...I think we'll need an ArrayDeOptionizer
@@ -349,7 +350,7 @@ trait FieldMapper {
     get(nonNativeType).mapper.convertToJdbc(r)
 
   def isSupported(c: Class[_]) =
-    lookup(c) != None ||
+    lookup(c).isDefined ||
       c.isAssignableFrom(classOf[Some[_]]) ||
       classOf[Product1[Any]].isAssignableFrom(c)
 
@@ -394,7 +395,7 @@ trait FieldMapper {
 
     val wasThere = registry.put(z.clasz, z)
 
-    if (wasThere != None)
+    if (wasThere.isDefined)
       Utils.throwError("field type " + z.clasz + " already registered, handled by " + m.getClass.getCanonicalName)
   }
 
@@ -408,7 +409,7 @@ trait FieldMapper {
 
     val wasThere = registry.put(z.clasz, z)
 
-    if (wasThere != None)
+    if (wasThere.isDefined)
       Utils.throwError("field type " + z.clasz + " already registered, handled by " + m.getClass.getCanonicalName)
   }
 
@@ -423,6 +424,7 @@ trait FieldMapper {
     registry.put(c, z)
   }
 
+  @tailrec
   private def lookup(c: Class[_]): Option[FieldAttributesBasedOnType[_]] = {
     if (!c.isPrimitive)
       registry.get(c)

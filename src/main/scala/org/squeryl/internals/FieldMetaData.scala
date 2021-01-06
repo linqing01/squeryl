@@ -16,17 +16,20 @@
 package org.squeryl.internals
 
 import java.lang.annotation.Annotation
-import java.lang.reflect.{Field, Method, Constructor, InvocationTargetException, Type, ParameterizedType}
+import java.lang.reflect.{Constructor, Field, InvocationTargetException, Method, ParameterizedType, Type}
 import java.sql.ResultSet
 import scala.annotation.tailrec
-import org.squeryl.annotations.{ColumnBase, Column}
-import collection.mutable.{HashMap, HashSet}
+import org.squeryl.annotations.{Column, ColumnBase}
+
 import org.squeryl.Session
 import org.squeryl.dsl.CompositeKey
 import org.json4s.scalap.scalasig._
+
 import java.lang.reflect.Member
 import org.squeryl.dsl.ast.ConstantTypedExpression
 import org.squeryl.customtypes.CustomType
+
+import scala.collection.mutable
 
 class FieldMetaData(
                      val parentMetaData: PosoMetaData[_],
@@ -71,10 +74,10 @@ class FieldMetaData(
    * This field is mutable only by the Schema trait, and only during the Schema instantiation,
    * so it can safely be considered immutable (read only) by the columnAttributes accessor 
    */
-  private[this] val _columnAttributes = new HashSet[ColumnAttribute]
+  private[this] val _columnAttributes = new mutable.HashSet[ColumnAttribute]
 
 
-  private[squeryl] def _clearColumnAttributes: Unit = {
+  private[squeryl] def _clearColumnAttributes(): Unit = {
     _columnAttributes.clear()
   }
 
@@ -85,14 +88,14 @@ class FieldMetaData(
    * In some circumstances (like in the test suite) a Schema instance must run on multiple database types,
    * this Map keeps the sequence names 'per schema'
    */
-  private[this] val _sequenceNamePerDBAdapter = new HashMap[Class[_], String]
+  private[this] val _sequenceNamePerDBAdapter = new mutable.HashMap[Class[_], String]
 
   def sequenceName: String = {
 
     val ai = _columnAttributes.collectFirst { case a: AutoIncremented => a }.
-      getOrElse(org.squeryl.internals.Utils.throwError(s"${this} is not declared as autoIncremented, hence it has no sequenceName"))
+      getOrElse(org.squeryl.internals.Utils.throwError(s"$this is not declared as autoIncremented, hence it has no sequenceName"))
 
-    if (ai.nameOfSequence != None) {
+    if (ai.nameOfSequence.isDefined) {
       return ai.nameOfSequence.get
     }
 
@@ -101,7 +104,7 @@ class FieldMetaData(
 
       val s = _sequenceNamePerDBAdapter.get(c)
 
-      if (s != None)
+      if (s.isDefined)
         return s.get
 
       val s0 = Session.currentSession.databaseAdapter.createSequenceName(this)
@@ -150,7 +153,7 @@ class FieldMetaData(
   def isTransient =
     _columnAttributes.exists(_.isInstanceOf[IsTransient])
 
-  def isCustomType = customTypeFactory != None
+  def isCustomType = customTypeFactory.isDefined
 
   /**
    * @return the length defined in org.squeryl.annotations.Column.length
@@ -165,14 +168,14 @@ class FieldMetaData(
    *         the most appropriate column type
    */
   def length: Int =
-    if (columnAnnotation == None || columnAnnotation.get.length == -1) {
+    if (columnAnnotation.isEmpty || columnAnnotation.get.length == -1) {
       FieldMetaData.defaultFieldLength(wrappedFieldType, this)
     }
     else
       columnAnnotation.get.length
 
   def scale: Int =
-    if (columnAnnotation == None || columnAnnotation.get.scale == -1)
+    if (columnAnnotation.isEmpty || columnAnnotation.get.scale == -1)
       schema.defaultSizeOfBigDecimal._2
     else
       columnAnnotation.get.scale
@@ -183,7 +186,7 @@ class FieldMetaData(
    * The name of the database column
    */
   def columnName =
-    if (columnAnnotation == None) {
+    if (columnAnnotation.isEmpty) {
       val nameDefinedInSchema = _columnAttributes.collectFirst { case n: Named => n.name }
       parentMetaData.schema.columnNameFromPropertyName(nameDefinedInSchema.getOrElse(nameOfProperty))
     }
@@ -217,10 +220,10 @@ class FieldMetaData(
     wrappedFieldType.isAssignableFrom(classOf[String])
 
   def displayType =
-    (if (isOption)
+    if (isOption)
       "Option[" + fieldType.getName + "]"
     else
-      fieldType.getName)
+      fieldType.getName
 
   /**
    * When true, will cause Schema generation to declare as PrimaryKey, Note that for
@@ -268,7 +271,7 @@ class FieldMetaData(
   def get(o: AnyRef): AnyRef =
     try {
       val res =
-        if (getter != None)
+        if (getter.isDefined)
           _getFromGetter(o)
         else
           _getFromField(o)
@@ -305,9 +308,9 @@ class FieldMetaData(
       val v0: AnyRef =
         if (v == null)
           null
-        else if (enumeration != None)
+        else if (enumeration.isDefined)
           canonicalEnumerationValueFor(v.asInstanceOf[java.lang.Integer].intValue)
-        else if (customTypeFactory == None)
+        else if (customTypeFactory.isEmpty)
           v
         else {
           val f = customTypeFactory.get
@@ -327,17 +330,16 @@ class FieldMetaData(
           Option(v0)
 
 
-      if (setter != None)
+      if (setter.isDefined)
         _setWithSetter(target, actualValue)
       else
         _setWithField(target, actualValue)
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         val typeOfV = if (v == null) "null" else v.getClass.getCanonicalName
         org.squeryl.internals.Utils.throwError(
           this.toString + " was invoked with value '" + v + "' of type " + typeOfV + " on object of type " + target.getClass.getName + " \n" + e)
-      }
     }
 
   }
@@ -373,7 +375,7 @@ object FieldMetaData {
     def createPosoFactory(posoMetaData: PosoMetaData[_]): () => AnyRef =
       () => {
         val c = posoMetaData.constructor
-        c._1.newInstance(c._2: _*).asInstanceOf[AnyRef];
+        c._1.newInstance(c._2: _*).asInstanceOf[AnyRef]
       }
 
     def build(parentMetaData: PosoMetaData[_], name: String, property: (Option[Field], Option[Method], Option[Method], Set[Annotation]), sampleInstance4OptionTypeDeduction: AnyRef, isOptimisticCounter: Boolean) = {
@@ -391,10 +393,10 @@ object FieldMetaData {
        * Retrieve the member in use, its class and its generic type
        */
       val (member, clsOfField, typeOfField) =
-        (setter.map(s => (s: Member, s.getParameterTypes.head, s.getGenericParameterTypes.head))
+        setter.map(s => (s: Member, s.getParameterTypes.head, s.getGenericParameterTypes.head))
           .orElse(getter.map(g => (g: Member, g.getReturnType, g.getGenericReturnType)))
           .orElse(field.map(f => (f: Member, f.getType, f.getType)))
-          .getOrElse(org.squeryl.internals.Utils.throwError("invalid field group")))
+          .getOrElse(org.squeryl.internals.Utils.throwError("invalid field group"))
 
       /*
        * Look for a value in the sample type.  If one exists and
@@ -429,7 +431,7 @@ object FieldMetaData {
       if (classOf[Product1[Any]].isAssignableFrom(clsOfField))
         customTypeFactory = _createCustomTypeFactory(fieldMapper, parentMetaData.clasz, clsOfField)
 
-      if (customTypeFactory != None) {
+      if (customTypeFactory.isDefined) {
         val f = customTypeFactory.get
         v = f(null) // this creates a dummy (sample) field
       }
@@ -595,9 +597,9 @@ object FieldMetaData {
          * we'll see Object instead of scala.X
          */
         t match {
-          case Some(pt: ParameterizedType) => {
+          case Some(pt: ParameterizedType) =>
             pt.getActualTypeArguments.toList match {
-              case oType :: Nil => {
+              case oType :: Nil =>
                 if (classOf[Class[_]].isInstance(oType)) {
                   /*
                    * Primitive types are seen by Java reflection as classOf[Object],
@@ -613,10 +615,8 @@ object FieldMetaData {
                 } else {
                   None //Type parameter is not a Class
                 }
-              }
               case _ => None //Not a single type parameter
             }
-          }
           case _ => None //Not a parameterized type
         }
       }

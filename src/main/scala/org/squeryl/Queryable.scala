@@ -33,7 +33,7 @@ trait Queryable[T] {
     import dsl._
     from(this)(q0 =>
       dsl.where(whereClauseFunctor(q0))
-        select (q0)
+        select q0
     )
   }
 }

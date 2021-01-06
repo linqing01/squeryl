@@ -34,23 +34,23 @@ trait JoinSignatures {
 
   implicit def queryable2RightInnerJoinedQueryable[A](q: Queryable[A]): InnerJoinedQueryable[A] = new InnerJoinedQueryable[A](q, "")
 
-  def join[A, B1, C](q: Queryable[A], q1: JoinedQueryable[B1])(f: Function2[A, B1, JoinQueryYield1[C]]): Query[C] =
+  def join[A, B1, C](q: Queryable[A], q1: JoinedQueryable[B1])(f: (A, B1) => JoinQueryYield1[C]): Query[C] =
     from(q, q1)(
       (a: A, b1: B1) => f(a, b1).queryYield
     )
 
-  def join[A, B1, B2, C](q: Queryable[A], q1: JoinedQueryable[B1], q2: JoinedQueryable[B2])(f: Function3[A, B1, B2, JoinQueryYield2[C]]): Query[C] =
+  def join[A, B1, B2, C](q: Queryable[A], q1: JoinedQueryable[B1], q2: JoinedQueryable[B2])(f: (A, B1, B2) => JoinQueryYield2[C]): Query[C] =
     from(q, q1, q2)(
       (a: A, b1: B1, b2: B2) => f(a, b1, b2).queryYield
     )
 
-  def join[A, B1, B2, B3, C](q: Queryable[A], q1: JoinedQueryable[B1], q2: JoinedQueryable[B2], q3: JoinedQueryable[B3])(f: Function4[A, B1, B2, B3, JoinQueryYield3[C]]): Query[C] =
+  def join[A, B1, B2, B3, C](q: Queryable[A], q1: JoinedQueryable[B1], q2: JoinedQueryable[B2], q3: JoinedQueryable[B3])(f: (A, B1, B2, B3) => JoinQueryYield3[C]): Query[C] =
     from(q, q1, q2, q3)(
       (a: A, b1: B1, b2: B2, b3: B3) => f(a, b1, b2, b3).queryYield
     )
 
   def join[A, B1, B2, B3, B4, C](q: Queryable[A], q1: JoinedQueryable[B1], q2: JoinedQueryable[B2], q3: JoinedQueryable[B3], q4: JoinedQueryable[B4])(
-    f: Function5[A, B1, B2, B3, B4, JoinQueryYield4[C]]): Query[C] =
+    f: (A, B1, B2, B3, B4) => JoinQueryYield4[C]): Query[C] =
     from(q, q1, q2, q3, q4)(
       (a: A, b1: B1, b2: B2, b3: B3, b4: B4) => f(a, b1, b2, b3, b4).queryYield
     )
@@ -62,7 +62,7 @@ trait JoinSignatures {
                                       q3: JoinedQueryable[B3],
                                       q4: JoinedQueryable[B4],
                                       q5: JoinedQueryable[B5])(
-                                      f: Function6[A, B1, B2, B3, B4, B5, JoinQueryYield5[C]]): Query[C] =
+                                      f: (A, B1, B2, B3, B4, B5) => JoinQueryYield5[C]): Query[C] =
     from(q, q1, q2, q3, q4, q5)(
       (a: A, b1: B1, b2: B2, b3: B3, b4: B4, b5: B5) =>
         f(a, b1, b2, b3, b4, b5).queryYield
@@ -76,7 +76,7 @@ trait JoinSignatures {
                                           q4: JoinedQueryable[B4],
                                           q5: JoinedQueryable[B5],
                                           q6: JoinedQueryable[B6])(
-                                          f: Function7[A, B1, B2, B3, B4, B5, B6, JoinQueryYield6[C]]): Query[C] =
+                                          f: (A, B1, B2, B3, B4, B5, B6) => JoinQueryYield6[C]): Query[C] =
     from(q, q1, q2, q3, q4, q5, q6)(
       (a: A, b1: B1, b2: B2, b3: B3, b4: B4, b5: B5, b6: B6) =>
         f(a, b1, b2, b3, b4, b5, b6).queryYield
@@ -91,7 +91,7 @@ trait JoinSignatures {
                                               q5: JoinedQueryable[B5],
                                               q6: JoinedQueryable[B6],
                                               q7: JoinedQueryable[B7])(
-                                              f: Function8[A, B1, B2, B3, B4, B5, B6, B7, JoinQueryYield7[C]]): Query[C] =
+                                              f: (A, B1, B2, B3, B4, B5, B6, B7) => JoinQueryYield7[C]): Query[C] =
     from(q, q1, q2, q3, q4, q5, q6, q7)(
       (a: A, b1: B1, b2: B2, b3: B3, b4: B4, b5: B5, b6: B6, b7: B7) =>
         f(a, b1, b2, b3, b4, b5, b6, b7).queryYield
@@ -107,7 +107,7 @@ trait JoinSignatures {
                                                   q6: JoinedQueryable[B6],
                                                   q7: JoinedQueryable[B7],
                                                   q8: JoinedQueryable[B8])(
-                                                  f: Function9[A, B1, B2, B3, B4, B5, B6, B7, B8, JoinQueryYield8[C]]): Query[C] =
+                                                  f: (A, B1, B2, B3, B4, B5, B6, B7, B8) => JoinQueryYield8[C]): Query[C] =
     from(q, q1, q2, q3, q4, q5, q6, q7, q8)(
       (a: A, b1: B1, b2: B2, b3: B3, b4: B4, b5: B5, b6: B6, b7: B7, b8: B8) =>
         f(a, b1, b2, b3, b4, b5, b6, b7, b8).queryYield

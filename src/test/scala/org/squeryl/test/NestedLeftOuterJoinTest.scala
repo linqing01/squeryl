@@ -8,7 +8,7 @@ object TestSchema extends Schema {
   val a = table[A]()
   val b = table[B]()
 
-  override def drop: Unit = super.drop
+  override def drop(): Unit = super.drop()
 }
 
 class A(val id: Int, val name: String) extends KeyedEntity[Int]
@@ -66,15 +66,15 @@ abstract class NestedLeftOuterJoinTest extends SchemaTester with RunTestsInsideT
   }
 
   def checkLeftJoinQuery(q: Query[(A, Option[B])]) = {
-    q.headOption.map { (result) =>
+    q.headOption.map { result =>
       val (_, b) = result
 
-      b should not equal (None)
+      b should not equal None
     }
   }
 
   def checkJoinQuery(q: Query[(A, B)]) = {
-    q.headOption should not equal (None)
+    q.headOption should not equal None
   }
 
 

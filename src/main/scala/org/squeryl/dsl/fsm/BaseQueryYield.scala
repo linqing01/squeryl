@@ -31,7 +31,7 @@ class BaseQueryYield[G]
 
   protected def _createColumnToTupleMapper(origin: QueryExpressionNode[_], agregateArgs: List[TypedExpression[_, _]], offsetInResultSet: Int, isForGroup: Boolean) = {
 
-    var i = -1;
+    var i = -1
     val nodes = agregateArgs.map(e => {
       i += 1; new TupleSelectElement(origin, e, i, isForGroup)
     })
@@ -43,7 +43,7 @@ class BaseQueryYield[G]
     var k: Int = 0
     agregateArgs.foreach(e => {
       e.mapper.index = o
-      o += 1;
+      o += 1
       mappers(k) = e.mapper
       k += 1
     })
@@ -60,7 +60,7 @@ class BaseQueryYield[G]
   def unevaluatedHavingClause = _havingClause
 
   //TODO: an array is probably more efficient, even if less 'lazy' :
-  protected var _orderByExpressions: () => List[() => ExpressionNode] = null
+  protected var _orderByExpressions: () => List[() => ExpressionNode] = _
 
   def whereClause: Option[ExpressionNode] =
     queryElementzz.whereClause.map(b => b())
@@ -185,7 +185,7 @@ class GroupWithMeasuresQueryYield[K, M](
   }
 
   override def havingClause =
-    if (_having != None)
+    if (_having.isDefined)
       _having.map(c => c())
     else
       super.havingClause

@@ -43,7 +43,7 @@ class StatementInvocation(
     this(null, 0, 0, 0, 0, 0, 0, Some(0), Some(0))
 
   def statementId =
-    new CompositeKey2(statementHash, statementHashCollisionNumber)
+    CompositeKey2(statementHash, statementHashCollisionNumber)
 
   def executeTime =
     end minus start
@@ -67,7 +67,7 @@ class Statement(val sql: String, val definitionOrCallSite: String, val hash: Int
   def this() = this("", "", 0, 0)
 
   def id =
-    new CompositeKey2(hash, statementHashCollisionNumber)
+    CompositeKey2(hash, statementHashCollisionNumber)
 }
 
 class StatLine(val statement: Statement, val avgExecTime: Double, val invocationCount: Long, val cumulativeExecutionTime: Long, val avgRowCount: Float) {
@@ -82,14 +82,14 @@ object Measure extends Enumeration {
 
 object StatsSchema extends Schema {
 
-  override def drop: Unit = super.drop
+  override def drop(): Unit = super.drop()
 
   val statements = table[Statement]("Statementz")
 
   val statementInvocations = table[StatementInvocation]()
 
   def invocationStats =
-    from(statementInvocations)((si) =>
+    from(statementInvocations)(si =>
       groupBy(si.statementHash, si.statementHashCollisionNumber)
         compute(avg(si.executeTime), count, sum(si.executeTime), nvl(avg(si.rowCount), 0))
     )
@@ -99,7 +99,7 @@ object StatsSchema extends Schema {
   def topRankingStatements(topN: Int, measure: Measure) =
     from(invocationStats, statements)((si, s) =>
       where(si.key._1 === s.hash and si.key._2 === s.statementHashCollisionNumber)
-        select (new StatLine(s, si.measures._1.get, si.measures._2, si.measures._3.get, si.measures._4))
+        select new StatLine(s, si.measures._1.get, si.measures._2, si.measures._3.get, si.measures._4)
         orderBy (measure match {
         case AvgExecTime => si.measures._1.desc
         case InvocationCount => si.measures._2.desc
@@ -110,8 +110,8 @@ object StatsSchema extends Schema {
       .page(0, topN)
 
   on(statements)(s => declare(
-    s.sql is (dbType("clob")),
-    s.definitionOrCallSite is (dbType("varchar(512)"))
+    s.sql is dbType("clob"),
+    s.definitionOrCallSite is dbType("varchar(512)")
   ))
 
   def recordStatementInvocation(sie: StatementInvocationEvent) = {
@@ -137,7 +137,7 @@ object StatsSchema extends Schema {
     val storedStatement = statements.lookup(s.id)
 
     val result =
-      if (storedStatement == None) {
+      if (storedStatement.isEmpty) {
         statements.insert(s)
         s
       }
@@ -145,8 +145,8 @@ object StatsSchema extends Schema {
         val q =
           from(statements)(st =>
             where(st.hash === s.hash)
-              select (st)
-              orderBy (st.statementHashCollisionNumber)
+              select st
+              orderBy st.statementHashCollisionNumber
           )
 
         var lastCollisionNum = -1
@@ -156,7 +156,7 @@ object StatsSchema extends Schema {
             st == s
           })
 
-        if (mathingStatement != None)
+        if (mathingStatement.isDefined)
           mathingStatement.get
         else {
           s.statementHashCollisionNumber = lastCollisionNum + 1

@@ -13,8 +13,8 @@ object FooSchema extends Schema {
   val foos = table[Foo]()
 
   def reset(): Unit = {
-    drop // its protected for some reason
-    create
+    drop() // its protected for some reason
+    create()
   }
 }
 
@@ -23,7 +23,7 @@ abstract class TransactionTests extends DbTestBase {
 
   def throwExc(except: Boolean): Int = {
     if (except) throw new Exception()
-    return 1
+    1
   }
 
   def doSomething(except: Boolean): Int = {
@@ -51,7 +51,7 @@ abstract class TransactionTests extends DbTestBase {
         doSomething(true)
       }
       catch {
-        case e: Exception => {}
+        case e: Exception =>
       }
 
       // fails with "no session exception"

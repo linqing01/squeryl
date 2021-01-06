@@ -17,7 +17,7 @@ trait RunTestsInsideTransaction extends DbTestBase {
         val res = super.runTest(testName, args)
 
         // we abort the transaction if we get to here, so changes get rolled back
-        Session.currentSession.connection.rollback
+        Session.currentSession.connection.rollback()
         return res
       }
     }

@@ -27,7 +27,7 @@ class LazySession(val connectionFunc: () => Connection, val databaseAdapter: Dat
 
   private[this] var _connection: Option[Connection] = None
 
-  def hasConnection = _connection != None
+  def hasConnection = _connection.isDefined
 
   var originalAutoCommit = true
 
@@ -61,18 +61,17 @@ class LazySession(val connectionFunc: () => Connection, val databaseAdapter: Dat
       txOk = true
       res
     } catch {
-      case e: ControlThrowable => {
+      case e: ControlThrowable =>
         txOk = true
         throw e
-      }
     } finally {
       if (hasConnection) {
         try {
           try {
             if (txOk)
-              connection.commit
+              connection.commit()
             else
-              connection.rollback
+              connection.rollback()
           } finally {
             if (originalAutoCommit != connection.getAutoCommit) {
               connection.setAutoCommit(originalAutoCommit)
@@ -80,18 +79,16 @@ class LazySession(val connectionFunc: () => Connection, val databaseAdapter: Dat
             connection.setTransactionIsolation(originalTransactionIsolation)
           }
         } catch {
-          case e: SQLException => {
+          case e: SQLException =>
             Utils.close(connection)
             if (txOk) throw e // if an exception occurred b4 the commit/rollback we don't want to obscure the original exception
-          }
         }
         try {
           if (!connection.isClosed)
-            connection.close
+            connection.close()
         } catch {
-          case e: SQLException => {
+          case e: SQLException =>
             if (txOk) throw e // if an exception occurred b4 the close we don't want to obscure the original exception
-          }
         }
       }
     }
@@ -119,10 +116,9 @@ class Session(val connection: Connection, val databaseAdapter: DatabaseAdapter, 
       try {
         connection.getTransactionIsolation
       } catch {
-        case e: SQLException => {
+        case e: SQLException =>
           Utils.close(connection)
           throw e
-        }
       }
     var txOk = false
     try {
@@ -130,17 +126,16 @@ class Session(val connection: Connection, val databaseAdapter: DatabaseAdapter, 
       txOk = true
       res
     } catch {
-      case e: ControlThrowable => {
+      case e: ControlThrowable =>
         txOk = true
         throw e
-      }
     } finally {
       try {
         try {
           if (txOk)
-            connection.commit
+            connection.commit()
           else
-            connection.rollback
+            connection.rollback()
         } finally {
           if (originalAutoCommit != connection.getAutoCommit) {
             connection.setAutoCommit(originalAutoCommit)
@@ -148,18 +143,16 @@ class Session(val connection: Connection, val databaseAdapter: DatabaseAdapter, 
           connection.setTransactionIsolation(originalTransactionIsolation)
         }
       } catch {
-        case e: SQLException => {
+        case e: SQLException =>
           Utils.close(connection)
           if (txOk) throw e // if an exception occurred b4 the commit/rollback we don't want to obscure the original exception
-        }
       }
       try {
         if (!connection.isClosed)
-          connection.close
+          connection.close()
       } catch {
-        case e: SQLException => {
+        case e: SQLException =>
           if (txOk) throw e // if an exception occurred b4 the close we don't want to obscure the original exception
-        }
       }
     }
   }
@@ -177,19 +170,19 @@ trait AbstractSession {
   protected[squeryl] def using[A](a: () => A): A = {
     val s = Session.currentSessionOption
     try {
-      if (s != None) s.get.unbindFromCurrentThread
+      if (s.isDefined) s.get.unbindFromCurrentThread()
       try {
-        this.bindToCurrentThread
+        this.bindToCurrentThread()
         val r = a()
         r
       }
       finally {
-        this.unbindFromCurrentThread
-        this.cleanup
+        this.unbindFromCurrentThread()
+        this.cleanup()
       }
     }
     finally {
-      if (s != None) s.get.bindToCurrentThread
+      if (s.isDefined) s.get.bindToCurrentThread()
     }
   }
 
@@ -197,11 +190,11 @@ trait AbstractSession {
 
   def statisticsListener: Option[StatisticsListener]
 
-  def bindToCurrentThread: Unit = Session.currentSession = Some(this)
+  def bindToCurrentThread(): Unit = Session.currentSession = Some(this)
 
-  def unbindFromCurrentThread: Unit = Session.currentSession = None
+  def unbindFromCurrentThread(): Unit = Session.currentSession = None
 
-  private[this] var _logger: String => Unit = null
+  private[this] var _logger: String => Unit = _
 
   def logger_=(f: String => Unit): Unit = _logger = f
 
@@ -221,7 +214,7 @@ trait AbstractSession {
 
   private[squeryl] def _addResultSet(rs: ResultSet) = _resultSets.append(rs)
 
-  def cleanup: Unit = {
+  def cleanup(): Unit = {
     _statements.foreach(s => {
       if (logUnclosedStatements && isLoggingEnabled && !s.isClosed) {
         val stackTrace = Thread.currentThread.getStackTrace.map("at " + _).mkString("\n")
@@ -236,10 +229,10 @@ trait AbstractSession {
     FieldReferenceLinker.clearThreadLocalState()
   }
 
-  def close: Unit = {
-    cleanup
+  def close(): Unit = {
+    cleanup()
     if (hasConnection)
-      connection.close
+      connection.close()
   }
 
 }
@@ -309,13 +302,13 @@ object Session {
     }
 
   def hasCurrentSession =
-    currentSessionOption != None
+    currentSessionOption.isDefined
 
-  def cleanupResources: Unit =
-    currentSessionOption foreach (_.cleanup)
+  def cleanupResources(): Unit =
+    currentSessionOption foreach (_.cleanup())
 
   private[squeryl] def currentSession_=(s: Option[AbstractSession]): Unit =
-    if (s == None) {
+    if (s.isEmpty) {
       _currentSessionThreadLocal.remove()
     } else {
       _currentSessionThreadLocal.set(s.get)

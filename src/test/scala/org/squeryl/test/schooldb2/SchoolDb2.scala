@@ -104,10 +104,10 @@ class SchoolDb2 extends Schema {
 
 
   on(students)(s => declare(
-    s.firstName is (indexed),
-    s.lastName defaultsTo ("!"),
+    s.firstName is indexed,
+    s.lastName defaultsTo "!",
     s.fullName is(unique, indexed),
-    columns(s.id, s.firstName, s.lastName) are (indexed)
+    columns(s.id, s.firstName, s.lastName) are indexed
   ))
 
   val courses = table[Course]()
@@ -147,9 +147,9 @@ class SchoolDb2 extends Schema {
   //when a course is deleted, all of the subscriptions will get deleted :
   courseSubscriptions.leftForeignKeyDeclaration.constrainReference(onDelete cascade)
 
-  override def drop: Unit = {
-    Session.cleanupResources
-    super.drop
+  override def drop(): Unit = {
+    Session.cleanupResources()
+    super.drop()
   }
 
   val as = table[ASTConstructionInterferenceA]()
@@ -223,7 +223,7 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
     val q: Query[String] =
       from(subjects)(s =>
         where(s.name === "Philosophy")
-          select (&(from(subjects)(s2 => where(s2.name === s.name) select (s2.name))))
+          select &(from(subjects)(s2 => where(s2.name === s.name) select (s2.name)))
       )
 
     1 shouldBe q.toList.length
@@ -235,9 +235,9 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
     val q: Query[String] =
       from(subjects)(s =>
         where(
-          s.name === from(subjects)(s2 => where(s2.name === "Philosophy") select (s2.name))
+          s.name === from(subjects)(s2 => where(s2.name === "Philosophy") select s2.name)
         )
-          select (s.name)
+          select s.name
       )
 
     1 shouldBe q.toList.length
@@ -248,7 +248,7 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
     val comment = Comment("A single comment")
     entry.comments.associate(comment)
 
-    from(entry.comments)(c => where(c.id === comment.id) select (c))
+    from(entry.comments)(c => where(c.id === comment.id) select c)
   }
 
   test("UpdateWithCompositePK") {
@@ -360,7 +360,7 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
     val qA2 =
       from(courseAssignments)(ca =>
         where(ca.id === (a.courseId, a.professorId))
-          select (ca)
+          select ca
       )
 
     _existsAndEquals(qA2.headOption, a)
@@ -376,7 +376,7 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
 
   private def _existsAndEquals(oca: Option[CourseAssignment], ca: CourseAssignment) = {
 
-    if (oca == None)
+    if (oca.isEmpty)
       org.squeryl.internals.Utils.throwError("query returned no rows")
 
     ca.id shouldBe oca.get.id
@@ -397,7 +397,7 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
 
     val sp: Option[Savepoint] =
       if (s.databaseAdapter.failureOfStatementRequiresRollback)
-        Some(s.connection.setSavepoint)
+        Some(s.connection.setSavepoint())
       else
         None
 
@@ -405,10 +405,9 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
       physicsCourse.professors.associate(professeurTournesol)
     }
     catch {
-      case e: RuntimeException => {
+      case e: RuntimeException =>
         exceptionThrown = true
         sp.foreach(s.connection.rollback(_))
-      }
     }
 
     if (!exceptionThrown)
@@ -436,12 +435,12 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
 
   test("InFromSet") {
     val set = Set("foo", "bar", "baz")
-    from(entries)(e => where(e.text.in(set)) select (e)).toList
+    from(entries)(e => where(e.text.in(set)) select e).toList
   }
 
   test("InFromSeq") {
     val set = Set("foo", "bar", "baz").toSeq
-    from(entries)(e => where(e.text.in(set)) select (e)).toList
+    from(entries)(e => where(e.text.in(set)) select e).toList
   }
 
   test("Inequality with query on right hand side", SingleTestRun) {
@@ -465,7 +464,7 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
     val belowOrEqualToAvg =
       from(courseSubscriptions)(p =>
         where(p.grade lte from(courseSubscriptions)(p => compute(avg(p.grade))))
-          select (p)
+          select p
       ).toList
 
     assert(belowOrEqualToAvg.size == 1)
@@ -473,10 +472,10 @@ abstract class SchoolDb2Tests extends SchemaTester with RunTestsInsideTransactio
     val belowAvg =
       from(courseSubscriptions)(p =>
         where(p.grade lt from(courseSubscriptions)(p => compute(avg(p.grade))))
-          select (p)
+          select p
       ).toList
 
-    assert(belowAvg.size == 0)
+    assert(belowAvg.isEmpty)
   }
 
   test("#73 relations with Option[] on one side of the equality expression blow up") {

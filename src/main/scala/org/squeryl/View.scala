@@ -33,19 +33,19 @@ class View[T] private[squeryl](_name: String, private[squeryl] val classOfT: Cla
 
   ////2.8.x approach for LyfeCycle events :
   private[squeryl] lazy val _callbacks =
-    schema._callbacks.get(this).getOrElse(NoOpPosoLifecycleEventListener)
+    schema._callbacks.getOrElse(this, NoOpPosoLifecycleEventListener)
 
 
   def name = schema.tableNameFromClassName(_name)
 
   def prefix: Option[String] =
-    if (_prefix != None)
+    if (_prefix.isDefined)
       _prefix
     else
       schema.name
 
   def prefixedName =
-    if (prefix != None)
+    if (prefix.isDefined)
       prefix.get + "." + name
     else
       name
@@ -56,7 +56,7 @@ class View[T] private[squeryl](_name: String, private[squeryl] val classOfT: Cla
    * used for creating names for objects derived from a table, ex.: a sequence 
    */
   def prefixedPrefixedName(s: String) =
-    if (prefix != None)
+    if (prefix.isDefined)
       prefix.get + "." + s + name
     else
       s + name
@@ -86,7 +86,7 @@ class View[T] private[squeryl](_name: String, private[squeryl] val classOfT: Cla
     if (o == null)
       o = _createInstanceOfRowObject
 
-    resultSetMapper.map(o, resultSet);
+    resultSetMapper.map(o, resultSet)
     val t = o.asInstanceOf[T]
     _setPersisted(t)
     _callbacks.afterSelect(t.asInstanceOf[AnyRef]).asInstanceOf[T]
@@ -98,7 +98,7 @@ class View[T] private[squeryl](_name: String, private[squeryl] val classOfT: Cla
 
     val q = from(this)(a => dsl.where {
       FieldReferenceLinker.createEqualityExpressionWithLastAccessedFieldReferenceAndConstant(ked.getId(a), k, toCanLookup(k))
-    } select (a))
+    } select a)
 
     val it = q.iterator
 
