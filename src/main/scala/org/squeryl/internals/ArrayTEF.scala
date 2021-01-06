@@ -1,18 +1,20 @@
 package org.squeryl.internals
 
+import com.sun.tools.javac.code.TypeTag
 import org.squeryl.Session
 import org.squeryl.dsl.{ArrayJdbcMapper, TypedExpressionFactory}
 
 import java.sql
 import java.sql.ResultSet
+import scala.reflect.ClassTag
 
-abstract class ArrayTEF[P, TE] extends TypedExpressionFactory[Array[P], TE] with ArrayJdbcMapper[java.sql.Array, Array[P]] {
-  // must define "sample" that includes an element. e.g. Array[Int](0)
-  def sample: Array[P]
+class ArrayTEF[P, TE](toJdbc: P => Object, fromJdbc: Object => P)(implicit tt: ClassTag[P])
+  extends TypedExpressionFactory[Array[P], TE] with ArrayJdbcMapper[java.sql.Array, Array[P]] {
+  def sample: Array[P] = new Array[P](0)
 
-  def toWrappedJDBCType(element: P): java.lang.Object
+  def toWrappedJDBCType(element: P): java.lang.Object = toJdbc(element)
 
-  def fromWrappedJDBCType(element: Array[java.lang.Object]): Array[P]
+  def fromWrappedJDBCType(element: Array[java.lang.Object]): Array[P] = element.map(fromJdbc)
 
   val defaultColumnLength = 1
 

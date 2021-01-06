@@ -31,13 +31,11 @@ object PrimitiveTypeMode extends PrimitiveTypeMode
 private[squeryl] object InternalFieldMapper extends PrimitiveTypeMode
 
 trait PrimitiveTypeMode extends QueryDsl with FieldMapper {
-
-
   // =========================== Non Numerical =========================== 
-  implicit val stringTEF: TypedExpressionFactory[String, TString] with PrimitiveJdbcMapper[String] = PrimitiveTypeSupport.stringTEF
-  implicit val optionStringTEF: TypedExpressionFactory[Option[String], TOptionString] with DeOptionizer[String, String, TString, Option[String], TOptionString] = PrimitiveTypeSupport.optionStringTEF
-  implicit val dateTEF: TypedExpressionFactory[Date, TDate] with PrimitiveJdbcMapper[Date] = PrimitiveTypeSupport.dateTEF
-  implicit val optionDateTEF: TypedExpressionFactory[Option[Date], TOptionDate] with DeOptionizer[Date, Date, TDate, Option[Date], TOptionDate] = PrimitiveTypeSupport.optionDateTEF
+  implicit val stringTEF: TEF[String, TString] = PrimitiveTypeSupport.stringTEF
+  implicit val optionStringTEF: TEFO[String, TString, TOptionString] = PrimitiveTypeSupport.optionStringTEF
+  implicit val dateTEF: TEF[Date, TDate] = PrimitiveTypeSupport.dateTEF
+  implicit val optionDateTEF: TEFO[Date, TDate, TOptionDate] = PrimitiveTypeSupport.optionDateTEF
   implicit val sqlDateTEF: TypedExpressionFactory[sql.Date, TDate] with PrimitiveJdbcMapper[sql.Date] = PrimitiveTypeSupport.sqlDateTEF
   implicit val optionSqlDateTEF: TypedExpressionFactory[Option[sql.Date], TOptionDate] with DeOptionizer[sql.Date, sql.Date, TDate, Option[sql.Date], TOptionDate] = PrimitiveTypeSupport.optionSqlDateTEF
   implicit val timestampTEF: TypedExpressionFactory[Timestamp, TTimestamp] with PrimitiveJdbcMapper[Timestamp] = PrimitiveTypeSupport.timestampTEF
