@@ -14,16 +14,16 @@ trait QueryTester extends Matchers {
 
   var doNotExecute = false
 
-  def activateWorkbenchMode = {
+  def activateWorkbenchMode: Unit = {
     logQueries = true
     dumpAst = true
     validateFirstAndExit = 0
   }
 
-  def loggerOn =
+  def loggerOn: Unit =
     Session.currentSession.setLogger((s: String) => println(s))
 
-  def log(queryName: String, query: Query[_]) = {
+  def log(queryName: String, query: Query[_]): Unit = {
 
     println(queryName + " :")
     println(query)

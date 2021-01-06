@@ -41,7 +41,7 @@ trait DatabaseAdapter {
     def zipi = this
   }
 
-  implicit def zipIterable[T](i: Iterable[T]) = new ZipIterable(i)
+  implicit def zipIterable[T](i: Iterable[T]): ZipIterable[T] = new ZipIterable(i)
 
   def writeQuery(qen: QueryExpressionElements, sw: StatementWriter): Unit =
     writeQuery(qen, sw, false, None)
@@ -177,13 +177,13 @@ trait DatabaseAdapter {
     writePaginatedQueryDeclaration(() => qen.unionPage, qen, sw)
   }
 
-  def writeEndOfQueryHint(isForUpdate: () => Boolean, qen: QueryExpressionElements, sw: StatementWriter) =
+  def writeEndOfQueryHint(isForUpdate: () => Boolean, qen: QueryExpressionElements, sw: StatementWriter): Unit =
     if (isForUpdate()) {
       sw.write("for update")
       sw.pushPendingNextLine
     }
 
-  def writeEndOfFromHint(qen: QueryExpressionElements, sw: StatementWriter) = {}
+  def writeEndOfFromHint(qen: QueryExpressionElements, sw: StatementWriter): Unit = {}
 
   def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter): Unit =
     page().foreach(p => {
@@ -195,7 +195,7 @@ trait DatabaseAdapter {
     })
 
 
-  def writeJoin(queryableExpressionNode: QueryableExpressionNode, sw: StatementWriter) = {
+  def writeJoin(queryableExpressionNode: QueryableExpressionNode, sw: StatementWriter): Unit = {
     sw.write(queryableExpressionNode.joinKind.get._1)
     sw.write(" ")
     sw.write(queryableExpressionNode.joinKind.get._2)
@@ -332,7 +332,7 @@ trait DatabaseAdapter {
 
   def supportsCommonTableExpressions = true
 
-  def writeCreateTable[T](t: Table[T], sw: StatementWriter, schema: Schema) = {
+  def writeCreateTable[T](t: Table[T], sw: StatementWriter, schema: Schema): Unit = {
 
     sw.write("create table ")
     sw.write(quoteName(t.prefixedName))
@@ -356,7 +356,7 @@ trait DatabaseAdapter {
     }
   }
 
-  def setParamInto(s: PreparedStatement, p: StatementParam, i: Int) =
+  def setParamInto(s: PreparedStatement, p: StatementParam, i: Int): Unit =
     p match {
       case ConstantStatementParam(constantTypedExpression) =>
 
@@ -423,7 +423,7 @@ trait DatabaseAdapter {
     }
   }
 
-  implicit def string2StatementWriter(s: String) = {
+  implicit def string2StatementWriter(s: String): StatementWriter = {
     val sw = new StatementWriter(this)
     sw.write(s)
     sw
@@ -551,14 +551,14 @@ trait DatabaseAdapter {
   /**
    * When @arg printSinkWhenWriteOnlyMode is not None, the adapter will not execute any statement, but only silently give it to the String=>Unit closure
    */
-  def postCreateTable(t: Table[_], printSinkWhenWriteOnlyMode: Option[String => Unit]) = {}
+  def postCreateTable(t: Table[_], printSinkWhenWriteOnlyMode: Option[String => Unit]): Unit = {}
 
-  def postDropTable(t: Table[_]) = {}
+  def postDropTable(t: Table[_]): Unit = {}
 
   def createSequenceName(fmd: FieldMetaData) =
     "s_" + fmd.parentMetaData.viewOrTable.name + "_" + fmd.columnName
 
-  def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter) = {
+  def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit = {
     sw.write(fn.name)
     sw.write("(")
     sw.writeNodesWithSeparator(fn.args, ",", false)
@@ -567,7 +567,7 @@ trait DatabaseAdapter {
 
   def isFullOuterJoinSupported = true
 
-  def writeUpdate[T](o: T, t: Table[T], sw: StatementWriter, checkOCC: Boolean) = {
+  def writeUpdate[T](o: T, t: Table[T], sw: StatementWriter, checkOCC: Boolean): Unit = {
 
     val o_ = o.asInstanceOf[AnyRef]
 
@@ -622,7 +622,7 @@ trait DatabaseAdapter {
       })
   }
 
-  def writeDelete[T](t: Table[T], whereClause: Option[ExpressionNode], sw: StatementWriter) = {
+  def writeDelete[T](t: Table[T], whereClause: Option[ExpressionNode], sw: StatementWriter): Unit = {
 
     sw.write("delete from ")
     sw.write(quoteName(t.prefixedName))
@@ -654,7 +654,7 @@ trait DatabaseAdapter {
   def convertToUuidForJdbc(rs: ResultSet, i: Int): UUID =
     UUID.fromString(rs.getString(i))
 
-  def writeUpdate(t: Table[_], us: UpdateStatement, sw: StatementWriter) = {
+  def writeUpdate(t: Table[_], us: UpdateStatement, sw: StatementWriter): Unit = {
 
     val colsToUpdate = us.columns.iterator
 
@@ -709,7 +709,7 @@ trait DatabaseAdapter {
 
   def nvlToken = "coalesce"
 
-  def writeNvlCall(left: ExpressionNode, right: ExpressionNode, sw: StatementWriter) = {
+  def writeNvlCall(left: ExpressionNode, right: ExpressionNode, sw: StatementWriter): Unit = {
     sw.write(nvlToken)
     sw.write("(")
     left.write(sw)
@@ -783,7 +783,7 @@ trait DatabaseAdapter {
   def writeDropTable(tableName: String) =
     "drop table " + quoteName(tableName)
 
-  def dropTable(t: Table[_]) =
+  def dropTable(t: Table[_]): Unit =
     execFailSafeExecute(writeDropTable(t.prefixedName), e => isTableDoesNotExistException(e))
 
   def writeCompositePrimaryKeyConstraint(t: Table[_], cols: Iterable[FieldMetaData]) =
@@ -811,7 +811,7 @@ trait DatabaseAdapter {
     sw.addParam(ConstantStatementParam(InternalFieldMapper.stringTEF.createConstant(pattern)))
   }
 
-  def writeConcatOperator(left: ExpressionNode, right: ExpressionNode, sw: StatementWriter) = {
+  def writeConcatOperator(left: ExpressionNode, right: ExpressionNode, sw: StatementWriter): Unit = {
     val binaryOpNode = new BinaryOperatorNode(left, right, "||")
     binaryOpNode.doWrite(sw)
   }
@@ -875,7 +875,7 @@ trait DatabaseAdapter {
   def aliasExport(parentOfTarget: QueryableExpressionNode, target: SelectElement) =
     parentOfTarget.alias + "_" + target.aliasSegment
 
-  def writeSelectElementAlias(se: SelectElement, sw: StatementWriter) = {
+  def writeSelectElementAlias(se: SelectElement, sw: StatementWriter): Unit = {
     val a = se.aliasSegment
     //    if(a.length > 30)
     //      org.squeryl.internals.Utils.throwError("Oracle Bust : " + a)

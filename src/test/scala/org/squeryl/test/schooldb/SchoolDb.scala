@@ -279,7 +279,7 @@ class SchoolDb extends Schema {
       None
 
 
-  override def drop = {
+  override def drop: Unit = {
     Session.cleanupResources
     super.drop
   }
@@ -423,7 +423,7 @@ abstract class SchoolDbTestBase extends SchemaTester with QueryTester with RunTe
 
   var sharedTestInstance: TestInstance = null
 
-  override def prePopulate() = {
+  override def prePopulate(): Unit = {
     sharedTestInstance = new TestInstance(schema)
   }
 

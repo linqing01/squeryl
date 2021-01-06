@@ -72,7 +72,7 @@ class MusicDb extends Schema with Matchers {
 
   val cds = table[Cd]()
 
-  override def drop = {
+  override def drop: Unit = {
     Session.cleanupResources
     super.drop
   }
@@ -110,7 +110,7 @@ abstract class MusicDbTestRun extends SchemaTester with QueryTester with RunTest
 
   var sharedTestInstance: TestData = null
 
-  override def prePopulate() = {
+  override def prePopulate(): Unit = {
     sharedTestInstance = new TestData(schema)
   }
 

@@ -105,7 +105,7 @@ class MySQLAdapter extends DatabaseAdapter {
     sw.addParam(ConstantStatementParam(InternalFieldMapper.stringTEF.createConstant(pattern)))
   }
 
-  override def writeConcatOperator(left: ExpressionNode, right: ExpressionNode, sw: StatementWriter) = {
+  override def writeConcatOperator(left: ExpressionNode, right: ExpressionNode, sw: StatementWriter): Unit = {
     sw.write("concat(")
     left.write(sw)
     sw.write(",")

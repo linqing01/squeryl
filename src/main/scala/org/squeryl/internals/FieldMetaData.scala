@@ -75,7 +75,7 @@ class FieldMetaData(
   private[this] val _columnAttributes = new HashSet[ColumnAttribute]
 
 
-  private[squeryl] def _clearColumnAttributes = {
+  private[squeryl] def _clearColumnAttributes: Unit = {
     _columnAttributes.clear()
   }
 
@@ -292,7 +292,7 @@ class FieldMetaData(
     schema.fieldMapper.nativeJdbcValueFor(wrappedFieldType, r)
   }
 
-  def setFromResultSet(target: AnyRef, rs: ResultSet, index: Int) = {
+  def setFromResultSet(target: AnyRef, rs: ResultSet, index: Int): Unit = {
     val v = resultSetHandler(rs, index)
     set(target, v)
   }
@@ -352,7 +352,7 @@ class FieldMetaData(
   private def _getFromField(o: AnyRef) =
     field.get.get(o)
 
-  private def _setWithField(target: AnyRef, v: AnyRef) =
+  private def _setWithField(target: AnyRef, v: AnyRef): Unit =
     field.get.set(target, v)
 }
 

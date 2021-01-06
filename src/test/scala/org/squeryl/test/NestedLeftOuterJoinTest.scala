@@ -8,7 +8,7 @@ object TestSchema extends Schema {
   val a = table[A]()
   val b = table[B]()
 
-  override def drop = super.drop
+  override def drop: Unit = super.drop
 }
 
 class A(val id: Int, val name: String) extends KeyedEntity[Int]

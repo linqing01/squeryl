@@ -196,19 +196,19 @@ trait AbstractSession {
 
   def statisticsListener: Option[StatisticsListener]
 
-  def bindToCurrentThread = Session.currentSession = Some(this)
+  def bindToCurrentThread: Unit = Session.currentSession = Some(this)
 
-  def unbindFromCurrentThread = Session.currentSession = None
+  def unbindFromCurrentThread: Unit = Session.currentSession = None
 
   private[this] var _logger: String => Unit = null
 
-  def logger_=(f: String => Unit) = _logger = f
+  def logger_=(f: String => Unit): Unit = _logger = f
 
-  def setLogger(f: String => Unit) = _logger = f
+  def setLogger(f: String => Unit): Unit = _logger = f
 
   def isLoggingEnabled = _logger != null
 
-  def log(s: String) = if (isLoggingEnabled) _logger(s)
+  def log(s: String): Unit = if (isLoggingEnabled) _logger(s)
 
   var logUnclosedStatements = false
 
@@ -220,7 +220,7 @@ trait AbstractSession {
 
   private[squeryl] def _addResultSet(rs: ResultSet) = _resultSets.append(rs)
 
-  def cleanup = {
+  def cleanup: Unit = {
     _statements.foreach(s => {
       if (logUnclosedStatements && isLoggingEnabled && !s.isClosed) {
         val stackTrace = Thread.currentThread.getStackTrace.map("at " + _).mkString("\n")
@@ -235,7 +235,7 @@ trait AbstractSession {
     FieldReferenceLinker.clearThreadLocalState()
   }
 
-  def close = {
+  def close: Unit = {
     cleanup
     if (hasConnection)
       connection.close
@@ -310,10 +310,10 @@ object Session {
   def hasCurrentSession =
     currentSessionOption != None
 
-  def cleanupResources =
+  def cleanupResources: Unit =
     currentSessionOption foreach (_.cleanup)
 
-  private[squeryl] def currentSession_=(s: Option[AbstractSession]) =
+  private[squeryl] def currentSession_=(s: Option[AbstractSession]): Unit =
     if (s == None) {
       _currentSessionThreadLocal.remove()
     } else {

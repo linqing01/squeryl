@@ -137,7 +137,7 @@ class SchoolDb2 extends Schema {
 
 
   // the default constraint for all foreign keys in this schema :
-  override def applyDefaultForeignKeyPolicy(foreignKeyDeclaration: ForeignKeyDeclaration) =
+  override def applyDefaultForeignKeyPolicy(foreignKeyDeclaration: ForeignKeyDeclaration): Unit =
     foreignKeyDeclaration.constrainReference()
 
   //now we will redefine some of the foreign key constraints :
@@ -147,7 +147,7 @@ class SchoolDb2 extends Schema {
   //when a course is deleted, all of the subscriptions will get deleted :
   courseSubscriptions.leftForeignKeyDeclaration.constrainReference(onDelete cascade)
 
-  override def drop = {
+  override def drop: Unit = {
     Session.cleanupResources
     super.drop
   }

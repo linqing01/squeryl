@@ -33,7 +33,7 @@ trait ExpressionNode {
   def inhibitedFlagForAstDump =
     if (inhibited) "!" else ""
 
-  def write(sw: StatementWriter) =
+  def write(sw: StatementWriter): Unit =
     if (!inhibited)
       doWrite(sw)
 
@@ -81,7 +81,7 @@ trait ExpressionNode {
    * -it's parent
    * -it's depth
    */
-  def visitDescendants(visitor: (ExpressionNode, Option[ExpressionNode], Int) => Unit) =
+  def visitDescendants(visitor: (ExpressionNode, Option[ExpressionNode], Int) => Unit): Unit =
     _visitDescendants(this, None, 0, visitor)
 
   protected var _inhibitedByWhen = false
@@ -107,13 +107,13 @@ trait ExpressionNode {
 }
 
 class ListExpressionNode(override val children: List[ExpressionNode]) extends ExpressionNode {
-  override def doWrite(sw: StatementWriter) = {
+  override def doWrite(sw: StatementWriter): Unit = {
     sw.writeNodesWithSeparator(children, ", ", false)
   }
 }
 
 class RowValueConstructorNode(override val children: List[ExpressionNode]) extends ExpressionNode {
-  override def doWrite(sw: StatementWriter) = {
+  override def doWrite(sw: StatementWriter): Unit = {
     // sw.write("ROW")
     sw.write("(")
     sw.writeNodesWithSeparator(children, ", ", false)
@@ -123,7 +123,7 @@ class RowValueConstructorNode(override val children: List[ExpressionNode]) exten
 
 class EqualityExpression(override val left: TypedExpression[_, _], override val right: TypedExpression[_, _]) extends BinaryOperatorNodeLogicalBoolean(left, right, "=") {
 
-  override def doWrite(sw: StatementWriter) =
+  override def doWrite(sw: StatementWriter): Unit =
     right match {
       case c: ConstantTypedExpression[_, _] =>
         if (c.value == None) {
@@ -138,7 +138,7 @@ class EqualityExpression(override val left: TypedExpression[_, _], override val 
 
 class InclusionOperator(left: ExpressionNode, right: RightHandSideOfIn[_]) extends BinaryOperatorNodeLogicalBoolean(left, right, "in", true) {
 
-  override def doWrite(sw: StatementWriter) =
+  override def doWrite(sw: StatementWriter): Unit =
     if (right.isConstantEmptyList)
       sw.write("(1 = 0)")
     else
@@ -159,7 +159,7 @@ class BinaryOperatorNodeLogicalBoolean(left: ExpressionNode, right: ExpressionNo
     }
   }
 
-  override def doWrite(sw: StatementWriter) = {
+  override def doWrite(sw: StatementWriter): Unit = {
     // since we are executing this method, we have at least one non inhibited children
     val nonInh = children.filter(c => !c.inhibited).iterator
 
@@ -190,7 +190,7 @@ class ExistsExpression(val ast: ExpressionNode, val opType: String)
 class BetweenExpression(first: ExpressionNode, second: ExpressionNode, third: ExpressionNode)
   extends TernaryOperatorNode(first, second, third, "between") with LogicalBoolean {
 
-  override def doWrite(sw: StatementWriter) = {
+  override def doWrite(sw: StatementWriter): Unit = {
     first.write(sw)
     sw.write(" between ")
     second.write(sw)
@@ -228,7 +228,7 @@ object TrueLogicalBoolean extends LogicalBoolean {
 
   override def or(b: LogicalBoolean) = this
 
-  override def doWrite(sw: StatementWriter) = {
+  override def doWrite(sw: StatementWriter): Unit = {
     sw.write("(1=1)")
   }
 
@@ -240,7 +240,7 @@ object FalseLogicalBoolean extends LogicalBoolean {
 
   override def or(b: LogicalBoolean) = b
 
-  override def doWrite(sw: StatementWriter) = {
+  override def doWrite(sw: StatementWriter): Unit = {
     sw.write("(1=0)")
   }
 
@@ -289,7 +289,7 @@ class ColumnGroupAttributeAssignment(cols: collection.Seq[FieldMetaData], column
   def addAttribute(a: ColumnAttribute) =
     _columnAttributes.append(a)
 
-  def clearColumnAttributes = columns.foreach(_._clearColumnAttributes)
+  def clearColumnAttributes: Unit = columns.foreach(_._clearColumnAttributes)
 
   def columns: collection.Seq[FieldMetaData] = cols
 
@@ -314,7 +314,7 @@ class CompositeKeyAttributeAssignment(val group: CompositeKey, _columnAttributes
 class ColumnAttributeAssignment(val left: FieldMetaData, val columnAttributes: collection.Seq[ColumnAttribute])
   extends BaseColumnAttributeAssignment {
 
-  def clearColumnAttributes = left._clearColumnAttributes
+  def clearColumnAttributes: Unit = left._clearColumnAttributes
 
   def isIdFieldOfKeyedEntity = left.isIdFieldOfKeyedEntity
 }
@@ -324,14 +324,14 @@ class DefaultValueAssignment(val left: FieldMetaData, val value: TypedExpression
 
   def isIdFieldOfKeyedEntity = left.isIdFieldOfKeyedEntity
 
-  def clearColumnAttributes = left._clearColumnAttributes
+  def clearColumnAttributes: Unit = left._clearColumnAttributes
 
   def columnAttributes = Nil
 }
 
 
 class TokenExpressionNode(val token: String) extends ExpressionNode {
-  def doWrite(sw: StatementWriter) = sw.write(token)
+  def doWrite(sw: StatementWriter): Unit = sw.write(token)
 }
 
 
@@ -353,7 +353,7 @@ class ConstantTypedExpression[A1, T1](val value: A1, val nativeJdbcValue: AnyRef
   if (nativeJdbcValue != null) nativeJdbcValue.getClass
   else mapper.jdbcClass
 
-  def doWrite(sw: StatementWriter) = {
+  def doWrite(sw: StatementWriter): Unit = {
     if (sw.isForDisplay) {
       sw.write(displayAsString)
     }
@@ -379,7 +379,7 @@ class ConstantExpressionNodeList[T](val value: Iterable[T], mapper: OutMapper[_]
   def isEmpty =
     value == Nil
 
-  def doWrite(sw: StatementWriter) =
+  def doWrite(sw: StatementWriter): Unit =
     if (sw.isForDisplay)
       sw.write(ConstantExpressionNodeList.this.value.map(e => "'" + e + "'").mkString(","))
     else {
@@ -392,7 +392,7 @@ class ConstantExpressionNodeList[T](val value: Iterable[T], mapper: OutMapper[_]
 
 class FunctionNode(val name: String, val args: collection.Seq[ExpressionNode]) extends ExpressionNode {
 
-  def doWrite(sw: StatementWriter) = {
+  def doWrite(sw: StatementWriter): Unit = {
 
     sw.write(name)
     sw.write("(")
@@ -405,7 +405,7 @@ class FunctionNode(val name: String, val args: collection.Seq[ExpressionNode]) e
 
 class PostfixOperatorNode(val token: String, val arg: ExpressionNode) extends ExpressionNode {
 
-  def doWrite(sw: StatementWriter) = {
+  def doWrite(sw: StatementWriter): Unit = {
     arg.write(sw)
     sw.write(" ")
     sw.write(token)
@@ -418,7 +418,7 @@ class TypeConversion(e: ExpressionNode) extends ExpressionNode {
 
   override def inhibited = e.inhibited
 
-  override def doWrite(sw: StatementWriter) = e.doWrite((sw))
+  override def doWrite(sw: StatementWriter): Unit = e.doWrite((sw))
 
   override def children = e.children
 }
@@ -435,7 +435,7 @@ class BinaryOperatorNode
   override def toString =
     "'BinaryOperatorNode:" + operatorToken + inhibitedFlagForAstDump
 
-  def doWrite(sw: StatementWriter) = {
+  def doWrite(sw: StatementWriter): Unit = {
     sw.write("(")
     left.write(sw)
     sw.write(" ")
@@ -458,7 +458,7 @@ class PrefixOperatorNode
 
   override def toString = "'PrefixOperatorNode:" + operatorToken + inhibitedFlagForAstDump
 
-  override def doWrite(sw: StatementWriter) = {
+  override def doWrite(sw: StatementWriter): Unit = {
     sw.write("(")
     sw.write(operatorToken)
     if (newLineAfterOperator)
@@ -472,7 +472,7 @@ class LeftOuterJoinNode
 (left: ExpressionNode, right: ExpressionNode)
   extends BinaryOperatorNode(left, right, "left", false) {
 
-  override def doWrite(sw: StatementWriter) = {}
+  override def doWrite(sw: StatementWriter): Unit = {}
 
   override def toString = "'LeftOuterJoin"
 }
@@ -491,7 +491,7 @@ trait QueryableExpressionNode extends ExpressionNode with UniqueIdInAliaseRequir
 
   override def inhibited = _inhibited
 
-  def inhibited_=(b: Boolean) = _inhibited = b
+  def inhibited_=(b: Boolean): Unit = _inhibited = b
 
   /**
    * When the join syntax is used, isMemberOfJoinList is true if this instance is not in the from clause
@@ -557,7 +557,7 @@ class OrderByExpression(a: OrderByArg) extends ExpressionNode {
 
   override def inhibited = _inhibitedByWhen || e.inhibited
 
-  def doWrite(sw: StatementWriter) = {
+  def doWrite(sw: StatementWriter): Unit = {
     e.write(sw)
     if (a.isAscending)
       sw.write(" Asc")
@@ -592,7 +592,7 @@ class OrderByExpression(a: OrderByArg) extends ExpressionNode {
  */
 class DummyExpressionHolder(val renderedExpression: String) extends ExpressionNode {
 
-  def doWrite(sw: StatementWriter) =
+  def doWrite(sw: StatementWriter): Unit =
     sw.write(renderedExpression)
 }
 
@@ -618,7 +618,7 @@ class RightHandSideOfIn[A](val ast: ExpressionNode, val isIn: Option[Boolean] = 
       false
   }
 
-  override def doWrite(sw: StatementWriter) =
+  override def doWrite(sw: StatementWriter): Unit =
     if (isConstantEmptyList && isIn.get)
       sw.write("1 = 0") // in Empty is always false
     else {
@@ -627,7 +627,7 @@ class RightHandSideOfIn[A](val ast: ExpressionNode, val isIn: Option[Boolean] = 
 }
 
 class UnionExpressionNode(val kind: String, val ast: ExpressionNode) extends ExpressionNode {
-  def doWrite(sw: StatementWriter) = {
+  def doWrite(sw: StatementWriter): Unit = {
     sw.write(kind)
     sw.nextLine
     sw.write("(")
@@ -648,7 +648,7 @@ class UnionExpressionNode(val kind: String, val ast: ExpressionNode) extends Exp
 }
 
 class QueryValueExpressionNode[A1, T1](val ast: ExpressionNode, override val mapper: OutMapper[A1]) extends TypedExpression[A1, T1] {
-  def doWrite(sw: StatementWriter) = {
+  def doWrite(sw: StatementWriter): Unit = {
     ast.write(sw)
   }
 

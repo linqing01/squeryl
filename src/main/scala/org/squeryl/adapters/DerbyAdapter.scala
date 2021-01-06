@@ -52,7 +52,7 @@ class DerbyAdapter extends DatabaseAdapter {
     res
   }
 
-  override def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter) = {
+  override def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter): Unit = {
     page().foreach(p => {
       sw.write("offset ")
       sw.write(p._1.toString)

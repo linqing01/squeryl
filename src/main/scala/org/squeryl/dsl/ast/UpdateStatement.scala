@@ -25,7 +25,7 @@ class UpdateStatement(_whereClause: Option[() => LogicalBoolean], uas: collectio
 
   override def children = whereClause.toList ++ values
 
-  def doWrite(sw: StatementWriter) = {}
+  def doWrite(sw: StatementWriter): Unit = {}
 
   def columns =
     uas.map(ua => ua.left)

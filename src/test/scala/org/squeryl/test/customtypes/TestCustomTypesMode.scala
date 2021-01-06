@@ -87,7 +87,7 @@ class HospitalDb extends Schema {
     oneToManyRelation(patients, patientInfo).
       via((p, pi) => p.id === pi.patientId)
 
-  override def drop = super.drop
+  override def drop: Unit = super.drop
 }
 
 class Patient(var firstName: FirstName, var age: Option[Age], var weight: Option[WeightInKilograms]) extends KeyedEntity[IntField] {
@@ -130,31 +130,31 @@ class Age(v: Int) extends IntField(v) with Domain[Int] {
   // secondary constructor to show  #93
   def this(s: String) = this(s.toInt)
 
-  def validate(a: Int) = assert(a > 0, "age must be positive, got " + a)
+  def validate(a: Int): Unit = assert(a > 0, "age must be positive, got " + a)
 
   def label = "age"
 }
 
 class FirstName(v: String) extends StringField(v) with Domain[String] {
-  def validate(s: String) = assert(s.length <= 50, "first name is waaaay to long : " + s)
+  def validate(s: String): Unit = assert(s.length <= 50, "first name is waaaay to long : " + s)
 
   def label = "first name"
 }
 
 class WeightInKilograms(v: Double) extends DoubleField(v) with Domain[Double] {
-  def validate(d: Double) = assert(d > 0, "weight must be positive, got " + d)
+  def validate(d: Double): Unit = assert(d > 0, "weight must be positive, got " + d)
 
   def label = "weight (in kilograms)"
 }
 
 class ReasonOfVisit(v: String) extends StringField(v) with Domain[String] {
-  def validate(s: String) = assert(s.length > 1, "invalid visit reason : " + s)
+  def validate(s: String): Unit = assert(s.length > 1, "invalid visit reason : " + s)
 
   def label = "reason of visit"
 }
 
 class Info(v: String) extends StringField(v) with Domain[String] {
-  def validate(s: String) = {}
+  def validate(s: String): Unit = {}
 
   def label = "info"
 }

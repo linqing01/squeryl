@@ -116,7 +116,7 @@ trait SelectElement extends ExpressionNode {
 
   override def children = List(expression)
 
-  def doWrite(sw: StatementWriter) = {
+  def doWrite(sw: StatementWriter): Unit = {
     expression.write(sw)
     sw.write(" as ")
     sw.databaseAdapter.writeSelectElementAlias(this, sw)
@@ -139,7 +139,7 @@ class TupleSelectElement
 
   var columnToTupleMapper: Option[ColumnToTupleMapper] = None
 
-  def prepareColumnMapper(index: Int) = {}
+  def prepareColumnMapper(index: Int): Unit = {}
 
   def typeOfExpressionToString: String =
     if (columnToTupleMapper == None)
@@ -147,7 +147,7 @@ class TupleSelectElement
     else
       columnToTupleMapper.get.typeOfExpressionToString(indexInTuple)
 
-  override def prepareMapper(jdbcIndex: Int) =
+  override def prepareMapper(jdbcIndex: Int): Unit =
     if (columnToTupleMapper != None)
       columnToTupleMapper.get.activate(indexInTuple, jdbcIndex)
 
@@ -175,16 +175,16 @@ class FieldSelectElement
 
   val expression = new ExpressionNode {
 
-    def doWrite(sw: StatementWriter) =
+    def doWrite(sw: StatementWriter): Unit =
       sw.write(sw.quoteName(alias))
   }
 
-  def prepareColumnMapper(index: Int) =
+  def prepareColumnMapper(index: Int): Unit =
     columnMapper = Some(new ColumnToFieldMapper(index, fieldMetaData, this))
 
   private[this] var columnMapper: Option[ColumnToFieldMapper] = None
 
-  def prepareMapper(jdbcIndex: Int) =
+  def prepareMapper(jdbcIndex: Int): Unit =
     if (columnMapper != None) {
       resultSetMapper.addColumnMapper(columnMapper.get)
       resultSetMapper.isActive = true
@@ -207,7 +207,7 @@ class ValueSelectElement
 
   var yieldPusher: Option[YieldValuePusher] = None
 
-  def prepareColumnMapper(index: Int) =
+  def prepareColumnMapper(index: Int): Unit =
     yieldPusher = Some(new YieldValuePusher(index, this, mapper))
 
   def typeOfExpressionToString =
@@ -216,7 +216,7 @@ class ValueSelectElement
     else
       yieldPusher.get.selectElement.typeOfExpressionToString
 
-  override def prepareMapper(jdbcIndex: Int) =
+  override def prepareMapper(jdbcIndex: Int): Unit =
     if (yieldPusher != None) {
       resultSetMapper.addYieldValuePusher(yieldPusher.get)
       resultSetMapper.isActive = true
@@ -271,7 +271,7 @@ class SelectElementReference[A, T]
       }
     }
 
-  override def doWrite(sw: StatementWriter) =
+  override def doWrite(sw: StatementWriter): Unit =
     sw.write(sw.quoteName(delegateAtUseSite.alias))
 }
 
@@ -287,10 +287,10 @@ class ExportedSelectElement
   override def inhibited =
     selectElement.inhibited
 
-  override def prepareMapper(jdbcIndex: Int) =
+  override def prepareMapper(jdbcIndex: Int): Unit =
     selectElement.prepareMapper(jdbcIndex)
 
-  def prepareColumnMapper(index: Int) =
+  def prepareColumnMapper(index: Int): Unit =
     selectElement.prepareColumnMapper(index)
 
   def typeOfExpressionToString =
@@ -300,7 +300,7 @@ class ExportedSelectElement
 
   val expression = new ExpressionNode {
 
-    def doWrite(sw: StatementWriter) =
+    def doWrite(sw: StatementWriter): Unit =
       sw.write(sw.quoteName(alias))
   }
 

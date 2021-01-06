@@ -212,7 +212,7 @@ trait TypedExpression[A1, T1] extends ExpressionNode {
 
   def regex(pattern: String) = new FunctionNode(pattern, Seq(this)) with LogicalBoolean {
 
-    override def doWrite(sw: StatementWriter) =
+    override def doWrite(sw: StatementWriter): Unit =
       Session.currentSession.databaseAdapter.writeRegexExpression(outer, pattern, sw)
   }
 
@@ -282,7 +282,7 @@ class TypedExpressionConversion[A1, T1](val e: ExpressionNode, bf: TypedExpressi
 
   override def inhibited = e.inhibited
 
-  override def doWrite(sw: StatementWriter) = e.doWrite((sw))
+  override def doWrite(sw: StatementWriter): Unit = e.doWrite((sw))
 
   override def children = e.children
 }
@@ -431,7 +431,7 @@ trait DeOptionizer[P1, A1, T1, A2 >: Option[A1] <: Option[A1], T2] extends JdbcM
 }
 
 class ConcatOp[A1, A2, T1, T2](val a1: TypedExpression[A1, T1], val a2: TypedExpression[A2, T2]) extends BinaryOperatorNode(a1, a2, "||") {
-  override def doWrite(sw: StatementWriter) =
+  override def doWrite(sw: StatementWriter): Unit =
     sw.databaseAdapter.writeConcatOperator(a1, a2, sw)
 }
 
@@ -441,6 +441,6 @@ class NvlNode[A, T](e1: TypedExpression[_, _], e2: TypedExpression[A, T])
 
   def mapper = e2.mapper
 
-  override def doWrite(sw: StatementWriter) =
+  override def doWrite(sw: StatementWriter): Unit =
     sw.databaseAdapter.writeNvlCall(left, right, sw)
 }

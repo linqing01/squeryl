@@ -29,7 +29,7 @@ import org.squeryl.internals.FieldMapper
 
 class Schema(implicit val fieldMapper: FieldMapper) {
 
-  protected implicit def thisSchema = this
+  protected implicit def thisSchema: Schema = this
 
   /**
    * Contains all Table[_]s in this shema, and also all ManyToManyRelation[_,_,_]s (since they are also Table[_]s
@@ -184,7 +184,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     }
   }
 
-  def create = {
+  def create: Unit = {
     _createTables
     if (_dbAdapter.supportsForeignKeyConstraints)
       _declareForeignKeyConstraints
@@ -219,11 +219,11 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     }
   }
 
-  def createColumnGroupConstraintsAndIndexes =
+  def createColumnGroupConstraintsAndIndexes: Unit =
     for (statement <- _writeColumnGroupAttributeAssignments)
       _executeDdl(statement)
 
-  private def _dropForeignKeyConstraints = {
+  private def _dropForeignKeyConstraints: Unit = {
 
     val cs = Session.currentSession
     val dba = cs.databaseAdapter
@@ -234,7 +234,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     }
   }
 
-  private def _declareForeignKeyConstraints =
+  private def _declareForeignKeyConstraints: Unit =
     for (fk <- _foreignKeyConstraints)
       _executeDdl(fk)
 
@@ -268,7 +268,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
       )
     }
 
-  private def _createTables = {
+  private def _createTables: Unit = {
     for (t <- _tables) {
       val sw = new StatementWriter(_dbAdapter)
       _dbAdapter.writeCreateTable(t, sw, this)
@@ -279,7 +279,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     }
   }
 
-  private def _createConstraintsOfCompositePKs =
+  private def _createConstraintsOfCompositePKs: Unit =
     for (cpk <- _allCompositePrimaryKeys) {
       val createConstraintStmt = _dbAdapter.writeCompositePrimaryKeyConstraint(cpk._1, cpk._2)
       _executeDdl(createConstraintStmt)
@@ -392,7 +392,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
     fkd
   }
 
-  def applyDefaultForeignKeyPolicy(foreignKeyDeclaration: ForeignKeyDeclaration) =
+  def applyDefaultForeignKeyPolicy(foreignKeyDeclaration: ForeignKeyDeclaration): Unit =
     foreignKeyDeclaration.constrainReference()
 
   /**
@@ -419,7 +419,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
   /**
    * protected since table declarations must only be done inside a Schema
    */
-  protected def on[A](table: Table[A])(declarations: A => Seq[BaseColumnAttributeAssignment]) = {
+  protected def on[A](table: Table[A])(declarations: A => Seq[BaseColumnAttributeAssignment]): Unit = {
 
     if (table == null)
       org.squeryl.internals.Utils.throwError("on function called with null argument in " + this.getClass.getName +
@@ -611,7 +611,7 @@ class Schema(implicit val fieldMapper: FieldMapper) {
    *
    * @return a instance of ActiveRecord associated to the given object.
    */
-  implicit def anyRef2ActiveTransaction[A](a: A)(implicit queryDsl: QueryDsl, m: Manifest[A]) =
+  implicit def anyRef2ActiveTransaction[A](a: A)(implicit queryDsl: QueryDsl, m: Manifest[A]): ActiveRecord[A] =
     new ActiveRecord(a, queryDsl, m)
 
   /**

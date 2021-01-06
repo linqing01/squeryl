@@ -62,7 +62,7 @@ class PostgreSqlAdapter extends DatabaseAdapter {
   override def foreignKeyConstraintName(foreignKeyTable: Table[_], idWithinSchema: Int) =
     foreignKeyTable.name + "FK" + idWithinSchema
 
-  override def postCreateTable(t: Table[_], printSinkWhenWriteOnlyMode: Option[String => Unit]) = {
+  override def postCreateTable(t: Table[_], printSinkWhenWriteOnlyMode: Option[String => Unit]): Unit = {
 
     val autoIncrementedFields = t.posoMetaData.fieldsMetaData.filter(_.isAutoIncremented)
 
@@ -98,7 +98,7 @@ class PostgreSqlAdapter extends DatabaseAdapter {
       super.createSequenceName(fmd)
     }
 
-  override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter) =
+  override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit =
     sw.writeNodesWithSeparator(fn.args, " || ", false)
 
   override def writeInsert[T](o: T, t: Table[T], sw: StatementWriter): Unit = {
@@ -160,7 +160,7 @@ class PostgreSqlAdapter extends DatabaseAdapter {
 
   override def failureOfStatementRequiresRollback = true
 
-  override def postDropTable(t: Table[_]) = {
+  override def postDropTable(t: Table[_]): Unit = {
 
     val autoIncrementedFields = t.posoMetaData.fieldsMetaData.filter(_.isAutoIncremented)
 

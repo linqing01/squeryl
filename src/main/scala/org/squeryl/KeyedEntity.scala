@@ -163,26 +163,26 @@ class ForeignKeyDeclaration(val idWithinSchema: Int, val foreignKeyColumnName: S
   /**
    * Causes the foreign key to have no constraint 
    */
-  def unConstrainReference()(implicit ev: Schema) =
+  def unConstrainReference()(implicit ev: Schema): Unit =
     _referentialActions = None
 
   /**
    * Will cause a foreign key constraint to be created at schema creation time :
    * alter table <tableOfForeignKey> add foreign key (<foreignKey>) references <tableOfPrimaryKey>(<primaryKey>)
    */
-  def constrainReference()(implicit ev: Schema) =
+  def constrainReference()(implicit ev: Schema): Unit =
     _referentialActions = Some((None, None))
 
   /**
    * Does the same as constrainReference, plus adds a ReferentialAction (ex.: foreignKeyDeclaration.constrainReference(onDelete cascade)) 
    */
-  def constrainReference(a1: ReferentialAction)(implicit ev: Schema) =
+  def constrainReference(a1: ReferentialAction)(implicit ev: Schema): Unit =
     _referentialActions = Some((Some(a1), None))
 
   /**
    * Does the same as constrainReference, plus adds two ReferentialActions
    * (ex.: foreignKeyDeclaration.constrainReference(onDelete cascade, onUpdate restrict)) 
    */
-  def constrainReference(a1: ReferentialAction, a2: ReferentialAction)(implicit ev: Schema) =
+  def constrainReference(a1: ReferentialAction, a2: ReferentialAction)(implicit ev: Schema): Unit =
     _referentialActions = Some((Some(a1), Some(a2)))
 }

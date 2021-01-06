@@ -42,7 +42,7 @@ class LocalH2SinkStatisticsListener(val h2Session: AbstractSession) extends Stat
 
   private[this] val _worker = new Thread {
 
-    override def run() = {
+    override def run(): Unit = {
       h2Session.bindToCurrentThread
       while (!_closed) {
         val op = _queue.take
@@ -53,32 +53,32 @@ class LocalH2SinkStatisticsListener(val h2Session: AbstractSession) extends Stat
 
   _worker.start
 
-  def shutdown = _closed = true
+  def shutdown: Unit = _closed = true
 
-  private def _pushOp(op: => Unit) =
+  private def _pushOp(op: => Unit): Unit =
     if (!_closed) {
       _queue.put(() => op)
     }
     else
       throw new IllegalStateException("'LocalH2SinkStatisticsListener has been shutdown.")
 
-  def generateStatSummary(staticHtmlFile: java.io.File, n: Int) = _pushOp {
+  def generateStatSummary(staticHtmlFile: java.io.File, n: Int): Unit = _pushOp {
     BarChartRenderer.generateStatSummary(staticHtmlFile, n)
   }
 
-  def queryExecuted(se: StatementInvocationEvent) = _pushOp {
+  def queryExecuted(se: StatementInvocationEvent): Unit = _pushOp {
     StatsSchema.recordStatementInvocation(se)
     h2Session.connection.commit
   }
 
-  def resultSetIterationEnded(invocationId: String, iterationEndTime: Long, rowCount: Int, iterationCompleted: Boolean) = _pushOp {
+  def resultSetIterationEnded(invocationId: String, iterationEndTime: Long, rowCount: Int, iterationCompleted: Boolean): Unit = _pushOp {
     StatsSchema.recordEndOfIteration(invocationId, iterationEndTime: Long, rowCount: Int, iterationCompleted: Boolean)
     h2Session.connection.commit
   }
 
-  def updateExecuted(se: StatementInvocationEvent) = {}
+  def updateExecuted(se: StatementInvocationEvent): Unit = {}
 
-  def insertExecuted(se: StatementInvocationEvent) = {}
+  def insertExecuted(se: StatementInvocationEvent): Unit = {}
 
-  def deleteExecuted(se: StatementInvocationEvent) = {}
+  def deleteExecuted(se: StatementInvocationEvent): Unit = {}
 }

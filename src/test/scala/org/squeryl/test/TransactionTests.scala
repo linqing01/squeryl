@@ -12,7 +12,7 @@ class Foo(val value: String) extends KeyedEntity[Long] {
 object FooSchema extends Schema {
   val foos = table[Foo]()
 
-  def reset() = {
+  def reset(): Unit = {
     drop // its protected for some reason
     create
   }

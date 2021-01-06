@@ -47,7 +47,7 @@ class DB2Adapter extends DatabaseAdapter {
       printSinkWhenWriteOnlyMode.get.apply(sw.statement + ";")
   }
 
-  override def postDropTable(t: Table[_]) =
+  override def postDropTable(t: Table[_]): Unit =
     execFailSafeExecute("drop sequence " + sequenceName(t), e => e.getErrorCode == -204)
 
   def sequenceName(t: Table[_]) =
@@ -77,16 +77,16 @@ class DB2Adapter extends DatabaseAdapter {
     sw.write(colVals.mkString("(", ",", ")"));
   }
 
-  override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter) =
+  override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit =
     sw.writeNodesWithSeparator(fn.args, " || ", false)
 
   override def isTableDoesNotExistException(e: SQLException) = {
     e.getErrorCode == -204
   }
 
-  override def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter) = {}
+  override def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter): Unit = {}
 
-  override def writeQuery(qen: QueryExpressionElements, sw: StatementWriter) =
+  override def writeQuery(qen: QueryExpressionElements, sw: StatementWriter): Unit =
     if (qen.page == None)
       super.writeQuery(qen, sw)
     else {
@@ -119,7 +119,7 @@ class DB2Adapter extends DatabaseAdapter {
       }
     }
 
-  override def writeConcatOperator(left: ExpressionNode, right: ExpressionNode, sw: StatementWriter) = {
+  override def writeConcatOperator(left: ExpressionNode, right: ExpressionNode, sw: StatementWriter): Unit = {
     sw.write("(")
     _writeConcatOperand(left, sw)
     sw.write(" ")
@@ -129,7 +129,7 @@ class DB2Adapter extends DatabaseAdapter {
     sw.write(")")
   }
 
-  private def _writeConcatOperand(e: ExpressionNode, sw: StatementWriter) = {
+  private def _writeConcatOperand(e: ExpressionNode, sw: StatementWriter): Unit = {
     if (e.isInstanceOf[ConstantTypedExpression[_, _]]) {
       val c = e.asInstanceOf[ConstantTypedExpression[Any, Any]]
       sw.write("cast(")

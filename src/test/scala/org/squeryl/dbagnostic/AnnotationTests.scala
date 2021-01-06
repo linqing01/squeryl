@@ -75,7 +75,7 @@ class AnnotationTests extends AnyFunSuite with Matchers {
            var i: Option[Int]
          )
 
-  def allTests = {
+  def allTests: Unit = {
     //rudimentaryTests
   }
 

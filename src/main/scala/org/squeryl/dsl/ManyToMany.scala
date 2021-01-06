@@ -45,7 +45,7 @@ class StatefulOneToMany[M](val relation: OneToMany[M]) extends Iterable[M] {
 
   refresh
 
-  def refresh = {
+  def refresh: Unit = {
     _buffer.clear()
     for (m <- relation.iterator.toSeq)
       _buffer.append(m)
@@ -72,7 +72,7 @@ class StatefulManyToOne[O](val relation: ManyToOne[O]) {
 
   refresh
 
-  def refresh =
+  def refresh: Unit =
     _one = relation.iterator.toSeq.headOption
 
   def one = _one
@@ -192,7 +192,7 @@ class StatefulManyToMany[O, A](val relation: ManyToMany[O, A]) extends Iterable[
 
   refresh
 
-  def refresh = {
+  def refresh: Unit = {
     _map.clear()
     for (e <- relation.associationMap.iterator.toSeq)
       _map.put(e._1, e._2)

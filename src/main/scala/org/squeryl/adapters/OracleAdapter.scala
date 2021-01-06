@@ -48,7 +48,7 @@ class OracleAdapter extends DatabaseAdapter {
 
   override def supportsUnionQueryOptions = false
 
-  override def postCreateTable(t: Table[_], printSinkWhenWriteOnlyMode: Option[String => Unit]) = {
+  override def postCreateTable(t: Table[_], printSinkWhenWriteOnlyMode: Option[String => Unit]): Unit = {
 
     val autoIncrementedFields = t.posoMetaData.fieldsMetaData.filter(_.isAutoIncremented)
 
@@ -66,7 +66,7 @@ class OracleAdapter extends DatabaseAdapter {
     }
   }
 
-  override def postDropTable(t: Table[_]) = {
+  override def postDropTable(t: Table[_]): Unit = {
 
     val autoIncrementedFields = t.posoMetaData.fieldsMetaData.filter(_.isAutoIncremented)
 
@@ -109,10 +109,10 @@ class OracleAdapter extends DatabaseAdapter {
     sw.write(colVals.mkString("(", ",", ")"));
   }
 
-  override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter) =
+  override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit =
     sw.writeNodesWithSeparator(fn.args, " || ", false)
 
-  override def writeJoin(queryableExpressionNode: QueryableExpressionNode, sw: StatementWriter) = {
+  override def writeJoin(queryableExpressionNode: QueryableExpressionNode, sw: StatementWriter): Unit = {
     sw.write(queryableExpressionNode.joinKind.get._1)
     sw.write(" ")
     sw.write(queryableExpressionNode.joinKind.get._2)
@@ -124,9 +124,9 @@ class OracleAdapter extends DatabaseAdapter {
     queryableExpressionNode.joinExpression.get.write(sw)
   }
 
-  override def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter) = {}
+  override def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter): Unit = {}
 
-  override def writeQuery(qen: QueryExpressionElements, sw: StatementWriter) =
+  override def writeQuery(qen: QueryExpressionElements, sw: StatementWriter): Unit =
     if (qen.page == None)
       super.writeQuery(qen, sw)
     else {
@@ -215,7 +215,7 @@ class OracleAdapter extends DatabaseAdapter {
       res
     }
 
-  override def writeSelectElementAlias(se: SelectElement, sw: StatementWriter) =
+  override def writeSelectElementAlias(se: SelectElement, sw: StatementWriter): Unit =
     sw.write(shrinkTo30AndPreserveUniquenessInScope(se.aliasSegment, sw.scope))
 
   override def foreignKeyConstraintName(foreignKeyTable: Table[_], idWithinSchema: Int) = {

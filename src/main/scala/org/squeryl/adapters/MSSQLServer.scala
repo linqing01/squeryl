@@ -69,18 +69,18 @@ class MSSQLServer extends DatabaseAdapter {
   override def isTableDoesNotExistException(e: SQLException): Boolean =
     e.getErrorCode == 3701
 
-  override def writeEndOfQueryHint(isForUpdate: () => Boolean, qen: QueryExpressionElements, sw: StatementWriter) = {}
+  override def writeEndOfQueryHint(isForUpdate: () => Boolean, qen: QueryExpressionElements, sw: StatementWriter): Unit = {}
 
-  override def writeEndOfFromHint(qen: QueryExpressionElements, sw: StatementWriter) =
+  override def writeEndOfFromHint(qen: QueryExpressionElements, sw: StatementWriter): Unit =
     if (qen.isForUpdate) {
       sw.write("with(updlock, rowlock)")
       sw.pushPendingNextLine
     }
 
-  override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter) =
+  override def writeConcatFunctionCall(fn: FunctionNode, sw: StatementWriter): Unit =
     sw.writeNodesWithSeparator(fn.args, " + ", false)
 
-  override def writeConcatOperator(left: ExpressionNode, right: ExpressionNode, sw: StatementWriter) = {
+  override def writeConcatOperator(left: ExpressionNode, right: ExpressionNode, sw: StatementWriter): Unit = {
     val binaryOpNode = new BinaryOperatorNode(left, right, "+")
     binaryOpNode.doWrite(sw)
   }
@@ -141,7 +141,7 @@ class MSSQLServer extends DatabaseAdapter {
   //      println(sw.statement)
   //    }
 
-  override def writeQuery(qen: QueryExpressionElements, sw: StatementWriter) =
+  override def writeQuery(qen: QueryExpressionElements, sw: StatementWriter): Unit =
     if (qen.page == None)
       super.writeQuery(qen, sw)
     else {
@@ -154,7 +154,7 @@ class MSSQLServer extends DatabaseAdapter {
       }
     }
 
-  override def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter) = {}
+  override def writePaginatedQueryDeclaration(page: () => Option[(Int, Int)], qen: QueryExpressionElements, sw: StatementWriter): Unit = {}
 
   override def quoteIdentifier(s: String) = "[" + s + "]"
 }

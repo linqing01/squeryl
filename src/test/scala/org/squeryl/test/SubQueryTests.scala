@@ -31,7 +31,7 @@ object SubQueryTestSchema {
     val entityType = table[EntityToTypeJoins]()
     val entityEdges = table[EntityEdge]()
 
-    override def drop = {
+    override def drop: Unit = {
       Session.cleanupResources
       super.drop
     }

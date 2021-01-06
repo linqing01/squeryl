@@ -79,7 +79,7 @@ object FieldReferenceLinker {
     if (fr == null) None else fr
   }
 
-  private[squeryl] def _lastAccessedFieldReference_=(se: Option[SelectElement]) =
+  private[squeryl] def _lastAccessedFieldReference_=(se: Option[SelectElement]): Unit =
     if (se == None) {
       __lastAccessedFieldReference.remove()
     } else {
@@ -121,7 +121,7 @@ object FieldReferenceLinker {
       res
     }
 
-    def addSelectElement(e: SelectElement) =
+    def addSelectElement(e: SelectElement): Unit =
       if (!e.inhibited) {
         _utilizedFields.append(e)
         e.prepareColumnMapper(_utilizedFields.size)
@@ -133,13 +133,13 @@ object FieldReferenceLinker {
 
     def reentranceDepth = _reentranceDepth
 
-    def incrementReentranceDepth =
+    def incrementReentranceDepth: Unit =
       _reentranceDepth += 1
 
-    def decrementReentranceDepth =
+    def decrementReentranceDepth: Unit =
       _reentranceDepth -= 1
 
-    def turnOn(q: QueryExpressionNode[_], rsm: ResultSetMapper) = {
+    def turnOn(q: QueryExpressionNode[_], rsm: ResultSetMapper): Unit = {
       _reentranceDepth = 0
       queryExpressionNode = q
       _on = true
@@ -153,7 +153,7 @@ object FieldReferenceLinker {
 
   private[this] val _yieldInspectionTL = new ThreadLocal[YieldInspection]
 
-  def putLastAccessedSelectElement(e: SelectElement) = {
+  def putLastAccessedSelectElement(e: SelectElement): Unit = {
     if (isYieldInspectionMode) {
       _yieldInspectionTL.get.addSelectElement(new ExportedSelectElement(e))
     } else

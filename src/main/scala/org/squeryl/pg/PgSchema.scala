@@ -38,7 +38,7 @@ class SrfView[T](
 }
 
 class SrfViewExpressionNode[T](view: View[T], args: Iterable[ExpressionNode]) extends ViewExpressionNode(view) {
-  override def doWrite(sw: StatementWriter) = {
+  override def doWrite(sw: StatementWriter): Unit = {
     sw.write(sw.quoteName(view.prefixedName))
     sw.write("(")
     sw.writeNodesWithSeparator(args, ",", false)

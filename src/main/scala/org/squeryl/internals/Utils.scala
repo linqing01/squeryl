@@ -44,7 +44,7 @@ object Utils {
       case e: Exception => valueOnFail
     }
 
-  def close(s: Statement) =
+  def close(s: Statement): Unit =
     try {
       s.close
     }
@@ -52,7 +52,7 @@ object Utils {
       case e: SQLException => {}
     }
 
-  def close(rs: ResultSet) =
+  def close(rs: ResultSet): Unit =
     try {
       rs.close
     }
@@ -60,7 +60,7 @@ object Utils {
       case e: SQLException => {}
     }
 
-  def close(c: Connection) =
+  def close(c: Connection): Unit =
     try {
       c.close
     }

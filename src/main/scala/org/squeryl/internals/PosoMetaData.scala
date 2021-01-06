@@ -286,11 +286,11 @@ class PosoMetaData[T](val clasz: Class[T], val schema: Schema, val viewOrTable: 
   private def _includeAnnotation(a: Annotation) =
     a.isInstanceOf[ColumnBase] || a.isInstanceOf[Transient] || a.isInstanceOf[OptionType]
 
-  private def _addAnnotations(m: Field, s: HashSet[Annotation]) =
+  private def _addAnnotations(m: Field, s: HashSet[Annotation]): Unit =
     for (a <- m.getAnnotations if _includeAnnotation(a))
       s.add(a)
 
-  private def _addAnnotations(m: Method, s: HashSet[Annotation]) =
+  private def _addAnnotations(m: Method, s: HashSet[Annotation]): Unit =
     for (a <- m.getAnnotations if _includeAnnotation(a))
       s.add(a)
 

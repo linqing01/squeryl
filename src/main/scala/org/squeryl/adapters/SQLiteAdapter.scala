@@ -107,7 +107,7 @@ class SQLiteAdapter extends DatabaseAdapter {
 
   override def supportsCommonTableExpressions = false
 
-  override def writeEndOfQueryHint(isForUpdate: () => Boolean, qen: QueryExpressionElements, sw: StatementWriter) =
+  override def writeEndOfQueryHint(isForUpdate: () => Boolean, qen: QueryExpressionElements, sw: StatementWriter): Unit =
     if (isForUpdate()) {
       sw.pushPendingNextLine
     }

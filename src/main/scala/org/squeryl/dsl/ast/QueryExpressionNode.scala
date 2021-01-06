@@ -150,7 +150,7 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
 
   private def hasUnionQueryOptions = unionIsForUpdate || unionPage.isDefined
 
-  def setOutExpressionNodesAndSample(sl: Iterable[SelectElement], s: AnyRef) = {
+  def setOutExpressionNodesAndSample(sl: Iterable[SelectElement], s: AnyRef): Unit = {
     _selectList = sl
     _sample = Some(s)
 
@@ -224,8 +224,8 @@ class QueryExpressionNode[R](val _query: AbstractQuery[R],
 
   def selectList: Iterable[SelectElement] = _selectList
 
-  def doWrite(sw: StatementWriter) = {
-    def writeCompleteQuery = {
+  def doWrite(sw: StatementWriter): Unit = {
+    def writeCompleteQuery: Unit = {
       val isNotRoot = parent != None
       val isContainedInUnion = parent map (_.isInstanceOf[UnionExpressionNode]) getOrElse (false)
 

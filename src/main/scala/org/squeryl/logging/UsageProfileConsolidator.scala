@@ -63,7 +63,7 @@ object UsageProfileConsolidator {
     }
 
 
-  def printUsage = {
+  def printUsage: Unit = {
     println("Usage : ")
     println("java org.squeryl.logging.UsageProfileConsolidator <h2FileForConsolidatedStatsProfile> <list of h2 files to consolidate>")
   }

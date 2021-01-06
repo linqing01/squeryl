@@ -36,7 +36,7 @@ object UuidTests {
 
     val uuidOneToMany = oneToManyRelation(uuidAsId, uuidAsForeignKey).via(_.id === _.foreignUuid)
 
-    override def drop = {
+    override def drop: Unit = {
       Session.cleanupResources
       super.drop
     }

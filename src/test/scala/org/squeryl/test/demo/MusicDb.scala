@@ -144,7 +144,7 @@ object MusicDb extends Schema {
   val ratings = table[Rating]()
 
   // drop (schema) is normally protected... for safety, here we live dangerously !
-  override def drop = super.drop
+  override def drop: Unit = super.drop
 }
 
 class TestData {
@@ -173,7 +173,7 @@ abstract class KickTheTires extends SchemaTester with RunTestsInsideTransaction 
 
   var sharedTestData: TestData = null
 
-  override def prePopulate() = {
+  override def prePopulate(): Unit = {
     sharedTestData = new TestData()
   }
 

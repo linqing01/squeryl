@@ -184,7 +184,7 @@ abstract class AbstractQuery[R](
 
   private def _dbAdapter = Session.currentSession.databaseAdapter
 
-  def iterator = new Iterator[R] with Closeable {
+  def iterator: Iterator[R] = new Iterator[R] with Closeable {
 
     val sw = new StatementWriter(false, _dbAdapter)
     ast.write(sw)
@@ -210,7 +210,7 @@ abstract class AbstractQuery[R](
       rs.close
     }
 
-    def _next = {
+    def _next: Unit = {
       _hasNext = rs.next
 
       if (!_hasNext) { // close it since we've completed the iteration

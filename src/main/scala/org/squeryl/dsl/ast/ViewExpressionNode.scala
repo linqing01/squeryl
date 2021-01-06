@@ -69,12 +69,12 @@ class ViewExpressionNode[U](val view: View[U])
 
   private[this] var _sample: Option[U] = None
 
-  private[squeryl] def sample_=(d: U) =
+  private[squeryl] def sample_=(d: U): Unit =
     _sample = Some(d)
 
   def sample = _sample.get
 
-  def doWrite(sw: StatementWriter) =
+  def doWrite(sw: StatementWriter): Unit =
     sw.write(sw.quoteName(view.prefixedName))
 
   override def toString = {

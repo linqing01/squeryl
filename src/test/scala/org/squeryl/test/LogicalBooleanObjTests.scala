@@ -111,7 +111,7 @@ abstract class LogicalBooleanObjTests extends SchemaTester with RunTestsInsideTr
 
   }
 
-  def prepareDummyTable(vals: (Int, Int, Int)*) = {
+  def prepareDummyTable(vals: (Int, Int, Int)*): Unit = {
     for (v <- vals) TestSchema.dummy.insert(new Dummy(v._1, v._2, v._3))
   }
 

@@ -122,7 +122,7 @@ class ColumnToTupleMapper(val outMappers: Array[OutMapper[_]]) {
 
   def typeOfExpressionToString(idx: Int) = outMappers.apply(idx).typeOfExpressionToString
 
-  def activate(i: Int, jdbcIndex: Int) = {
+  def activate(i: Int, jdbcIndex: Int): Unit = {
     val m = outMappers.apply(i)
     m.isActive = true
     m.index = jdbcIndex
