@@ -1,6 +1,5 @@
 package org.squeryl.internals
 
-import com.sun.tools.javac.code.TypeTag
 import org.squeryl.Session
 import org.squeryl.dsl.{ArrayJdbcMapper, TypedExpressionFactory}
 

@@ -33,7 +33,8 @@ class BaseQueryYield[G]
 
     var i = -1
     val nodes = agregateArgs.map(e => {
-      i += 1; new TupleSelectElement(origin, e, i, isForGroup)
+      i += 1;
+      new TupleSelectElement(origin, e, i, isForGroup)
     })
 
     var o = offsetInResultSet
@@ -77,12 +78,11 @@ class BaseQueryYield[G]
 
   def computeClause: List[ExpressionNode] = List.empty
 
-  def orderByClause: Iterable[ExpressionNode] = {
+  def orderByClause: Iterable[ExpressionNode] =
     if (_orderByExpressions == null)
       List.empty
     else
       _orderByExpressions().map(c => c())
-  }
 
   def invokeYield(rsm: ResultSetMapper, rs: ResultSet): G =
     selectClosure()
@@ -101,10 +101,9 @@ class BaseQueryYield[G]
     }
 }
 
-class GroupQueryYield[K](
-                          _qe: QueryElements[_],
-                          val groupByClauseClosure: () => List[TypedExpression[_, _]]
-                        )
+class GroupQueryYield[K]
+(_qe: QueryElements[_],
+ val groupByClauseClosure: () => List[TypedExpression[_, _]])
   extends BaseQueryYield[Group[K]](_qe, null)
     with GroupByState[K]
     with HavingState[K]

@@ -16,7 +16,9 @@
 package org.squeryl.dsl.ast
 
 
-class OuterJoinExpression(val queryableExpressionNode: QueryableExpressionNode, val leftRightOrFull: String, val matchExpression: ExpressionNode) {
-
+class OuterJoinExpression
+(
+  val queryableExpressionNode: QueryableExpressionNode, val leftRightOrFull: String,
+  val matchExpression: ExpressionNode) {
   def inhibited: Boolean = queryableExpressionNode.inhibited
 }

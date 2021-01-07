@@ -46,7 +46,7 @@ class FieldMetaData(
                      val isOptimisticCounter: Boolean,
                      val sampleValue: Any) {
 
-  def nativeJdbcType =
+  def nativeJdbcType: Class[_] =
     this.schema.fieldMapper.nativeJdbcTypeFor(wrappedFieldType)
 
   /**

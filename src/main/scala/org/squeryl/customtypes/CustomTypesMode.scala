@@ -15,8 +15,6 @@
  * **************************************************************************** */
 package org.squeryl.customtypes
 
-;
-
 
 import org.squeryl.dsl._
 import org.squeryl.internals.FieldMapper
@@ -36,11 +34,12 @@ trait CustomTypesMode extends QueryDsl with FieldMapper {
 
   private[this] val ps = PrimitiveTypeSupport
 
-  val stringTEF: NonPrimitiveJdbcMapper[String, StringField, TString] = new NonPrimitiveJdbcMapper[String, StringField, TString](ps.stringTEF, this) {
-    def convertFromJdbc(v: String) = StringField(v)
+  val stringTEF: NonPrimitiveJdbcMapper[String, StringField, TString] =
+    new NonPrimitiveJdbcMapper[String, StringField, TString](ps.stringTEF, this) {
+      def convertFromJdbc(v: String) = StringField(v)
 
-    def convertToJdbc(v: StringField) = v.value
-  }
+      def convertToJdbc(v: StringField) = v.value
+    }
 
   val optionStringTEF: TypedExpressionFactory[Option[StringField], TOptionString] with DeOptionizer[String, StringField, TString, Option[StringField], TOptionString] = new TypedExpressionFactory[Option[StringField], TOptionString] with DeOptionizer[String, StringField, TString, Option[StringField], TOptionString] {
     val deOptionizer = stringTEF
@@ -91,7 +90,7 @@ trait CustomTypesMode extends QueryDsl with FieldMapper {
   val floatTEF: NonPrimitiveJdbcMapper[Float, FloatField, TFloat] with FloatTypedExpressionFactory[FloatField, TFloat] = new NonPrimitiveJdbcMapper[Float, FloatField, TFloat](ps.floatTEF, this) with FloatTypedExpressionFactory[FloatField, TFloat] {
     def convertFromJdbc(v: Float) = FloatField(v)
 
-    def convertToJdbc(v: FloatField) = v.value
+    def convertToJdbc(v: FloatField): Float = v.value
   }
 
   val optionFloatTEF: FloatTypedExpressionFactory[Option[FloatField], TOptionFloat] with DeOptionizer[Float, FloatField, TFloat, Option[FloatField], TOptionFloat] = new FloatTypedExpressionFactory[Option[FloatField], TOptionFloat] with DeOptionizer[Float, FloatField, TFloat, Option[FloatField], TOptionFloat] {
@@ -158,52 +157,28 @@ trait CustomTypesMode extends QueryDsl with FieldMapper {
   }
 
   implicit def stringToTE(s: String): TypedExpression[StringField, TString] = stringTEF.createFromNativeJdbcValue(s)
-
   implicit def optionStringToTE(s: Option[String]): Option[StringField] = s.map(StringField)
-
-
   implicit def dateToTE(s: Date): TypedExpression[DateField, TDate] = dateTEF.createFromNativeJdbcValue(s)
-
   implicit def optionDateToTE(s: Option[Date]): Option[DateField] = s.map(DateField)
-
   implicit def timestampToTE(s: Timestamp): TypedExpression[TimestampField, TTimestamp] = timestampTEF.createFromNativeJdbcValue(s)
-
   implicit def optionTimestampToTE(s: Option[Timestamp]): Option[TimestampField] = s.map(TimestampField)
-
   implicit def booleanToTE(s: Boolean): TypedExpression[BooleanField, TBoolean] = booleanTEF.createFromNativeJdbcValue(s)
-
   implicit def optionBooleanToTE(s: Option[Boolean]): Option[BooleanField] = s.map(BooleanField)
-
   implicit def uuidToTE(s: UUID): TypedExpression[UuidField, TUUID] = uuidTEF.createFromNativeJdbcValue(s)
-
   implicit def optionUUIDToTE(s: Option[UUID]): Option[UuidField] = s.map(UuidField)
-
-
   implicit def byteToTE(f: Byte): TypedExpression[ByteField, TByte] = byteTEF.createFromNativeJdbcValue(f)
-
   implicit def optionByteToTE(f: Option[Byte]): Option[ByteField] = f.map(ByteField)
-
   implicit def intToTE(f: IntField): TypedExpression[IntField, TInt] = intTEF.create(f)
-
   implicit def optionIntToTE(f: Option[IntField]): TypedExpression[Option[IntField], TOptionInt] = optionIntTEF.create(f)
-
   //implicit def _intToTE(f: Int) = intTEF.createFromNativeJdbcValue(f)
   //implicit def _optionIntToTE(f: Option[Int]) = f.map(new IntField(_))
-
   implicit def longToTE(f: Long): TypedExpression[LongField, TLong] = longTEF.createFromNativeJdbcValue(f)
-
   implicit def optionLongToTE(f: Option[Long]): Option[LongField] = f.map(LongField)
-
   implicit def floatToTE(f: Float): TypedExpression[FloatField, TFloat] = floatTEF.createFromNativeJdbcValue(f)
-
   implicit def optionFloatToTE(f: Option[Float]): Option[FloatField] = f.map(FloatField)
-
   implicit def doubleToTE(f: Double): TypedExpression[DoubleField, TDouble] = doubleTEF.createFromNativeJdbcValue(f)
-
   implicit def optionDoubleToTE(f: Option[Double]): Option[DoubleField] = f.map(DoubleField)
-
   implicit def bigDecimalToTE(f: BigDecimal): TypedExpression[BigDecimalField, TBigDecimal] = bigDecimalTEF.createFromNativeJdbcValue(f)
-
   implicit def optionBigDecimalToTE(f: Option[BigDecimal]): Option[BigDecimalField] = f.map(BigDecimalField)
 }
 

@@ -117,38 +117,14 @@ trait FieldMapper {
 
     // =========================== Numerical Integral =========================== 
 
-    val byteTEF: IntegralTEF[Byte, TByte, Float, TFloat] = IntegralTEF(1, 1, _.getByte, floatTEF)
+    val byteTEF: IntegralTEF[Byte, TByte] = IntegralTEF(1, 1, _.getByte, floatTEF)
+    val optionByteTEF: IntegralTEFO[Byte, TByte, TOptionByte] = IntegralTEFO(byteTEF)
 
-    val optionByteTEF: IntegralTypedExpressionFactory[Option[Byte], TOptionByte, Option[Float], TOptionFloat] with DeOptionizer[Byte, Byte, TByte, Option[Byte], TOptionByte] = new IntegralTypedExpressionFactory[Option[Byte], TOptionByte, Option[Float], TOptionFloat] with DeOptionizer[Byte, Byte, TByte, Option[Byte], TOptionByte] {
-      val deOptionizer: TypedExpressionFactory[Byte, TByte] with JdbcMapper[Byte, Byte] = byteTEF
-      val floatifyer: TypedExpressionFactory[Option[Float], TOptionFloat] = optionFloatTEF
-    }
+    val intTEF: IntegralTEF[Int, TInt] = IntegralTEF(1, 4, _.getInt, floatTEF)
+    val optionIntTEF: IntegralTEFO[Int, TInt, TOptionInt] = IntegralTEFO(intTEF)
 
-    val intTEF: IntegralTypedExpressionFactory[Int, TInt, Float, TFloat] with PrimitiveJdbcMapper[Int] = new IntegralTypedExpressionFactory[Int, TInt, Float, TFloat] with PrimitiveJdbcMapper[Int] {
-      val sample = 1
-      val defaultColumnLength = 4
-      val floatifyer = floatTEF
-
-      def extractNativeJdbcValue(rs: ResultSet, i: Int) = rs.getInt(i)
-    }
-
-    val optionIntTEF: IntegralTypedExpressionFactory[Option[Int], TOptionInt, Option[Float], TOptionFloat] with DeOptionizer[Int, Int, TInt, Option[Int], TOptionInt] = new IntegralTypedExpressionFactory[Option[Int], TOptionInt, Option[Float], TOptionFloat] with DeOptionizer[Int, Int, TInt, Option[Int], TOptionInt] {
-      val deOptionizer: TypedExpressionFactory[Int, TInt] with JdbcMapper[Int, Int] = intTEF
-      val floatifyer: TypedExpressionFactory[Option[Float], TOptionFloat] = optionFloatTEF
-    }
-
-    val longTEF: IntegralTypedExpressionFactory[Long, TLong, Double, TDouble] with PrimitiveJdbcMapper[Long] = new IntegralTypedExpressionFactory[Long, TLong, Double, TDouble] with PrimitiveJdbcMapper[Long] {
-      val sample = 1L
-      val defaultColumnLength = 8
-      val floatifyer = doubleTEF
-
-      def extractNativeJdbcValue(rs: ResultSet, i: Int) = rs.getLong(i)
-    }
-
-    val optionLongTEF: IntegralTypedExpressionFactory[Option[Long], TOptionLong, Option[Double], TOptionDouble] with DeOptionizer[Long, Long, TLong, Option[Long], TOptionLong] = new IntegralTypedExpressionFactory[Option[Long], TOptionLong, Option[Double], TOptionDouble] with DeOptionizer[Long, Long, TLong, Option[Long], TOptionLong] {
-      val deOptionizer: TypedExpressionFactory[Long, TLong] with JdbcMapper[Long, Long] = longTEF
-      val floatifyer: TypedExpressionFactory[Option[Double], TOptionDouble] = optionDoubleTEF
-    }
+    val longTEF: IntegralTEF[Long, TLong] = IntegralTEF(1, 4, _.getLong, floatTEF)
+    val optionLongTEF: IntegralTEFO[Long, TLong, TOptionLong] = IntegralTEFO(longTEF)
 
     // =========================== Numerical Floating Point =========================== 
 

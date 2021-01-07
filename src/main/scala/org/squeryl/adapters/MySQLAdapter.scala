@@ -22,22 +22,18 @@ import org.squeryl.{InternalFieldMapper, ReferentialAction, Table}
 import java.sql.SQLException
 
 class MySQLAdapter extends DatabaseAdapter {
-
   override def isFullOuterJoinSupported = false
-
   override def floatTypeDeclaration = "float"
-
   override def binaryTypeDeclaration = "blob"
-
   override def timestampTypeDeclaration = "datetime"
 
-  override def writeForeignKeyDeclaration(
-                                           foreignKeyTable: Table[_], foreignKeyColumnName: String,
-                                           primaryKeyTable: Table[_], primaryKeyColumnName: String,
-                                           referentialAction1: Option[ReferentialAction],
-                                           referentialAction2: Option[ReferentialAction],
-                                           fkId: Int): String = {
-
+  override def writeForeignKeyDeclaration
+  (
+    foreignKeyTable: Table[_], foreignKeyColumnName: String,
+    primaryKeyTable: Table[_], primaryKeyColumnName: String,
+    referentialAction1: Option[ReferentialAction],
+    referentialAction2: Option[ReferentialAction],
+    fkId: Int): String = {
     val sb = new java.lang.StringBuilder(256)
 
     sb.append("alter table ")

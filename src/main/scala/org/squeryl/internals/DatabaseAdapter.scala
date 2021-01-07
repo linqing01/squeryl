@@ -332,7 +332,6 @@ trait DatabaseAdapter {
   def supportsCommonTableExpressions = true
 
   def writeCreateTable[T](t: Table[T], sw: StatementWriter, schema: Schema): Unit = {
-
     sw.write("create table ")
     sw.write(quoteName(t.prefixedName))
     sw.write(" (\n")

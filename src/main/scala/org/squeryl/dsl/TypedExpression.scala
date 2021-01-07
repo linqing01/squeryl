@@ -16,6 +16,7 @@
 package org.squeryl.dsl
 
 import org.squeryl.customtypes.CustomTypesMode.optionFloatTEF
+import org.squeryl.customtypes.FloatField
 import org.squeryl.{Query, Schema, Session}
 import org.squeryl.dsl.ast._
 import org.squeryl.internals.{AttributeValidOnNumericalColumn, Utils, _}
@@ -326,7 +327,8 @@ trait PrimitiveJdbcMapper[A] extends JdbcMapper[A, A] {
   def nativeJdbcType: Class[_ <: AnyRef] = sample.asInstanceOf[AnyRef].getClass
 }
 
-abstract class NonPrimitiveJdbcMapper[P, A, T](val primitiveMapper: PrimitiveJdbcMapper[P], val fieldMapper: FieldMapper) extends JdbcMapper[P, A] with TypedExpressionFactory[A, T] {
+abstract class NonPrimitiveJdbcMapper[P, A, T](val primitiveMapper: PrimitiveJdbcMapper[P], val fieldMapper: FieldMapper)
+  extends JdbcMapper[P, A] with TypedExpressionFactory[A, T] {
   self: TypedExpressionFactory[A, T] =>
 
   def extractNativeJdbcValue(rs: ResultSet, i: Int): P = primitiveMapper.extractNativeJdbcValue(rs, i)
@@ -393,15 +395,19 @@ trait IntegralTypedExpressionFactory[A1, T1, A2, T2]
   def floatifyer: TypedExpressionFactory[A2, T2]
 }
 
-final case class IntegralTEF[A1, T1, A2, T2](sample: A1, defaultColumnLength: Int,
-                                             extractor: ResultSet => Int => A1, floatifier: TypedExpressionFactory[A2, T2])
-  extends IntegralTypedExpressionFactory[A1, T1, A2, T2] with PrimitiveJdbcMapper[A1] {
+final case class IntegralTEF[A1, T1](sample: A1, defaultColumnLength: Int,
+                                     extractor: ResultSet => Int => A1, theFloatifier: TypedExpressionFactory[Float, TFloat])
+  extends IntegralTypedExpressionFactory[A1, T1, Float, TFloat] with PrimitiveJdbcMapper[A1] {
   def extractNativeJdbcValue(rs: ResultSet, i: Int): A1 = extractor(rs)(i)
 
-  override def floatifyer: TypedExpressionFactory[A2, T2] = floatifier
+  override def floatifyer: TypedExpressionFactory[Float, TFloat] = theFloatifier
 }
-// TODO
-//final case class IntegralTEFO[A, TA, OTA, F, OTF](floatifyer: TEF[Option[F], OTF], deOptionizer: TEF[A, A])
+
+final case class IntegralTEFO[A1, T0, T1](deOptionizer: TEF[A1, T0])
+  extends IntegralTypedExpressionFactory[Option[A1], T1, Option[FloatField], TOptionFloat]
+    with DeOptionizer[A1, A1, T0, Option[A1], T1] {
+  override def floatifyer: TypedExpressionFactory[Option[FloatField], TOptionFloat] = optionFloatTEF
+}
 
 trait DeOptionizer[P1, A1, T1, A2 >: Option[A1] <: Option[A1], T2] extends JdbcMapper[P1, A2] {
   self: TypedExpressionFactory[A2, T2] =>
@@ -449,11 +455,6 @@ class NvlNode[A, T](e1: TypedExpression[_, _], e2: TypedExpression[A, T])
 
   override def doWrite(sw: StatementWriter): Unit =
     sw.databaseAdapter.writeNvlCall(left, right, sw)
-}
-
-final case class TEF[A, TA](sample: A, defaultColumnLength: Int, extractor: ResultSet => Int => A)
-  extends TypedExpressionFactory[A, TA] with PrimitiveJdbcMapper[A] {
-  def extractNativeJdbcValue(rs: ResultSet, i: Int): A = extractor(rs)(i)
 }
 
 final case class TEFO[A, TA, TOA](deOptionizer: TEF[A, TA])

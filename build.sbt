@@ -6,22 +6,22 @@ organization := "org.squeryl"
 
 version := "0.9.16"
 
-javacOptions := Seq("-source", "1.6", "-target", "1.6")
+javacOptions := Seq("-source", "1.8", "-target", "1.8")
 
 //only release *if* -Drelease=true is passed to JVM
 version := {
   val v = version.value
-  val release = Option(System.getProperty("release")) == Some("true")
-  if(release)
+  val release = Option(System.getProperty("release")).contains("true")
+  if (release)
     v
   else {
     val suffix = Option(System.getProperty("suffix"))
     val i = (v.indexOf('-'), v.length) match {
       case (x, l) if x < 0 => l
-      case (x, l) if v substring (x+1) matches """\d+""" => l //patch level, not RCx
+      case (x, l) if v substring (x + 1) matches """\d+""" => l //patch level, not RCx
       case (x, _) => x
     }
-    v.substring(0,i) + "-" + (suffix getOrElse "SNAPSHOT")
+    v.substring(0, i) + "-" + (suffix getOrElse "SNAPSHOT")
   }
 }
 
@@ -35,7 +35,7 @@ scalaVersion := Scala213
 
 crossScalaVersions := Seq(Scala213)
 
-scalacOptions in (Compile, doc) ++= {
+scalacOptions in(Compile, doc) ++= {
   val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
   val hash = sys.process.Process("git rev-parse HEAD").lineStream_!.head
   Seq("-sourcepath", base, "-doc-source-url", "https://github.com/squeryl/squeryl/tree/" + hash + "€{FILE_PATH}.scala")
@@ -85,7 +85,7 @@ val unusedWarnings = Def.setting(
 scalacOptions ++= unusedWarnings.value
 
 Seq(Compile, Test).flatMap(c =>
-  scalacOptions in (c, console) --= unusedWarnings.value
+  scalacOptions in(c, console) --= unusedWarnings.value
 )
 
 licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
@@ -93,21 +93,21 @@ licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.tx
 homepage := Some(url("https://squeryl.org"))
 
 pomExtra := (<scm>
-               <url>git@github.com:squeryl/squeryl.git</url>
-               <connection>scm:git:git@github.com:squeryl/squeryl.git</connection>
-             </scm>
-             <developers>
-               <developer>
-                 <id>max-l</id>
-                 <name>Maxime Lévesque</name>
-                 <url>https://github.com/max-l</url>
-               </developer>
-               <developer>
-                 <id>davewhittaker</id>
-                 <name>Dave Whittaker</name>
-                 <url>https://github.com/davewhittaker</url>
-               </developer>
-             </developers>)
+  <url>git@github.com:squeryl/squeryl.git</url>
+  <connection>scm:git:git@github.com:squeryl/squeryl.git</connection>
+</scm>
+  <developers>
+    <developer>
+      <id>max-l</id>
+      <name>Maxime Lévesque</name>
+      <url>https://github.com/max-l</url>
+    </developer>
+    <developer>
+      <id>davewhittaker</id>
+      <name>Dave Whittaker</name>
+      <url>https://github.com/davewhittaker</url>
+    </developer>
+  </developers>)
 
 credentials ~= { c =>
   (Option(System.getenv().get("SONATYPE_USERNAME")), Option(System.getenv().get("SONATYPE_PASSWORD"))) match {

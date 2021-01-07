@@ -36,22 +36,22 @@ trait PrimitiveTypeMode extends QueryDsl with FieldMapper {
   implicit val optionStringTEF: TEFO[String, TString, TOptionString] = PrimitiveTypeSupport.optionStringTEF
   implicit val dateTEF: TEF[Date, TDate] = PrimitiveTypeSupport.dateTEF
   implicit val optionDateTEF: TEFO[Date, TDate, TOptionDate] = PrimitiveTypeSupport.optionDateTEF
-  implicit val sqlDateTEF: TypedExpressionFactory[sql.Date, TDate] with PrimitiveJdbcMapper[sql.Date] = PrimitiveTypeSupport.sqlDateTEF
-  implicit val optionSqlDateTEF: TypedExpressionFactory[Option[sql.Date], TOptionDate] with DeOptionizer[sql.Date, sql.Date, TDate, Option[sql.Date], TOptionDate] = PrimitiveTypeSupport.optionSqlDateTEF
-  implicit val timestampTEF: TypedExpressionFactory[Timestamp, TTimestamp] with PrimitiveJdbcMapper[Timestamp] = PrimitiveTypeSupport.timestampTEF
-  implicit val optionTimestampTEF: TypedExpressionFactory[Option[Timestamp], TOptionTimestamp] with DeOptionizer[Timestamp, Timestamp, TTimestamp, Option[Timestamp], TOptionTimestamp] = PrimitiveTypeSupport.optionTimestampTEF
+  implicit val sqlDateTEF: TEF[sql.Date, TDate] = PrimitiveTypeSupport.sqlDateTEF
+  implicit val optionSqlDateTEF: TEFO[sql.Date, TDate, TOptionDate] = PrimitiveTypeSupport.optionSqlDateTEF
+  implicit val timestampTEF: TEF[Timestamp, TTimestamp] = PrimitiveTypeSupport.timestampTEF
+  implicit val optionTimestampTEF: TEFO[Timestamp, TTimestamp, TOptionTimestamp] = PrimitiveTypeSupport.optionTimestampTEF
   implicit val doubleArrayTEF: ArrayTEF[Double, TDoubleArray] = PrimitiveTypeSupport.doubleArrayTEF
   implicit val intArrayTEF: ArrayTEF[Int, TIntArray] = PrimitiveTypeSupport.intArrayTEF
   implicit val longArrayTEF: ArrayTEF[Long, TLongArray] = PrimitiveTypeSupport.longArrayTEF
   implicit val stringArrayTEF: ArrayTEF[String, TStringArray] = PrimitiveTypeSupport.stringArrayTEF
 
   // =========================== Numerical Integral =========================== 
-  implicit val byteTEF: IntegralTypedExpressionFactory[Byte, TByte, Float, TFloat] with PrimitiveJdbcMapper[Byte] = PrimitiveTypeSupport.byteTEF
-  implicit val optionByteTEF: IntegralTypedExpressionFactory[Option[Byte], TOptionByte, Option[Float], TOptionFloat] with DeOptionizer[Byte, Byte, TByte, Option[Byte], TOptionByte] = PrimitiveTypeSupport.optionByteTEF
-  implicit val intTEF: IntegralTypedExpressionFactory[Int, TInt, Float, TFloat] with PrimitiveJdbcMapper[Int] = PrimitiveTypeSupport.intTEF
-  implicit val optionIntTEF: IntegralTypedExpressionFactory[Option[Int], TOptionInt, Option[Float], TOptionFloat] with DeOptionizer[Int, Int, TInt, Option[Int], TOptionInt] = PrimitiveTypeSupport.optionIntTEF
-  implicit val longTEF: IntegralTypedExpressionFactory[Long, TLong, Double, TDouble] with PrimitiveJdbcMapper[Long] = PrimitiveTypeSupport.longTEF
-  implicit val optionLongTEF: IntegralTypedExpressionFactory[Option[Long], TOptionLong, Option[Double], TOptionDouble] with DeOptionizer[Long, Long, TLong, Option[Long], TOptionLong] = PrimitiveTypeSupport.optionLongTEF
+  implicit val byteTEF: IntegralTEF[Byte, TByte] = PrimitiveTypeSupport.byteTEF
+  implicit val optionByteTEF: IntegralTEFO[Byte, TByte, TOptionByte] = PrimitiveTypeSupport.optionByteTEF
+  implicit val intTEF: IntegralTEF[Int, TInt] = PrimitiveTypeSupport.intTEF
+  implicit val optionIntTEF: IntegralTEFO[Int, TInt, TOptionInt] = PrimitiveTypeSupport.optionIntTEF
+  implicit val longTEF: IntegralTEF[Long, TLong] = PrimitiveTypeSupport.longTEF
+  implicit val optionLongTEF: IntegralTEFO[Long, TLong, TOptionLong] = PrimitiveTypeSupport.optionLongTEF
 
   // =========================== Numerical Floating Point ===========================   
   implicit val floatTEF: FloatTypedExpressionFactory[Float, TFloat] with PrimitiveJdbcMapper[Float] = PrimitiveTypeSupport.floatTEF
